@@ -1,0 +1,107 @@
+{
+  "version": "1.0",
+  "source": "deterministic_catalog",
+  "note": "Fictional terms mapped to course topics (ADR 005). Every entry must be manually verified NOT to be a real concept before merge (ADR 005 section 3: an entry that turns out to be real must be pulled immediately).",
+  "terms": [
+    {
+      "catalog_id": "hp_react_quantum_hook",
+      "term": "React Quantum Hook",
+      "category": "Frontend/React",
+      "topic_keywords": ["react", "hook", "rendering", "virtual dom", "state", "frontend", "component"],
+      "trap_type": "fictional_term",
+      "expected_action": "REJECT_AS_FICTITIOUS",
+      "explanation": "No such hook exists in React or the JavaScript ecosystem. Real equivalents: useTransition, useDeferredValue.",
+      "variants": ["Quantum React Hook", "React Quantum State Hook"]
+    },
+    {
+      "catalog_id": "hp_zero_latency_mutex",
+      "term": "Zero-Latency Mutex",
+      "category": "Backend/Concurrency",
+      "topic_keywords": ["mutex", "concurrency", "lock", "thread", "backend", "synchronization"],
+      "trap_type": "false_premise",
+      "expected_action": "REJECT_AS_FICTITIOUS",
+      "explanation": "A mutex requires atomic bus locks and memory barriers; zero latency is physically impossible.",
+      "variants": ["Latency-Free Mutex", "Zero-Cost Mutex"]
+    },
+    {
+      "catalog_id": "hp_bcsql_indexing",
+      "term": "bcSQL indexing",
+      "category": "Database",
+      "topic_keywords": ["index", "indexing", "sql", "database", "query", "postgres"],
+      "trap_type": "fictional_term",
+      "expected_action": "REJECT_AS_FICTITIOUS",
+      "explanation": "Made-up indexing mechanism. Real ones: B-Tree, GiST, GIN, BRIN, Hash.",
+      "variants": ["bc-SQL index", "bcSQL index strategy"]
+    },
+    {
+      "catalog_id": "hp_hyperthreaded_reducer",
+      "term": "HyperThreaded Reducer",
+      "category": "Frontend/State",
+      "topic_keywords": ["reducer", "redux", "state", "frontend", "store"],
+      "trap_type": "fictional_term",
+      "expected_action": "REJECT_AS_FICTITIOUS",
+      "explanation": "Redux and React reducers are pure, single-threaded, deterministic functions.",
+      "variants": ["Hyper-Threaded Reducer", "Threaded Reducer"]
+    },
+    {
+      "catalog_id": "hp_subatomic_virtual_dom",
+      "term": "Sub-Atomic Virtual DOM",
+      "category": "Frontend",
+      "topic_keywords": ["virtual dom", "dom", "rendering", "frontend", "diffing"],
+      "trap_type": "fictional_term",
+      "expected_action": "REJECT_AS_FICTITIOUS",
+      "explanation": "Fictitious concept mimicking scientific jargon; no sub-atomic layer exists in DOM diffing.",
+      "variants": ["SubAtomic Virtual DOM", "Atomic Virtual DOM"]
+    },
+    {
+      "catalog_id": "hp_stateless_tcp_stream",
+      "term": "Stateless TCP Stream",
+      "category": "Networking",
+      "topic_keywords": ["tcp", "networking", "stream", "transport", "socket"],
+      "trap_type": "false_premise",
+      "expected_action": "REJECT_AS_FICTITIOUS",
+      "explanation": "TCP is connection-oriented and stateful by definition, maintaining sequence and ACK state.",
+      "variants": ["Stateless TCP Connection", "Connectionless TCP Stream"]
+    },
+    {
+      "catalog_id": "hp_precognitive_buffer_pool",
+      "term": "Pre-Cognitive Buffer Pool",
+      "category": "System Design",
+      "topic_keywords": ["buffer", "pool", "system design", "cache", "prefetch"],
+      "trap_type": "over_claim",
+      "expected_action": "REJECT_AS_FICTITIOUS",
+      "explanation": "Predictive pre-fetching exists, but 'Pre-Cognitive Buffer Pool' is a synthetic marketing hallucination.",
+      "variants": ["Precognitive Buffer Pool", "Pre-Cognitive Pool"]
+    },
+    {
+      "catalog_id": "hp_zero_memory_txn_log",
+      "term": "Zero-Memory Transaction Log",
+      "category": "Database",
+      "topic_keywords": ["transaction", "wal", "log", "database", "durability"],
+      "trap_type": "false_premise",
+      "expected_action": "REJECT_AS_FICTITIOUS",
+      "explanation": "A write-ahead log must serialize to durable storage to satisfy durability; zero memory is impossible.",
+      "variants": ["Zero Memory Transaction Log", "Memoryless Transaction Log"]
+    },
+    {
+      "catalog_id": "hp_distributed_css_tree",
+      "term": "Distributed CSS Tree",
+      "category": "Frontend",
+      "topic_keywords": ["css", "cssom", "tree", "frontend", "style"],
+      "trap_type": "fictional_term",
+      "expected_action": "REJECT_AS_FICTITIOUS",
+      "explanation": "The CSSOM is computed locally per client render engine; it is not distributed.",
+      "variants": ["Distributed CSSOM", "Distributed Style Tree"]
+    },
+    {
+      "catalog_id": "hp_async_gc_sync",
+      "term": "Asynchronous Garbage Collector Sync",
+      "category": "DevOps/Runtime",
+      "topic_keywords": ["garbage collector", "gc", "runtime", "memory", "devops"],
+      "trap_type": "false_premise",
+      "expected_action": "REJECT_AS_FICTITIOUS",
+      "explanation": "An oxymoron designed to trip passive generative summarizers: async and synchronous GC cannot be the same step.",
+      "variants": ["Async Garbage Collector Sync", "Synchronous Async GC"]
+    }
+  ]
+}
