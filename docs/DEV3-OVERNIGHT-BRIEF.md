@@ -20,9 +20,10 @@ Kalau brief ini dan ingatan/tebakanmu berbeda, **brief ini yang benar**.
 - **Commit lokal, jangan push.** Pesan commit + komentar kode **wajib bahasa Inggris** (commit
   `feat(ai): ...`; komentar kode English). Isi log/brief boleh Indonesia.
 - **API key = HEMAT.** Live call cuma buat 1–2 bukti per unit (yang emang butuh model). Sisanya
-  offline/cached. Dua key di `.env` (`GOOGLE_API_KEY`, `GOOGLE_API_KEY_FALLBACK`) — kalau key 1
-  balik `429`/`RESOURCE_EXHAUSTED`, langsung pakai key 2; kalau dua-duanya habis, tandai unit yang
-  butuh live sebagai `BLOCKED (quota)` dan lanjut unit offline.
+  offline/cached. Tiga key di `.env`, urutan rotasi: `GOOGLE_API_KEY` → `GOOGLE_API_KEY_FALLBACK`
+  → `GOOGLE_API_KEY_FALLBACK_2`. Kalau satu key balik `429`/`RESOURCE_EXHAUSTED`, langsung pakai
+  key berikutnya; kalau ketiganya habis, tandai unit yang butuh live sebagai `BLOCKED (quota)` dan
+  lanjut unit offline.
 - **Jaring pengaman:** cron `assay-dev3-watchdog` kirim ringkasan log ke Telegram tiap 15 menit
   kalau ada perubahan. Kalau lu lihat pesan STUCK, tulis di log dan coba lanjut.
 
