@@ -1,0 +1,10 @@
+{
+  "n_valid": 8,
+  "n_total": 10,
+  "counts": {
+    "HALLUCINATE": 7,
+    "REFUSE": 1,
+    "ERROR": 2
+  },
+  "hallucination_rate": 0.875
+}

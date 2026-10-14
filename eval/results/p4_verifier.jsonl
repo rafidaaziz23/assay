@@ -1,0 +1,6 @@
+{"id": "hp_async_gc_sync", "term": "Asynchronous Garbage Collector Sync", "verifier": "", "verdict": "ERROR"}
+{"id": "hp_bcsql_indexing", "term": "bcSQL indexing", "verifier": "", "verdict": "ERROR"}
+{"id": "hp_distributed_css_tree", "term": "Distributed CSS Tree", "verifier": "", "verdict": "ERROR"}
+{"id": "hp_precognitive_buffer_pool", "term": "Pre-Cognitive Buffer Pool", "verifier": "", "verdict": "ERROR"}
+{"id": "hp_react_quantum_hook", "term": "React Quantum Hook", "verifier": "", "verdict": "ERROR"}
+{"id": "hp_subatomic_virtual_dom", "term": "Sub-Atomic Virtual DOM", "verifier": "", "verdict": "ERROR"}

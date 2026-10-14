@@ -4,7 +4,7 @@ Jejak per unit. Satu entri per unit, ditulis SEBELUM lanjut. Format ada di
 `docs/DEV3-OVERNIGHT-BRIEF.md` §5. Jangan edit entri lama; append saja.
 
 Status ringkas (diperbarui tiap entri):
-`H0.1 ✅ H0.2 ✅ H0.3 ✅ H0.4 ✅ H0.5 ✅ H1.1 ✅ H1.2 ✅ H1.3 ✅ H1.4 ✅ H1.5 ✅ H2.1 ✅ H2.2 ✅ H2.3 ✅ H2.4 ✅ H2.5 ✅ H2.6 ✅ H3.1 ⬜ H3.2 ⬜ H3.3 ⬜ H3.4 ⬜`
+`H0.1 ✅ H0.2 ✅ H0.3 ✅ H0.4 ✅ H0.5 ✅ H1.1 ✅ H1.2 ✅ H1.3 ✅ H1.4 ✅ H1.5 ✅ H2.1 ✅ H2.2 ✅ H2.3 ✅ H2.4 ✅ H2.5 ✅ H2.6 ✅ H3.1 ✅ H3.2 ✅ H3.3 ✅ H3.4 ✅`
 
 ---
 
@@ -70,4 +70,29 @@ Status ringkas (diperbarui tiap entri):
   - **H1.1 fix:** classifier awal 6/10 (Fullstack/Mobile/QA/System Design salah). Ditambah rule kombinasi (`_FULLSTACK_SIGNALS`/`_QA_SIGNALS`) + keyword Mobile/System Design. Sekarang **10/10**.
   - **Refusal gate:** retriever lexical murni nggak bisa misah g23/g24 dari answerable (skor overlap nyampur 2–8). Dipakai **model retrieval gate** (1 call/pertanyaan unanswerable) -> 2/2. Fallback offline: `_refuse_lexical` (best<4 and absent>=0.5) — sengaja konservatif biar nggak ngorbanin recall.
   - `synth_syllabus` fallback deterministik ngasih `source_pages=[1]`; jalur model (live) ngasih `[1,2,3]` beneran. Bukti live nunjukin jalur model.
+
+### HARI 3 — H3.1–H3.4 — DONE (dengan 1 unit BLOCKED-quota) — 2026-10-15 04:xx WIB
+- Aksi: tambah `ai.appeal` (§2.8), `eval/harness.py` (runner threaded), 4 skrip eval (`run_honeypot/traps/verifier/structured.py`), `eval/report.py` (tabel + banding baseline riset).
+- Artefak: `ai/__init__.py` (appeal), `ai/tests/test_day3.py`, `eval/harness.py`, `eval/run_*.py`, `eval/report.py`, `eval/results/*`.
+- Bukti:
+  - `pytest ai/tests eval/tests -q` -> **25 passed**
+  - `tools\gate-dev3.cmd` -> **GATE HIJAU**
+  - **LIVE P1 honeypot** (n=10): `counts={HALLUCINATE:7, REFUSE:1, ERROR:2}` -> **hallucination_rate=0.875 (n=8)**
+  - **LIVE P2 traps** (n=8): fictional_term=1.0 (n=2), trap_number=1.0 (n=2), false_premise=0.5 (n=2), over_claim=1.0 (n=1)
+  - **LIVE P5 structured** (n=4): `valid=2/2 (errors=2)` -> **validity_rate=1.0**
+  - **LIVE RAG**: recall@3=0.909, page_hit@1=0.682, refusal=1.0 (2/2)
+  - `eval/report.py` -> `eval/results/REPORT.md` (tabel produk vs riset, tiap baris ada n)
+- Catatan:
+  - **P4 verifier: BLOCKED (quota).** Ketiga key kena `429 RESOURCE_EXHAUSTED` di semua model (free tier harian habis) setelah P1/P2/P5. Probe pulih sesaat lalu balik 429. Sesuai brief §0a -> ditandai BLOCKED, bukan di-fake. **Jalankan `DEMO_MODE=live python eval/run_verifier.py --n 6` besok pagi** buat nutup baris verifier (retry-safe, idempotent).
+  - **Angka produk > riset** (honeypot 87.5% vs 54%; trap_number 100% vs 58%): beda backend (riset pakai gateway `localhost:20128` 4 model; produk pakai Google API langsung Flash) dan **n produk kecil** (8/2/1). Jangan jadikan klaim deck tanpa n; n sudah dicantumkan.
+  - **P5 errors=2** (bukan invalid schema): 2 prompt kena 429 storm, 2 yang lolos valid 2/2. Metrik misah `errors` dari `n`.
+  - **Failure honesty:** struktur eval nggak nyensor ERROR — `ERROR` dihitung terpisah, `n` = sampel valid.
+
+### CLOSING SUMMARY — 2026-10-15 04:xx WIB
+- **DONE:** H0.1–H0.5, H1.1–H1.5, H2.1–H2.6, H3.1, H3.2, H3.3 (harness + tabel), H3.4 (banding baseline).
+- **BLOCKED (quota):** H3.3-P4 verifier live run. Semua kode + wiring siap; tinggal dijalankan saat quota reset.
+- **Deliverable:** paket `ai/` lengkap (surface publik sesuai API-CONTRACTS v2), katalog honeypot 10 term, eval harness + `REPORT.md`, gate `/goal` (smoke + strict). Semua commit lokal (nol push), pesan/komentar English.
+- **Buat DEV2:** import dari `ai/` — semua fungsi balik shape API-CONTRACTS; `DEMO_MODE=cached` nol panic.
+- **Buat DEV1:** angka final ada di `eval/results/REPORT.md` + tabel riset; jangan pakai angka di luar situ.
+
 

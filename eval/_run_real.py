@@ -168,10 +168,27 @@ def h26() -> None:
     check("H2.6", ok, f"verifier statuses={out}")
 
 
+# ── H3.1 calibration ────────────────────────────────────────────────────────────
+def h31() -> None:
+    cases = [(86, 70, "overconfident"), (85, 70, "well_calibrated"),
+             (54, 70, "underconfident"), (70, 70, "well_calibrated")]
+    ok = all(ai.calibration_label(p, a)["label"] == want for p, a, want in cases)
+    check("H3.1", ok, f"boundary cases -> {[ai.calibration_label(p, a)['label'] for p, a, _ in cases]}")
+
+
+# ── H3.2 appeal ─────────────────────────────────────────────────────────────────
+def h32() -> None:
+    out = ai.appeal("ch_01", "Honeypot penalty was unfair.")
+    ok = (out["status"] == "under_review" and out["reviewer"] == "verifier_model"
+          and out["possible_outcome"] == ["upheld", "score_revised", "re_interview"])
+    check("H3.2", ok, f"appeal shape status={out['status']} outcomes={out['possible_outcome']}")
+
+
 def main() -> int:
     only = sys.argv[1:] or None
     funcs = {"H1.1": h11, "H1.2": h12, "H1.3": h13, "H1.4": h14, "H1.5": h15,
-             "H2.1": h21, "H2.2": h22, "H2.3": h23, "H2.4": h24, "H2.5": h25, "H2.6": h26}
+             "H2.1": h21, "H2.2": h22, "H2.3": h23, "H2.4": h24, "H2.5": h25, "H2.6": h26,
+             "H3.1": h31, "H3.2": h32}
     print(f"DEMO_MODE={os.environ.get('DEMO_MODE')} | keys={len(_client._keys())} | live={not _client.demo_mode()}")
     for unit, fn in funcs.items():
         if only and unit not in only:

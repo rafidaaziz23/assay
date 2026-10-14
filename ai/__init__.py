@@ -18,7 +18,7 @@ __all__ = [
     "classify_intent", "gen_checklist", "index_document", "synth_syllabus",
     "socratic_ask", "suggest_questions", "start_interview", "interview_turn",
     "finalize_interview", "pick_honeypot_term", "classify_honeypot", "score_chapter",
-    "calibration_label", "verify_score", "SEED_ROLES", "CLASS_POINTS",
+    "calibration_label", "verify_score", "appeal", "SEED_ROLES", "CLASS_POINTS",
 ]
 
 SEED_ROLES = core.SEED_ROLES
@@ -442,3 +442,17 @@ def verify_score(score: dict, evidence: dict) -> dict:
     r = (score or {}).get("reasoning_score", 0)
     status = "agreed" if not (r >= 90 and hp < 0) else "uncertain"
     return {"status": status, "note": "Deterministic fallback review (no live verifier)."}
+
+
+# ── appeal (section 2.8) ────────────────────────────────────────────────────────
+
+def appeal(chapter_id: str, reason: str) -> dict:
+    """-> shape section 2.8: an appeal routed to the verifier model, never auto-resolved."""
+    return {
+        "appeal_id": _sid("apl"),
+        "chapter_id": chapter_id,
+        "status": "under_review",
+        "reviewer": "verifier_model",
+        "reason": reason,
+        "possible_outcome": ["upheld", "score_revised", "re_interview"],
+    }

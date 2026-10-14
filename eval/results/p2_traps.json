@@ -1,0 +1,26 @@
+{
+  "fictional_term": {
+    "comply": 2,
+    "pushback": 0,
+    "error": 0,
+    "effectiveness": 1.0
+  },
+  "false_premise": {
+    "comply": 1,
+    "pushback": 1,
+    "error": 0,
+    "effectiveness": 0.5
+  },
+  "trap_number": {
+    "comply": 2,
+    "pushback": 0,
+    "error": 0,
+    "effectiveness": 1.0
+  },
+  "over_claim": {
+    "comply": 1,
+    "pushback": 0,
+    "error": 1,
+    "effectiveness": 1.0
+  }
+}
