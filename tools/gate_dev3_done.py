@@ -61,15 +61,17 @@ def main() -> int:
     if not (REPO / "ai" / "FIXTURES.md").exists():
         failures.append("ai/FIXTURES.md missing (unit H0.3)")
 
-    # Status-line check: every H0/H1/H2 unit must carry the done marker.
+    # Status-line check: a unit counts as DONE if it appears anywhere with the ✅ mark.
+    # (Ranges like "H0.1–H0.5" in prose must not count as a status, so we only look at
+    # unit tokens immediately followed by a status marker.)
     if not LOG.exists():
         failures.append("docs/DEV3-OVERNIGHT-LOG.md missing")
     else:
         text = LOG.read_text(encoding="utf-8", errors="replace")
-        units = re.findall(r"(H(\d)\.\d+)\s*([^\sA-Za-z0-9])", text)
-        seen = {u: m for u, _d, m in units}
-        required = [u for u, d, _m in units if d in REQUIRED_DAYS]
-        missing = sorted({u for u in required if seen.get(u) != DONE_MARK})
+        marked = re.findall(r"(H(\d)\.\d+)\s*(✅|⬜)", text)
+        done = {u for u, _d, m in marked if m == DONE_MARK}
+        required = {u for u, d, _m in marked if d in REQUIRED_DAYS}
+        missing = sorted(required - done)
         if not required:
             failures.append("no H0/H1/H2 units found in the log status line")
         elif missing:
