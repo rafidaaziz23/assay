@@ -71,7 +71,7 @@ Status ringkas (diperbarui tiap entri):
   - **Refusal gate:** retriever lexical murni nggak bisa misah g23/g24 dari answerable (skor overlap nyampur 2–8). Dipakai **model retrieval gate** (1 call/pertanyaan unanswerable) -> 2/2. Fallback offline: `_refuse_lexical` (best<4 and absent>=0.5) — sengaja konservatif biar nggak ngorbanin recall.
   - `synth_syllabus` fallback deterministik ngasih `source_pages=[1]`; jalur model (live) ngasih `[1,2,3]` beneran. Bukti live nunjukin jalur model.
 
-### HARI 3 — H3.1–H3.4 — DONE (dengan 1 unit BLOCKED-quota) — 2026-10-15 04:xx WIB
+### HARI 3 — H3.1–H3.4 — DONE (dengan 1 unit BLOCKED-quota) — 2026-10-15 05:00 WIB
 - Aksi: tambah `ai.appeal` (§2.8), `eval/harness.py` (runner threaded), 4 skrip eval (`run_honeypot/traps/verifier/structured.py`), `eval/report.py` (tabel + banding baseline riset).
 - Artefak: `ai/__init__.py` (appeal), `ai/tests/test_day3.py`, `eval/harness.py`, `eval/run_*.py`, `eval/report.py`, `eval/results/*`.
 - Bukti:
@@ -88,7 +88,7 @@ Status ringkas (diperbarui tiap entri):
   - **P5 errors=2** (bukan invalid schema): 2 prompt kena 429 storm, 2 yang lolos valid 2/2. Metrik misah `errors` dari `n`.
   - **Failure honesty:** struktur eval nggak nyensor ERROR — `ERROR` dihitung terpisah, `n` = sampel valid.
 
-### CLOSING SUMMARY — 2026-10-15 04:xx WIB
+### CLOSING SUMMARY — 2026-10-15 05:00 WIB
 - **DONE:** H0.1–H0.5, H1.1–H1.5, H2.1–H2.6, H3.1, H3.2, H3.3 (harness + tabel), H3.4 (banding baseline).
 - **BLOCKED (quota):** H3.3-P4 verifier live run. Semua kode + wiring siap; tinggal dijalankan saat quota reset.
 - **Deliverable:** paket `ai/` lengkap (surface publik sesuai API-CONTRACTS v2), katalog honeypot 10 term, eval harness + `REPORT.md`, gate `/goal` (smoke + strict). Semua commit lokal (nol push), pesan/komentar English.
