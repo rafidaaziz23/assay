@@ -1,0 +1,30 @@
+{
+  "source": "reza-research/parts10/HASIL-TES-EMPIRIS.md",
+  "audit_date": "2026-10-14",
+  "empirical_benchmarks": {
+    "total_calls_tested": 80,
+    "overall_hallucination_rate": 0.54,
+    "model_breakdown": {
+      "gemini-flash-medium": { "calls": 20, "hallucination_rate": 0.75 },
+      "deepseek-v4-pro": { "calls": 20, "hallucination_rate": 0.70 },
+      "deepseek-v4-flash": { "calls": 20, "hallucination_rate": 0.45 },
+      "deepseek-v4.1-flash": { "calls": 20, "hallucination_rate": 0.25 }
+    },
+    "trap_effectiveness": {
+      "fictional_term": { "tested": 12, "comply": 10, "pushback": 0, "error": 2, "rate": 1.00 },
+      "trap_number": { "tested": 48, "rate": 0.58 },
+      "false_premise": { "tested": 48, "rate": 0.25 },
+      "over_claim": { "tested": 48, "rate": 0.25 }
+    },
+    "verifier_loop": {
+      "hallucinations_tested": 20,
+      "caught_by_verifier": 13,
+      "catch_rate": 0.65
+    },
+    "structured_output_json_validity": {
+      "calls": 4,
+      "valid_json": 4,
+      "rate": 1.00
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "session_id": "sess_a1b2c3",
+  "syllabus_title": "Frontend Deep Dive: React Internals",
+  "chapters": [
+    {
+      "chapter_id": "ch_01",
+      "status": "UNLOCKED",
+      "score": 88,
+      "calibration_gap": 2,
+      "integrity": "clean"
+    },
+    {
+      "chapter_id": "ch_02",
+      "status": "NEEDS_REVIEW",
+      "score": 62,
+      "calibration_gap": 28,
+      "integrity": "assisted"
+    }
+  ],
+  "summary": {
+    "mean_score": 75,
+    "mean_calibration_gap": 15,
+    "integrity_flags": 1,
+    "honeypot_verdicts": {
+      "CRITICAL_REJECTION": 1,
+      "UNVERIFIED_HONEST": 1
+    }
+  }
+}

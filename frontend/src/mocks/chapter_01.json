@@ -1,0 +1,9 @@
+{
+  "chapter_id": "ch_01",
+  "title": "Virtual DOM vs Real DOM",
+  "status": "ACTIVE_READING",
+  "content_markdown": "# Chapter 1: Virtual DOM vs Real DOM\n\nThe Document Object Model (DOM) is an interface representing an HTML document. Directly manipulating the real DOM is performance-heavy due to layout recalculations and repaint operations.\n\nReact addresses this with the **Virtual DOM**, an in-memory tree representation of real DOM nodes.\n\n### The Reconciliation Process\nWhenever state changes occur, React evaluates differences via reconciliation. Instead of a naive $O(n^3)$ tree comparison, React uses an $O(n)$ heuristic algorithm assuming:\n1. Two elements of different types produce different subtrees.\n2. Keys remain stable across renders.\n\nSelect any keyword to interrogate the Socratic AI on its computational tradeoffs.",
+  "source_pages": [3, 4, 5],
+  "next_locked": true,
+  "interview_available": true
+}

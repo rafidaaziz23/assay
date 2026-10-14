@@ -1,0 +1,6 @@
+{
+  "predicted_score": 90,
+  "actual_score": 88,
+  "calibration_gap": 2,
+  "label": "well_calibrated"
+}

@@ -1,0 +1,25 @@
+{
+  "name": "assay-monorepo",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Assay: The Active Socratic Learning Engine - Monorepo for AI Builder Cup 2026",
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "dev:backend": "cd backend && uvicorn app.main:app --reload --port 8000",
+    "test:backend": "cd backend && pytest tests/",
+    "eval": "cd eval && python run_benchmarks.py"
+  },
+  "keywords": [
+    "assay",
+    "socratic-engine",
+    "anti-ai-brain-rot",
+    "gemini",
+    "fastapi",
+    "react-vite",
+    "google-cloud-run",
+    "ai-builder-cup-2026"
+  ],
+  "author": "AI Builder Cup Squad",
+  "license": "Apache-2.0"
+}

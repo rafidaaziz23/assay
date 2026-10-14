@@ -1,0 +1,24 @@
+{
+  "interview_id": "int_7712",
+  "chapter_id": "ch_01",
+  "passed": true,
+  "score": {
+    "chapter_score": 88,
+    "reasoning_score": 92,
+    "integrity_score": 100,
+    "honeypot_score": 2
+  },
+  "honeypot_verdict": {
+    "term": "React Quantum Hook",
+    "result": "CRITICAL_REJECTION",
+    "analysis": "User recognized and critically rejected the fictitious term, identifying that standard hooks like useTransition or useDeferredValue apply instead."
+  },
+  "chapter_state_update": {
+    "current_chapter_status": "UNLOCKED",
+    "next_unlocked_chapter_id": "ch_02"
+  },
+  "verifier": {
+    "status": "agreed",
+    "note": "Secondary reasoning verification model confirmed classification consistency."
+  }
+}

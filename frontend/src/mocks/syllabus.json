@@ -1,0 +1,49 @@
+{
+  "session_id": "sess_a1b2c3",
+  "syllabus_id": "syl_9f8e",
+  "title": "Frontend Deep Dive: React Internals",
+  "source_mode": "document_rag",
+  "total_chapters": 3,
+  "chapters": [
+    {
+      "chapter_id": "ch_01",
+      "title": "Virtual DOM vs Real DOM",
+      "order": 1,
+      "status": "ACTIVE_READING",
+      "prerequisites": [],
+      "estimated_reading_minutes": 4,
+      "source_pages": [3, 4, 5],
+      "references": [
+        {
+          "kind": "document",
+          "label": "Uploaded PDF",
+          "page": 4,
+          "verified": true
+        }
+      ]
+    },
+    {
+      "chapter_id": "ch_02",
+      "title": "Fiber Reconciler & Scheduling",
+      "order": 2,
+      "status": "LOCKED",
+      "prerequisites": ["ch_01"],
+      "estimated_reading_minutes": 6,
+      "source_pages": [6, 7, 8],
+      "references": [
+        {
+          "kind": "document",
+          "label": "Uploaded PDF",
+          "page": 7,
+          "verified": true
+        },
+        {
+          "kind": "grounded_external",
+          "label": "react.dev — Reconciler",
+          "url": "https://react.dev/",
+          "cached": true
+        }
+      ]
+    }
+  ]
+}

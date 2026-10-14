@@ -1,0 +1,28 @@
+{
+  "session_id": "sess_a1b2c3",
+  "role": "Frontend",
+  "source": "document+role",
+  "checklist": [
+    {
+      "item_id": "ck_01",
+      "topic": "Reconciliation & Fiber tree",
+      "selected": true,
+      "confidence": 0.92,
+      "origin": "document"
+    },
+    {
+      "item_id": "ck_02",
+      "topic": "Scheduling & priority lanes",
+      "selected": true,
+      "confidence": 0.88,
+      "origin": "role_taxonomy"
+    },
+    {
+      "item_id": "ck_03",
+      "topic": "State batching semantics",
+      "selected": false,
+      "confidence": 0.71,
+      "origin": "document"
+    }
+  ]
+}

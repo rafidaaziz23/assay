@@ -1,0 +1,8 @@
+{
+  "selection": "reconciliation and diffing",
+  "suggested_questions": [
+    "Why is an O(n) heuristic diffing algorithm considered sufficient for web UI?",
+    "What is the exact boundary between the render/reconciliation phase and the commit phase?",
+    "Under what specific DOM mutations does reconciliation become a performance bottleneck?"
+  ]
+}

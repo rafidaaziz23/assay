@@ -1,0 +1,19 @@
+{
+  "session_id": "sess_a1b2c3",
+  "intent": "I want to understand how React rendering works internally",
+  "role": "Frontend",
+  "has_document": false,
+  "available_roles": [
+    "Frontend",
+    "Backend",
+    "Fullstack",
+    "DevOps",
+    "Data/ML",
+    "Mobile",
+    "QA/Test",
+    "Security",
+    "System Design"
+  ],
+  "suggested_others": false,
+  "next": "POST /api/v1/intake/sess_a1b2c3/checklist"
+}

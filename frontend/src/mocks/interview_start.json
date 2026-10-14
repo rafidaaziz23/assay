@@ -1,0 +1,10 @@
+{
+  "interview_id": "int_7712",
+  "chapter_id": "ch_01",
+  "turn_index": 1,
+  "first_question": "Imagine you have 10,000 list items updating every 100ms. In what scenarios does Virtual DOM diffing become a bottleneck compared to direct, surgical DOM manipulation?",
+  "focus_mode": {
+    "required": false,
+    "available": true
+  }
+}

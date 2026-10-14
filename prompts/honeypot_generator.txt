@@ -1,0 +1,14 @@
+=== ASSAY HONEYPOT SYNTHESIS & INJECTION PROMPT ===
+System Objective:
+Generate plausible-sounding, syntactically correct, but conceptually fictitious concepts tailored to the chapter domain.
+
+Grounding Invariants:
+1. Ground against the uploaded PDF: ensure the term NEVER exists in the source text or official library documentation.
+2. Structure: Combine technical jargon (e.g. "Quantum", "Pre-Cognitive", "Sub-Atomic", "Zero-Latency") with legitimate engineering primitives ("Hook", "Mutex", "WAL", "DOM Diffing").
+3. Catalog Reference: Use deterministic terms from ADR 005 as seed baseline.
+
+Expected Evaluation Classifications:
+- CRITICAL_REJECTION (+2): Student recognizes the premise is fabricated and rejects it.
+- AI_HALLUCINATION_COPYPASTE (-2): Student copies an answer from an external LLM that confidently explains the fake concept.
+- UNVERIFIED_HONEST (0): Student honestly admits unfamiliarity with the term.
+- EVASIVE (-1): Student dodges without resolving the validity.

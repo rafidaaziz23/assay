@@ -1,0 +1,14 @@
+{
+  "roles": [
+    "Frontend",
+    "Backend",
+    "Fullstack",
+    "DevOps",
+    "Data/ML",
+    "Mobile",
+    "QA/Test",
+    "Security",
+    "System Design"
+  ],
+  "others_option": "Others"
+}
