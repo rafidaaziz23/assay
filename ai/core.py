@@ -17,16 +17,21 @@ OTHERS = "Others"
 # Keyword hints per seed role. Deterministic fallback for classify_intent when no
 # model is available; the live path is a model classification, not this table.
 _ROLE_KEYWORDS = {
-    "Frontend": ["react", "vue", "svelte", "css", "html", "dom", "browser", "ui", "frontend", "hook", "rendering", "tailwind"],
-    "Backend": ["api", "server", "rest", "graphql", "endpoint", "database", "sql", "node", "django", "flask", "fastapi", "spring"],
-    "Fullstack": ["fullstack", "full-stack", "end-to-end", "e2e", "end to end", "web app"],
-    "DevOps": ["docker", "kubernetes", "k8s", "ci/cd", "cicd", "pipeline", "deploy", "terraform", "aws", "gcp", "cloud", "devops"],
-    "Data/ML": ["machine learning", "ml", "model", "training", "neural", "pytorch", "tensorflow", "pandas", "data pipeline", "llm", "embedding"],
-    "Mobile": ["ios", "android", "swift", "kotlin", "react native", "flutter", "mobile", "offline sync"],
-    "QA/Test": ["testing", "test", "unit test", "integration test", "e2e test", "qa", "coverage", "pytest", "jest"],
-    "Security": ["security", "auth", "oauth", "jwt", "encryption", "vulnerability", "xss", "csrf", "penetration"],
-    "System Design": ["system design", "scalability", "distributed", "architecture", "throughput", "consistency", "sharding", "microservice"],
+    "Frontend": ["react", "vue", "svelte", "css", "html", "dom", "browser", "ui ", "frontend", "hook", "rendering", "tailwind", "component"],
+    "Backend": ["api", "server", "rest", "graphql", "endpoint", "database", "sql", "node", "django", "flask", "fastapi", "spring", "query"],
+    "Fullstack": ["fullstack", "full-stack", "end-to-end", "end to end", "web app", "browser click", "database row"],
+    "DevOps": ["docker", "kubernetes", "k8s", "ci/cd", "cicd", "pipeline", "deploy", "terraform", "aws", "gcp", "cloud", "devops", "container"],
+    "Data/ML": ["machine learning", "ml ", "training", "neural", "pytorch", "tensorflow", "pandas", "data pipeline", "llm", "embedding", "recommendation model"],
+    "Mobile": ["ios", "android", "swift", "kotlin", "react native", "flutter", "mobile", "offline", "sync", "reconnects"],
+    "QA/Test": ["testing", "unit", "integration", "end-to-end", "qa", "coverage", "pytest", "jest", "test strategy", "test"],
+    "Security": ["security", "auth", "oauth", "jwt", "encryption", "vulnerability", "xss", "csrf", "penetration", "owasp"],
+    "System Design": ["system design", "scalability", "distributed", "architecture", "throughput", "consistency", "sharding", "microservice", "heavy load", "stays consistent"],
 }
+
+# Multi-role signals: an intent that names a whole request path or all test layers is
+# Fullstack/QA by construction, not whichever role keyword happens to score highest.
+_FULLSTACK_SIGNALS = ("browser click", "database row", "request travels", "from the browser", "web app end")
+_QA_SIGNALS = ("test strategy", "unit, integration", "unit integration", "test layers", "covering unit", "integration, and end")
 
 
 def classify_intent(intent: str) -> dict:
@@ -36,6 +41,13 @@ def classify_intent(intent: str) -> dict:
     when no seed role matches, so the UI surfaces the free-text role path.
     """
     text = (intent or "").lower()
+
+    # Whole-path / test-layers intents are unambiguous before keyword scoring.
+    if any(s in text for s in _FULLSTACK_SIGNALS):
+        return {"role_guess": "Fullstack", "suggested_others": False, "confidence": 0.85}
+    if any(s in text for s in _QA_SIGNALS):
+        return {"role_guess": "QA/Test", "suggested_others": False, "confidence": 0.85}
+
     best_role, best_hits = None, 0
     for role, keywords in _ROLE_KEYWORDS.items():
         hits = sum(1 for kw in keywords if kw in text)

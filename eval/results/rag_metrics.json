@@ -1,0 +1,7 @@
+{
+  "answerable_questions": 22,
+  "recall_at_3": 0.909,
+  "page_hit_rate_at_1": 0.682,
+  "unanswerable_questions": 2,
+  "refusal_accuracy": 1.0
+}

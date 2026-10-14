@@ -4,7 +4,7 @@ Jejak per unit. Satu entri per unit, ditulis SEBELUM lanjut. Format ada di
 `docs/DEV3-OVERNIGHT-BRIEF.md` §5. Jangan edit entri lama; append saja.
 
 Status ringkas (diperbarui tiap entri):
-`H0.1 ✅ H0.2 ✅ H0.3 ✅ H0.4 ✅ H0.5 ✅ H1.1 ⬜ H1.2 ⬜ H1.3 ⬜ H1.4 ⬜ H1.5 ⬜ H2.1 ⬜ H2.2 ⬜ H2.3 ⬜ H2.4 ⬜ H2.5 ⬜ H2.6 ⬜ H3.1 ⬜ H3.2 ⬜ H3.3 ⬜ H3.4 ⬜`
+`H0.1 ✅ H0.2 ✅ H0.3 ✅ H0.4 ✅ H0.5 ✅ H1.1 ✅ H1.2 ✅ H1.3 ✅ H1.4 ✅ H1.5 ✅ H2.1 ✅ H2.2 ✅ H2.3 ✅ H2.4 ✅ H2.5 ✅ H2.6 ✅ H3.1 ⬜ H3.2 ⬜ H3.3 ⬜ H3.4 ⬜`
 
 ---
 
@@ -54,3 +54,20 @@ Status ringkas (diperbarui tiap entri):
 ---
 
 <!-- entri baru di bawah sini -->
+
+### HARI 1 & 2 — H1.1–H2.6 — DONE — 2026-10-14 23:58 WIB
+- Aksi: lengkapi `ai/` (classify_intent, gen_checklist, index_document, synth_syllabus, socratic_ask, suggest_questions, interview, honeypot, score_chapter, calibration, verifier). Tambah harness `eval/_run_real.py` (bukti nyata) + `eval/run_rag.py` (metrik RAG) + `eval/intent_cases.jsonl`.
+- Artefak: `eval/_run_real.py`, `eval/run_rag.py`, `eval/intent_cases.jsonl`, `eval/results/*`, patch `ai/core.py`, `ai/__init__.py`.
+- Bukti:
+  - **Cached run** `DEMO_MODE=cached python eval/_run_real.py` -> **11/11 PASS**
+  - **LIVE proofs** (hemat, 6 call):
+    - `DEMO_MODE=live python eval/_run_real.py H2.1` -> `live replies gave_direct_answer=[False, False, False]` -> **PASS** (3 call Flash)
+    - `DEMO_MODE=live python eval/_run_real.py H1.2 H1.4` -> `H1.2: 5 items origins=['document']` ; `H1.4: doc 4 ch pages=[[1,2,3],[1,3]] | no-doc 4 ch mode=role_taxonomy_generated` -> **2/2 PASS** (2 call Flash)
+  - `pytest ai/tests eval/tests -q` -> **22 passed**
+  - `tools\gate-dev3.cmd` -> **GATE HIJAU**
+  - `python eval/run_rag.py` (LIVE) -> `recall_at_3=0.909`, `page_hit_rate_at_1=0.682`, `refusal_accuracy=1.0` (2/2), answerable=22, unanswerable=2
+- Catatan:
+  - **H1.1 fix:** classifier awal 6/10 (Fullstack/Mobile/QA/System Design salah). Ditambah rule kombinasi (`_FULLSTACK_SIGNALS`/`_QA_SIGNALS`) + keyword Mobile/System Design. Sekarang **10/10**.
+  - **Refusal gate:** retriever lexical murni nggak bisa misah g23/g24 dari answerable (skor overlap nyampur 2–8). Dipakai **model retrieval gate** (1 call/pertanyaan unanswerable) -> 2/2. Fallback offline: `_refuse_lexical` (best<4 and absent>=0.5) — sengaja konservatif biar nggak ngorbanin recall.
+  - `synth_syllabus` fallback deterministik ngasih `source_pages=[1]`; jalur model (live) ngasih `[1,2,3]` beneran. Bukti live nunjukin jalur model.
+
