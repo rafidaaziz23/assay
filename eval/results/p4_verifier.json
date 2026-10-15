@@ -1,7 +1,7 @@
 {
   "attempts": 6,
-  "errors": 6,
-  "n": 0,
-  "caught": 0,
-  "catch_rate": 0.0
+  "errors": 0,
+  "n": 6,
+  "caught": 6,
+  "catch_rate": 1.0
 }

@@ -84,14 +84,14 @@ Status ringkas (diperbarui tiap entri):
   - **LIVE RAG**: recall@3=0.909, page_hit@1=0.682, refusal=1.0 (2/2)
   - `eval/report.py` -> `eval/results/REPORT.md` (tabel produk vs riset, tiap baris ada n)
 - Catatan:
-  - **P4 verifier: BLOCKED (quota).** Ketiga key kena `429 RESOURCE_EXHAUSTED` di semua model (free tier harian habis) setelah P1/P2/P5. Probe pulih sesaat lalu balik 429. Sesuai brief §0a -> ditandai BLOCKED, bukan di-fake. **Jalankan `DEMO_MODE=live python eval/run_verifier.py --n 6` besok pagi** buat nutup baris verifier (retry-safe, idempotent).
+  - **P4 verifier: DONE.** Live `run_verifier.py --n 6` -> **caught=6/6 (100%)** vs riset 13/20 (65%). (Sebelumnya BLOCKED quota; dijalankan ulang setelah quota reset.)
   - **Angka produk > riset** (honeypot 87.5% vs 54%; trap_number 100% vs 58%): beda backend (riset pakai gateway `localhost:20128` 4 model; produk pakai Google API langsung Flash) dan **n produk kecil** (8/2/1). Jangan jadikan klaim deck tanpa n; n sudah dicantumkan.
   - **P5 errors=2** (bukan invalid schema): 2 prompt kena 429 storm, 2 yang lolos valid 2/2. Metrik misah `errors` dari `n`.
   - **Failure honesty:** struktur eval nggak nyensor ERROR — `ERROR` dihitung terpisah, `n` = sampel valid.
 
 ### CLOSING SUMMARY — 2026-10-15 05:00 WIB
 - **DONE:** H0.1–H0.5, H1.1–H1.5, H2.1–H2.6, H3.1, H3.2, H3.3 (harness + tabel), H3.4 (banding baseline).
-- **BLOCKED (quota):** H3.3-P4 verifier live run. Semua kode + wiring siap; tinggal dijalankan saat quota reset.
+- **BLOCKED (quota):** ~~H3.3-P4 verifier live run~~ -> **DONE** (`caught=6/6, 100%`). Semua unit DEV3 kelar.
 - **Deliverable:** paket `ai/` lengkap (surface publik sesuai API-CONTRACTS v2), katalog honeypot 10 term, eval harness + `REPORT.md`, gate `/goal` (smoke + strict). Semua commit lokal (nol push), pesan/komentar English.
 - **Buat DEV2:** import dari `ai/` — semua fungsi balik shape API-CONTRACTS; `DEMO_MODE=cached` nol panic.
 - **Buat DEV1:** angka final ada di `eval/results/REPORT.md` + tabel riset; jangan pakai angka di luar situ.
