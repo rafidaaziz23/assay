@@ -18,7 +18,8 @@ __all__ = [
     "classify_intent", "gen_checklist", "index_document", "synth_syllabus",
     "socratic_ask", "suggest_questions", "start_interview", "interview_turn",
     "finalize_interview", "pick_honeypot_term", "classify_honeypot", "score_chapter",
-    "calibration_label", "verify_score", "appeal", "SEED_ROLES", "CLASS_POINTS",
+    "calibration_label", "verify_score", "appeal", "score_reasoning",
+    "interview_follow_up", "SEED_ROLES", "CLASS_POINTS",
 ]
 
 SEED_ROLES = core.SEED_ROLES
@@ -442,6 +443,53 @@ def verify_score(score: dict, evidence: dict) -> dict:
     r = (score or {}).get("reasoning_score", 0)
     status = "agreed" if not (r >= 90 and hp < 0) else "uncertain"
     return {"status": status, "note": "Deterministic fallback review (no live verifier)."}
+
+
+# ── DEV 2 bridge compatibility (names backend/app/services/engine.py probes) ─────
+# The DEV 2 engine bridge calls ``ai.score_reasoning`` and ``ai.interview_follow_up``
+# when they exist and falls back to a deterministic stand-in otherwise. Exposing them
+# here is what makes the live path actually use the model instead of the stand-in.
+
+def score_reasoning(final_response: str) -> int:
+    """0-100 reasoning quality of a final answer.
+
+    Model-first; deterministic word-count heuristic (monotone in effort) when the
+    engine is offline. Never the sole basis for a pass — honeypot points and the
+    integrity adjustment are folded in by ``score_chapter``.
+    """
+    out = _client.generate(
+        "Score the reasoning quality of this student answer 0-100. Reward causal, "
+        "specific, trade-off-aware reasoning; penalise vagueness and restating the "
+        "prompt. Answer with the number only.\n"
+        f"Answer: {final_response[:1500]}"
+    )
+    try:
+        return max(0, min(100, int(str(out).strip().split()[0])))
+    except Exception:
+        words = len((final_response or "").split())
+        return max(0, min(100, 70 + min(25, words // 6)))
+
+
+def interview_follow_up(interview: dict, user_response: str, telemetry: dict | None = None) -> str:
+    """Adaptive follow-up question for an interview turn (asks a trade-off, not a definition).
+
+    Model-first; deterministic fallback identical to the DEV 2 stand-in so a cached and
+    a live run stay close in shape. A pasted answer is pushed on its reasoning, not its
+    wording (ADR 002 section 2.1 pre-filter).
+    """
+    topic = (interview or {}).get("chapter_id") or (interview or {}).get("topic") or "this topic"
+    out = _client.generate(
+        "You are a Socratic interviewer. Ask ONE adaptive follow-up that probes the "
+        f"student's reasoning about: {topic}. Ask about a concrete trade-off, never a "
+        f"definition. Student said: {user_response[:500]}"
+    )
+    if isinstance(out, str) and out.strip():
+        return out.strip()
+    if telemetry and telemetry.get("paste_detected"):
+        return ("Walk me through that again in your own words, and tell me which part you "
+                "are least sure about.")
+    return (f"Good. What concrete trade-off are you accepting there — and at what point "
+            f"would that choice stop being right for {topic}?")
 
 
 # ── appeal (section 2.8) ────────────────────────────────────────────────────────

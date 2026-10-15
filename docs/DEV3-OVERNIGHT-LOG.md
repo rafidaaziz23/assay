@@ -55,6 +55,7 @@ Status ringkas (diperbarui tiap entri):
 
 <!-- entri baru di bawah sini -->
 
+
 ### HARI 1 & 2 — H1.1–H2.6 — DONE — 2026-10-14 23:58 WIB
 - Aksi: lengkapi `ai/` (classify_intent, gen_checklist, index_document, synth_syllabus, socratic_ask, suggest_questions, interview, honeypot, score_chapter, calibration, verifier). Tambah harness `eval/_run_real.py` (bukti nyata) + `eval/run_rag.py` (metrik RAG) + `eval/intent_cases.jsonl`.
 - Artefak: `eval/_run_real.py`, `eval/run_rag.py`, `eval/intent_cases.jsonl`, `eval/results/*`, patch `ai/core.py`, `ai/__init__.py`.
@@ -94,5 +95,16 @@ Status ringkas (diperbarui tiap entri):
 - **Deliverable:** paket `ai/` lengkap (surface publik sesuai API-CONTRACTS v2), katalog honeypot 10 term, eval harness + `REPORT.md`, gate `/goal` (smoke + strict). Semua commit lokal (nol push), pesan/komentar English.
 - **Buat DEV2:** import dari `ai/` — semua fungsi balik shape API-CONTRACTS; `DEMO_MODE=cached` nol panic.
 - **Buat DEV1:** angka final ada di `eval/results/REPORT.md` + tabel riset; jangan pakai angka di luar situ.
+
+### DEV2-BRIDGE — score_reasoning + interview_follow_up — DONE — 2026-10-15 10:30 WIB
+- Konteks: review PR #1 (V1 Backend, Wildan, base `development`). Bridge `backend/app/services/engine.py` nyari `ai.score_reasoning` + `ai.interview_follow_up` via `getattr(...,None)`. Keduanya **nggak ada** di `ai/` -> selalu jatuh ke fallback deterministik -> endpoint F9/F13 kehilangan mesin live.
+- Aksi: tambah dua nama itu ke `ai/__init__.py` (model-first, fallback identik sama stand-in DEV2).
+- Artefak: `ai/__init__.py`, `ai/tests/test_dev2_bridge.py`.
+- Bukti:
+  - `pytest ai/tests eval/tests -q` -> **30 passed**
+  - `tools\gate-dev3.cmd` -> HIJAU; `tools\gate-dev3-done.cmd` -> GREEN
+  - LIVE: `score_reasoning(strong)=92`, `score_reasoning(weak)=10` (model misahin; fallback word-count nggak bisa). `interview_follow_up` balik pertanyaan trade-off adaptif.
+- Catatan: `finalize_interview` (versi gw) tetap ada buat caller yang mau satu panggilan; dua fungsi ini buat bridge DEV2 yang manggil per-nama.
+
 
 
