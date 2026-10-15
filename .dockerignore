@@ -1,0 +1,29 @@
+# Build context hygiene for the Assay backend image.
+# VCS / CI
+.git
+.github
+
+# Python caches and virtualenvs (never ship these)
+**/__pycache__/
+**/*.py[cod]
+**/.venv/
+.venv/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+
+# Secrets — never bake into an image; Cloud Run injects env vars / Secret Manager
+**/.env
+**/.env.*
+!**/.env.example
+
+# Frontend / node (not part of the backend image)
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Repo-only material not needed at runtime
+docs/
+eval/
+tools/
+*.log
