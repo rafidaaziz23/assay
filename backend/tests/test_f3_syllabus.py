@@ -29,10 +29,14 @@ def _start(frontend_client, document=None) -> str:
     return res.json()["session_id"]
 
 
-def _upload(frontend_client, sid: str, text: str, name: str = "module.txt"):
+def _upload(frontend_client, sid: str, payload, name: str = "module.txt",
+            content_type: str = "text/plain"):
+    """Upload a document. ``payload`` may be ``str`` (encoded as UTF-8) or raw ``bytes``
+    (for a real PDF, which must NOT be re-encoded)."""
+    body = payload.encode() if isinstance(payload, str) else payload
     return frontend_client.post(
         f"/api/v1/intake/{sid}/document",
-        files={"file": (name, io.BytesIO(text.encode()), "text/plain")},
+        files={"file": (name, io.BytesIO(body), content_type)},
     )
 
 
@@ -330,3 +334,120 @@ def test_cache_fixture_is_self_consistent():
 def test_store_reset_between_tests_holds(clean_store):
     assert clean_store.sessions == {}
     assert get_store().chapters == {}
+
+
+# ── F4 — real PDF, end to end through the DEV 3 engine ────────────────────────
+# The suite previously only exercised a CORRUPT PDF (the fallback path). The success path
+# — a real multi-page PDF going through ai.index_document — was never tested, so a
+# regression that merged every page into one blob would have passed CI and only shown up
+# when someone uploaded a real module on stage.
+
+def _build_pdf(page_texts):
+    """A genuine multi-page PDF, built with the same library the engine uses."""
+    import fitz
+
+    doc = fitz.open()
+    for index, text in enumerate(page_texts, 1):
+        page = doc.new_page()
+        page.insert_text((72, 100), f"Page {index}")
+        page.insert_text((72, 140), text)
+    pdf_bytes = doc.tobytes()
+    doc.close()
+    return pdf_bytes
+
+
+PDF_PAGES = [
+    "React reconciliation compares the new virtual tree against the previous one.",
+    "Fiber splits rendering work into units and yields control back to the browser.",
+    "Priority lanes decide which state update renders first under heavy load.",
+    "The commit phase applies all pending DOM mutations in one synchronous pass.",
+]
+
+
+def test_real_pdf_is_split_into_one_entry_per_page(live_client):
+    """Page separation is the product's load-bearing claim: the honeypot verdict says
+    "this term appears on no page of your document", which is unverifiable if ingest
+    collapses the PDF into a single blob."""
+    sid = _start(live_client)
+    res = _upload(live_client, sid, _build_pdf(PDF_PAGES), name="module.pdf",
+                  content_type="application/pdf")
+    assert res.status_code == 201, res.text
+
+    body = res.json()
+    assert body["total_pages"] == len(PDF_PAGES)
+    assert body["pages"] == [1, 2, 3, 4]
+    assert body["char_count"] > 0
+
+
+def test_real_pdf_text_stays_isolated_per_page(live_client):
+    """Each page must carry its OWN text. A merged blob would still pass a page-count
+    assertion, so the content has to be checked, not just the number."""
+    sid = _start(live_client)
+    _upload(live_client, sid, _build_pdf(PDF_PAGES), name="module.pdf",
+            content_type="application/pdf")
+
+    pages = get_store().get_session(sid)["doc_index"]["pages"]
+    assert [p["page"] for p in pages] == [1, 2, 3, 4]
+    for index, stored in enumerate(pages):
+        assert PDF_PAGES[index].split()[0] in stored["text"], stored
+        # No page may contain a sentence that belongs to another page.
+        for other in PDF_PAGES:
+            if other != PDF_PAGES[index]:
+                assert other not in stored["text"]
+
+
+def test_real_pdf_pages_are_addressable_by_retrieval(live_client):
+    """The {page, char_start, char_end} anchor is what /ask cites; it only works if the
+    ingest really kept per-page offsets."""
+    sid = _start(live_client)
+    _upload(live_client, sid, _build_pdf(PDF_PAGES), name="module.pdf",
+            content_type="application/pdf")
+
+    res = live_client.get(f"/api/v1/intake/{sid}/document?page=3")
+    assert res.status_code == 200
+    entry = res.json()["pages"][0]
+    assert entry["page"] == 3
+    assert entry["char_start"] == 0
+    assert entry["char_end"] == len(entry["text"])
+    assert PDF_PAGES[2].split()[0] in entry["text"]
+
+
+def test_real_pdf_drives_the_syllabus_anchors(live_client):
+    """A 4-page module must produce chapters anchored across those 4 real pages, not all
+    pointing at page 1."""
+    sid = _start(live_client)
+    _upload(live_client, sid, _build_pdf(PDF_PAGES), name="module.pdf",
+            content_type="application/pdf")
+    live_client.post(f"/api/v1/intake/{sid}/checklist", json={})
+    syllabus = live_client.post(f"/api/v1/intake/{sid}/syllabus", json={}).json()
+    assert syllabus["source_mode"] == "document_rag"
+
+    anchored = [p for ch in syllabus["chapters"] for p in (ch.get("source_pages") or [])]
+    assert anchored, "chapters carried no page anchors despite a document upload"
+    assert set(anchored) <= {1, 2, 3, 4}
+
+
+def test_real_pdf_upload_reports_a_consistent_engine_label(live_client, cached_client):
+    """The label used to be hardcoded "live", which claimed live extraction inside a
+    cached run. Ingest is local work, but the label must still agree with the mode."""
+    sid = _start(live_client)
+    live = _upload(live_client, sid, _build_pdf(PDF_PAGES), name="module.pdf",
+                   content_type="application/pdf").json()
+    assert live["engine"] == "live"
+
+    sid2 = _start(cached_client)
+    cached = _upload(cached_client, sid2, _build_pdf(PDF_PAGES), name="module.pdf",
+                     content_type="application/pdf").json()
+    assert cached["engine"] == "deterministic_cache"
+    # The extraction itself is real on both paths — only the label changes.
+    assert cached["total_pages"] == len(PDF_PAGES)
+
+
+def test_pdf_fallback_keeps_key_names_the_engine_uses():
+    """Key drift between `ai.index_document` (page/text) and the fallback was a real
+    KeyError that only fired when the engine failed — i.e. when a demo was already
+    under stress."""
+    from app.services.pdf_service import extract_pages_from_pdf_bytes
+
+    pages = extract_pages_from_pdf_bytes(b"not a pdf at all")
+    assert pages and set(pages[0]) == {"page", "text", "char_count"}

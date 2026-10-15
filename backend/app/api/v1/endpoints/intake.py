@@ -22,7 +22,7 @@ import asyncio
 import json
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, Header, HTTPException, Query, UploadFile
 from sse_starlette.sse import EventSourceResponse
 
 from ....core import fallback as fb
@@ -151,6 +151,8 @@ async def create_intake(
 async def upload_document(
     sessionId: str,
     file: UploadFile = File(...),
+    x_demo_mode: Optional[str] = Header(None),
+    scenario: Optional[str] = Query(None),
 ) -> DocumentUploadResponse:
     """Ingest a PDF (or raw text) page-anchored.
 
@@ -194,6 +196,9 @@ async def upload_document(
         source_mode="document_rag",
     )
 
+    # Ingest is *not* an AI call — PyMuPDF runs locally, so the work is real even when the
+    # cache is active. The label reports the mode for consistency with the other endpoints
+    # (it used to be hardcoded "live", which claimed live extraction inside a cached run).
     return DocumentUploadResponse(
         session_id=sessionId,
         document_name=name,
@@ -202,7 +207,7 @@ async def upload_document(
         pages=[p["page"] for p in pages],
         char_count=sum(p["char_count"] for p in pages),
         next=f"POST /api/v1/intake/{sessionId}/checklist",
-        engine="live",
+        engine=_engine_meta(bool(fb.active_scenario(x_demo_mode, scenario))),
     )
 
 
