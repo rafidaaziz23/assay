@@ -106,5 +106,17 @@ Status ringkas (diperbarui tiap entri):
   - LIVE: `score_reasoning(strong)=92`, `score_reasoning(weak)=10` (model misahin; fallback word-count nggak bisa). `interview_follow_up` balik pertanyaan trade-off adaptif.
 - Catatan: `finalize_interview` (versi gw) tetap ada buat caller yang mau satu panggilan; dua fungsi ini buat bridge DEV2 yang manggil per-nama.
 
+### DEPLOY-PREP — image Cloud Run — DONE — 2026-10-15 14:15 WIB
+- Aksi: build image backend beneran (`docker build`), verifikasi runtime di dalam container.
+- **TEMUAN KRITIS:** `backend/Dockerfile` pakai context `backend/`, jadi paket `ai/` (repo-root) **nggak kebawa** ke image -> `import ai` = ModuleNotFoundError -> `ENGINE_AVAILABLE=False` -> **semua endpoint jalan di fallback deterministik, nol Gemini**, tapi `/health` tetap lapor `engine: Google Gemini 2.5 Flash`. Demo yang di-deploy bakal keliatan bener tapi palsu.
+- **Temuan kedua:** nol `.dockerignore` -> `backend/.env` + `backend/.venv` + `.pytest_cache` ke-bake ke image.
+- Fix (PR #5, branch `assay-dev3-deploy-fix` dari `development`): Dockerfile context = repo root, `COPY backend/ ai/ prompts/` (catalog baca `prompts/honeypot-catalog.json` dari root); tambah root `.dockerignore` (exclude `.env`, `.venv`, `node_modules`, dll).
+- Bukti:
+  - Sebelum: `ls /app/ai` -> No such file; `import ai` -> ModuleNotFoundError; `/health` bohong `engine: Gemini 2.5 Flash`.
+  - Sesudah: `ENGINE_AVAILABLE: True`, `import ai OK, terms: 10`, checklist balik item engine asli (`Reconciliation & Fiber tree`), `/app/backend/.env` **absen**.
+  - Build command berubah: `docker build -f backend/Dockerfile .` (dari repo root, bukan `backend/`). **CI/deploy step yang pakai `docker build backend/` wajib diupdate.**
+- Catatan: nol nyentuh kode backend DEV2 selain Dockerfile (milik deploy). Fix ditawarkan sebagai PR #5 buat direview.
+
+
 
 
