@@ -25,6 +25,8 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAppStore } from '../store/useAppStore';
 import { ChapterDetailResponse } from '../types/api';
+import { MathFormula } from '../components/atoms/MathFormula';
+import { CodeSnippet } from '../components/atoms/CodeSnippet';
 
 export const DeepReaderPage: React.FC = () => {
   const navigate = useNavigate();
@@ -194,7 +196,7 @@ export const DeepReaderPage: React.FC = () => {
               </p>
 
               <p>
-                However, when comparing simple hypotheses H<sub>0</sub>: &theta; = &theta;<sub>0</sub> versus H<sub>1</sub>: &theta; = &theta;<sub>1</sub>, the{' '}
+                However, when comparing simple hypotheses <MathFormula math="H_0: \theta = \theta_0" /> versus <MathFormula math="H_1: \theta = \theta_1" />, the{' '}
                 <span
                   onClick={() => {
                     setSelectedHighlight('Neyman-Pearson lemma');
@@ -206,16 +208,127 @@ export const DeepReaderPage: React.FC = () => {
                 >
                   Neyman-Pearson lemma
                 </span>{' '}
-                demonstrates that the likelihood ratio test statistic &Lambda;(x) = L(&theta;<sub>0</sub> | x) / L(&theta;<sub>1</sub> | x) is mathematically optimal. It achieves maximum statistical power while strictly bounding the Type I error rate at significance level &alpha;.
+                demonstrates that the likelihood ratio test statistic <MathFormula math="\Lambda(x) = \frac{L(\theta_0 \mid x)}{L(\theta_1 \mid x)}" /> is mathematically optimal. It achieves maximum statistical power while strictly bounding the Type I error rate at significance level <MathFormula math="\alpha" />.
               </p>
 
-              <blockquote className="border-l-4 border-l-primary-500 pl-4 py-1 my-4 bg-slate-50 rounded-r-lg text-slate-700 italic text-xs leading-relaxed">
-                &ldquo;For any test of size &alpha;, the test with critical region W = &#123;x | f(x | &theta;<sub>1</sub>) / f(x | &theta;<sub>0</sub>) &gt; k&#125; maximizes the power 1 &minus; &beta;.&rdquo;
+              <blockquote className="border-l-4 border-l-primary-500 pl-4 py-2 my-4 bg-slate-50 rounded-r-lg text-slate-800 text-xs leading-relaxed">
+                <span className="italic font-serif">&ldquo;For any test of size <MathFormula math="\alpha" />, the test with critical region <MathFormula math="W = \{x \mid \frac{f(x \mid \theta_1)}{f(x \mid \theta_0)} > k\}" /> maximizes the power <MathFormula math="1 - \beta" />.&rdquo;</span>
               </blockquote>
 
               <p>
-                Notice how the critical value $k$ is determined strictly by the null distribution. Any departure from the monotone likelihood ratio property destroys the uniform optimality across compound alternate parameter spaces.
+                Sample independence guarantees that the composite random vector produces a product measure over the sample space. Under classical regularity conditions, when observations <MathFormula math="X_1, \dots, X_n" /> are drawn independently from parameterized distribution <MathFormula math="f(x; \theta)" />, the joint likelihood factors cleanly, guaranteeing the monotone likelihood ratio property holds uniformly.
               </p>
+
+              {/* Mathematical Formula Card & Sample Space Partition Diagram (Figma 1:1079) */}
+              <div className="my-6 p-6 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-4 flex flex-col items-center">
+                {/* White floating formula card rendered via KaTeX */}
+                <div className="bg-white border border-slate-200 rounded-xl px-8 py-3.5 shadow-xs text-center">
+                  <MathFormula
+                    math="\Lambda(x) = \frac{L(\theta_0 \mid x)}{L(\theta_1 \mid x)} \le k"
+                    className="text-base md:text-lg bg-transparent border-none shadow-none font-serif tracking-wide"
+                  />
+                </div>
+
+                {/* Partition diagram SVG (Figure 3.1) */}
+                <div className="w-full max-w-md bg-white border border-slate-200/90 rounded-xl p-4 shadow-2xs space-y-2">
+                  <svg viewBox="0 0 400 120" className="w-full h-auto overflow-visible select-none">
+                    {/* Baseline */}
+                    <line x1="20" y1="100" x2="380" y2="100" stroke="#cbd5e1" strokeWidth="1.5" />
+                    
+                    {/* Curve 1: Null distribution f(x | θ0) */}
+                    <path
+                      d="M 30,100 C 70,100 100,20 150,20 C 200,20 230,100 270,100"
+                      fill="rgba(79, 70, 229, 0.08)"
+                      stroke="#4f46e5"
+                      strokeWidth="2"
+                    />
+                    {/* Curve 2: Alt distribution f(x | θ1) */}
+                    <path
+                      d="M 140,100 C 180,100 210,35 260,35 C 310,35 340,100 370,100"
+                      fill="rgba(14, 165, 233, 0.08)"
+                      stroke="#0284c7"
+                      strokeWidth="2"
+                    />
+                    
+                    {/* Threshold line k */}
+                    <line x1="230" y1="10" x2="230" y2="100" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4 4" />
+                    <text x="235" y="18" fill="#d97706" fontSize="10" fontWeight="bold" fontFamily="sans-serif">
+                      threshold k
+                    </text>
+
+                    {/* Region labels */}
+                    <text x="80" y="90" fill="#64748b" fontSize="9" fontWeight="600" fontFamily="sans-serif">
+                      Region R(1)
+                    </text>
+                    <text x="250" y="90" fill="#4f46e5" fontSize="9" fontWeight="bold" fontFamily="sans-serif">
+                      Region R (Rejection)
+                    </text>
+                  </svg>
+
+                  <p className="text-center text-[10px] text-slate-500 font-medium leading-relaxed">
+                    <strong className="text-slate-800">Figure 3.1:</strong> Partitioning the sample space into rejection region R and acceptance region Rᶜ based on threshold k.
+                  </p>
+                </div>
+              </div>
+
+              <p>
+                In regulatory clinical trial design, this duality dictates the required sample allocation. When testing non-inferiority margins, controlling &alpha; protects against approving ineffective interventions, while bounding &beta; guards trial sponsors against premature termination of therapeutically viable molecules.
+              </p>
+
+              {/* Algorithmic Code Implementation Example Section */}
+              <div className="pt-4 space-y-3 border-t border-slate-100">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-indigo-600" />
+                    Computational Implementation: Vectorized LRT
+                  </h3>
+                  <span className="text-[11px] font-mono text-slate-400">Python 3.11 &bull; NumPy</span>
+                </div>
+                
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Below is the vectorized implementation of the Neyman-Pearson likelihood ratio decision boundary for Gaussian mean shift testing (<MathFormula math="\theta_0 \to \theta_1" />). Notice how the critical threshold <CodeSnippet code="k_threshold" /> is computed strictly under the null hypothesis quantile:
+                </p>
+
+                <CodeSnippet
+                  filename="neyman_pearson_lrt.py"
+                  language="python"
+                  block
+                  code={`import numpy as np
+
+def neyman_pearson_lrt(
+    x: np.ndarray, 
+    theta_0: float = 0.0, 
+    theta_1: float = 1.0, 
+    alpha: float = 0.05
+) -> dict:
+    """
+    Uniformly Most Powerful (UMP) Neyman-Pearson Test
+    H0: theta = theta_0 vs H1: theta = theta_1 (known sigma = 1.0)
+    """
+    n = len(x)
+    
+    # 1. Compute Log-Likelihood Ratio test statistic
+    # Lambda(x) = (theta_1 - theta_0) * sum(x) - 0.5 * n * (theta_1^2 - theta_0^2)
+    log_lambda = (theta_1 - theta_0) * np.sum(x) - 0.5 * n * (theta_1**2 - theta_0**2)
+    
+    # 2. Derive exact threshold k from significance level alpha
+    z_crit = 1.644853  # Phi^-1(1 - alpha) for alpha = 0.05
+    k_threshold = (theta_1 - theta_0) * (n * theta_0 + np.sqrt(n) * z_crit) - 0.5 * n * (theta_1**2 - theta_0**2)
+    
+    # 3. Decision Rule: Reject H0 if log_lambda > k_threshold
+    reject_null = bool(log_lambda > k_threshold)
+    
+    return {
+        "test_statistic": round(float(log_lambda), 4),
+        "critical_threshold": round(float(k_threshold), 4),
+        "verdict": "REJECT_H0 (Optimal Defense)" if reject_null else "FAIL_TO_REJECT_H0"
+    }`}
+                />
+
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  In practice, the test statistic <CodeSnippet code="log_lambda" /> is evaluated in <MathFormula math="\mathcal{O}(N)" /> time complexity, making the decision boundary computationally efficient even for streaming observational telemetry.
+                </p>
+              </div>
             </article>
 
             {/* In-Line Socratic Popover Box */}
