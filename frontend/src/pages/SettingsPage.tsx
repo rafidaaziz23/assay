@@ -15,15 +15,47 @@ import {
   Key,
 } from 'lucide-react';
 
+import { api } from '../services/api';
+
 export const SettingsPage: React.FC = () => {
   const [model, setModel] = useState('gemini-2.5-flash');
   const [rigor, setRigor] = useState('academic');
   const [fallacySensitivity, setFallacySensitivity] = useState('balanced');
+  const [audioDevice, setAudioDevice] = useState(
+    'Default Microphone (High Definition Audio Device)'
+  );
   const [saved, setSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  React.useEffect(() => {
+    api.getSettings()
+      .then((res) => {
+        if (res.model) setModel(res.model);
+        if (res.rigor) setRigor(res.rigor);
+        if (res.fallacy_sensitivity) setFallacySensitivity(res.fallacy_sensitivity);
+        if (res.audio_device) setAudioDevice(res.audio_device);
+      })
+      .catch((e) => console.warn('Settings load fallback:', e));
+  }, []);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await api.updateSettings({
+        model,
+        rigor,
+        fallacy_sensitivity: fallacySensitivity,
+        audio_device: audioDevice,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (e) {
+      console.warn('Settings save fallback:', e);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (

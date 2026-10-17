@@ -19,9 +19,33 @@ import {
   Flame,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
+import { DashboardSummaryResponse } from '../types/api';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const [data, setData] = React.useState<DashboardSummaryResponse | null>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    api.getDashboardSummary()
+      .then((res) => setData(res))
+      .catch((err) => console.warn('Dashboard fetch error:', err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const d = data || {
+    learner_name: 'Maya Lin',
+    headline_subject: 'Causal Inference',
+    remaining_modules: 2,
+    active_subjects_count: 3,
+    total_modules_count: 18,
+    defenses_passed_count: 12,
+    defenses_month_delta: '+3 this month',
+    reasoning_depth_pct: 88,
+    bloom_tier_label: 'First-Principles (Bloom Level 5)',
+    weekly_focus_hours: 6.4,
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">

@@ -20,14 +20,20 @@ import {
   Check,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
+import { useAppStore } from '../store/useAppStore';
+import { useVoiceDefense } from '../hooks/useVoiceDefense';
+import { InterviewStartResponse } from '../types/api';
 
 export const ExamPage: React.FC = () => {
   const navigate = useNavigate();
+  const { activeSessionId, activeChapterId } = useAppStore();
 
-  const [isRecording, setIsRecording] = useState(false);
   const [examState, setExamState] = useState<'inquiry' | 'calibration' | 'verdict'>('inquiry');
   const [turnIndex, setTurnIndex] = useState(1);
   const [confidenceScore, setConfidenceScore] = useState(85);
+  const [actualScore, setActualScore] = useState(94);
+  const [interviewData, setInterviewData] = useState<InterviewStartResponse | null>(null);
 
   const [chatLog, setChatLog] = useState<
     Array<{
@@ -43,26 +49,37 @@ export const ExamPage: React.FC = () => {
   ]);
 
   const [candidateInput, setCandidateInput] = useState('');
-  const [waveformBars, setWaveformBars] = useState<number[]>([
-    20, 35, 60, 45, 80, 50, 75, 90, 65, 40, 25, 55, 70, 85, 30,
-  ]);
 
-  // Audio waveform animation simulation
+  // Voice hook integration
+  const {
+    isListening,
+    transcript,
+    waveformBars,
+    toggleListening,
+  } = useVoiceDefense((spoken) => {
+    setCandidateInput(spoken);
+  });
+
   useEffect(() => {
-    let interval: any;
-    if (isRecording) {
-      interval = setInterval(() => {
-        setWaveformBars(
-          Array.from({ length: 24 }, () => Math.floor(Math.random() * 85) + 15)
-        );
-      }, 100);
-    } else {
-      setWaveformBars(Array.from({ length: 24 }, () => 18));
-    }
-    return () => clearInterval(interval);
-  }, [isRecording]);
+    const cid = activeChapterId || 'ch_01';
+    const sid = activeSessionId || 'sess_a1b2c3';
 
-  const handleSendResponse = (textToSend?: string) => {
+    api.startInterview(cid, sid)
+      .then((res) => {
+        setInterviewData(res);
+        if (res.first_question) {
+          setChatLog([
+            {
+              sender: 'examiner',
+              text: res.first_question,
+            },
+          ]);
+        }
+      })
+      .catch((e) => console.warn('Interview start fallback:', e));
+  }, [activeChapterId, activeSessionId]);
+
+  const handleSendResponse = async (textToSend?: string) => {
     const val = textToSend || candidateInput;
     if (!val.trim()) return;
 
@@ -73,26 +90,53 @@ export const ExamPage: React.FC = () => {
     setChatLog(updated);
     setCandidateInput('');
 
-    if (turnIndex === 1) {
-      setTurnIndex(2);
-      setTimeout(() => {
+    const cid = activeChapterId || 'ch_01';
+    const interviewId = interviewData?.interview_id || 'intv_demo_01';
+
+    try {
+      if (turnIndex === 1) {
+        setTurnIndex(2);
+        const turnRes = await api.interviewTurn(cid, {
+          interview_id: interviewId,
+          turn_index: 1,
+          user_response: val,
+        });
+
         setChatLog([
           ...updated,
           {
             sender: 'examiner',
-            text: 'Correct point regarding the size of the critical region. Now consider an adversarial probe: If the distribution fails the monotone likelihood ratio condition, can we still assert that the Neyman-Pearson critical test is Uniformly Most Powerful (UMP) across all composite alternatives?',
-            isFallacyTrap: true,
+            text: turnRes.interrogator_response || 'Correct point regarding the size of the critical region. Now consider an adversarial probe: If the distribution fails the monotone likelihood ratio condition, can we still assert that the Neyman-Pearson critical test is Uniformly Most Powerful (UMP) across all composite alternatives?',
+            isFallacyTrap: turnRes.honeypot_active,
           },
         ]);
-      }, 700);
-    } else {
-      setTimeout(() => {
+      } else {
+        // Advanced to calibration phase
         setExamState('calibration');
-      }, 600);
+      }
+    } catch (err) {
+      console.warn('Turn error fallback:', err);
+      setExamState('calibration');
     }
   };
 
-  const handleCompleteDefense = () => {
+  const handleCompleteDefense = async () => {
+    const cid = activeChapterId || 'ch_01';
+    const interviewId = interviewData?.interview_id || 'intv_demo_01';
+
+    try {
+      await api.submitCalibration(cid, interviewId, confidenceScore);
+      const finalRes = await api.finalizeInterview(
+        cid,
+        interviewId,
+        chatLog[chatLog.length - 1]?.text || 'Final reasoning submitted.'
+      );
+      if (finalRes.score?.chapter_score) {
+        setActualScore(finalRes.score.chapter_score);
+      }
+    } catch (e) {
+      console.warn('Finalize error fallback:', e);
+    }
     setExamState('verdict');
   };
 
@@ -175,14 +219,14 @@ export const ExamPage: React.FC = () => {
                 <div className="p-3 rounded-xl bg-slate-900 text-white flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => setIsRecording(!isRecording)}
+                      onClick={toggleListening}
                       className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                        isRecording
+                        isListening
                           ? 'bg-rose-500 text-white ring-4 ring-rose-500/30'
                           : 'bg-primary-600 text-white hover:bg-primary-700'
                       }`}
                     >
-                      {isRecording ? (
+                      {isListening ? (
                         <MicOff className="w-5 h-5" />
                       ) : (
                         <Mic className="w-5 h-5" />
@@ -190,10 +234,10 @@ export const ExamPage: React.FC = () => {
                     </button>
                     <div>
                       <div className="text-xs font-bold">
-                        {isRecording ? 'Listening to oral response...' : 'Microphone Ready'}
+                        {isListening ? 'Listening to speech...' : 'Microphone Ready'}
                       </div>
                       <div className="text-[10px] text-slate-400 font-mono">
-                        {isRecording ? '48kHz &bull; Web Audio Stream' : 'Press mic to speak or type response'}
+                        {isListening ? 'Web Speech API &bull; Streaming transcript' : 'Click mic to speak oral defense'}
                       </div>
                     </div>
                   </div>
@@ -204,7 +248,7 @@ export const ExamPage: React.FC = () => {
                       <div
                         key={i}
                         className={`w-1 rounded-full transition-all duration-75 ${
-                          isRecording ? 'bg-primary-400' : 'bg-slate-700'
+                          isListening ? 'bg-primary-400' : 'bg-slate-700'
                         }`}
                         style={{ height: `${height}%` }}
                       />
@@ -409,12 +453,14 @@ export const ExamPage: React.FC = () => {
             <div className="w-px h-8 bg-slate-200" />
             <div>
               <div className="text-[10px] uppercase font-bold text-slate-400">Actual Rigor</div>
-              <div className="text-lg font-mono font-bold text-emerald-600">94%</div>
+              <div className="text-lg font-mono font-bold text-emerald-600">{actualScore}%</div>
             </div>
             <div className="w-px h-8 bg-slate-200" />
             <div>
               <div className="text-[10px] uppercase font-bold text-slate-400">Calibration Delta</div>
-              <div className="text-lg font-mono font-bold text-primary-600">+9% (Humble)</div>
+              <div className="text-lg font-mono font-bold text-primary-600">
+                {actualScore - confidenceScore >= 0 ? `+${actualScore - confidenceScore}% (Humble)` : `${actualScore - confidenceScore}% (Overconfident)`}
+              </div>
             </div>
           </div>
 

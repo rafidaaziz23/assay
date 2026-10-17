@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '../components/atoms/Card';
 import { Button } from '../components/atoms/Button';
 import { Badge } from '../components/atoms/Badge';
@@ -19,10 +19,22 @@ import {
   Lock,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
+import { useAppStore } from '../store/useAppStore';
+import { FinalReportResponse } from '../types/api';
 
 export const ReportPage: React.FC = () => {
   const navigate = useNavigate();
+  const { activeSessionId } = useAppStore();
+  const [report, setReport] = useState<FinalReportResponse | null>(null);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const sid = activeSessionId || 'sess_a1b2c3';
+    api.getFinalReport(sid)
+      .then((res) => setReport(res))
+      .catch((e) => console.warn('Final report fallback:', e));
+  }, [activeSessionId]);
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);

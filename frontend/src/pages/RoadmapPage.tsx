@@ -15,9 +15,11 @@ import {
   FileCheck,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAppStore } from '../store/useAppStore';
 
 export const RoadmapPage: React.FC = () => {
   const navigate = useNavigate();
+  const { setActiveChapterId } = useAppStore();
   const [activeTab, setActiveTab] = useState<'roadmap' | 'prerequisites' | 'schedule'>('roadmap');
 
   const modules = [
@@ -263,7 +265,10 @@ export const RoadmapPage: React.FC = () => {
                       <Button
                         variant="primary"
                         size="sm"
-                        onClick={() => navigate('/app/reader')}
+                        onClick={() => {
+                          setActiveChapterId('ch_01');
+                          navigate('/app/reader');
+                        }}
                         rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
                       >
                         {mod.actionLabel}
@@ -273,7 +278,10 @@ export const RoadmapPage: React.FC = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => navigate('/app/reader')}
+                        onClick={() => {
+                          setActiveChapterId('ch_02');
+                          navigate('/app/reader');
+                        }}
                         rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
                       >
                         {mod.actionLabel}

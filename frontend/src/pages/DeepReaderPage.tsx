@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '../components/atoms/Card';
 import { Button } from '../components/atoms/Button';
 import { Badge } from '../components/atoms/Badge';
@@ -22,10 +22,15 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
+import { useAppStore } from '../store/useAppStore';
+import { ChapterDetailResponse } from '../types/api';
 
 export const DeepReaderPage: React.FC = () => {
   const navigate = useNavigate();
+  const { activeSessionId, activeChapterId } = useAppStore();
 
+  const [chapter, setChapter] = useState<ChapterDetailResponse | null>(null);
   const [selectedHighlight, setSelectedHighlight] = useState<string | null>(
     'unobserved counterfactual'
   );
@@ -33,17 +38,39 @@ export const DeepReaderPage: React.FC = () => {
   const [socraticAnswer, setSocraticAnswer] = useState<string | null>(
     'Does structural invariance across observational strata logically imply the absence of latent selection bias?'
   );
+  const [anchorPage, setAnchorPage] = useState<number | null>(4);
   const [isAsking, setIsAsking] = useState(false);
 
-  const handleAsk = (q: string) => {
+  useEffect(() => {
+    const cid = activeChapterId || 'ch_01';
+    api.getChapter(cid)
+      .then((res) => {
+        setChapter(res);
+      })
+      .catch((e) => console.warn('Chapter fetch error fallback:', e));
+  }, [activeChapterId]);
+
+  const handleAsk = async (q: string) => {
     if (!q) return;
     setIsAsking(true);
-    setTimeout(() => {
+    try {
+      const res = await api.socraticAsk(activeChapterId || 'ch_01', {
+        session_id: activeSessionId || 'sess_a1b2c3',
+        selected_text: selectedHighlight || 'statistical inference',
+        question: q,
+      });
+      setSocraticAnswer(res.reply);
+      if (res.citations && res.citations.length > 0) {
+        setAnchorPage(res.citations[0].page ?? null);
+      }
+    } catch (err) {
+      console.warn('Socratic ask error:', err);
       setSocraticAnswer(
-        `If potential outcomes Y(1) and Y(0) were independent of treatment assignment conditional on covariates X, under what exact conditions could an unmeasured confounder U still induce spurious correlation?`
+        'If potential outcomes Y(1) and Y(0) were independent of treatment assignment conditional on covariates X, under what exact conditions could an unmeasured confounder U still induce spurious correlation?'
       );
+    } finally {
       setIsAsking(false);
-    }, 400);
+    }
   };
 
   return (

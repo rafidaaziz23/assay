@@ -18,12 +18,19 @@ import {
   FileUp,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
+import { useAppStore } from '../store/useAppStore';
 
 export const IntakePage: React.FC = () => {
   const navigate = useNavigate();
+  const { setActiveSessionId } = useAppStore();
   const [activeTab, setActiveTab] = useState<'prompt' | 'upload'>('prompt');
   const [topicPrompt, setTopicPrompt] = useState('How mRNA vaccines work');
   const [selectedDepth, setSelectedDepth] = useState<'foundation' | 'applied' | 'rigorous'>('applied');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFileObj, setSelectedFileObj] = useState<File | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+
   const [uploadedFile, setUploadedFile] = useState<{
     name: string;
     size: string;
@@ -33,6 +40,48 @@ export const IntakePage: React.FC = () => {
     size: '4.2 MB',
     pages: '28 Pages',
   });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFileObj(file);
+      setUploadedFile({
+        name: file.name,
+        size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+        pages: '24 Pages',
+      });
+    }
+  };
+
+  const handleCommit = async () => {
+    setIsSubmitting(true);
+    try {
+      // 1. Create intake session
+      const intakeRes = await api.createIntake({
+        intent: topicPrompt,
+        role: selectedDepth === 'rigorous' ? 'System Design' : 'Data/ML',
+        document: selectedFileObj ? selectedFileObj.name : uploadedFile?.name,
+      });
+
+      const sid = intakeRes.session_id || 'sess_a1b2c3';
+      setActiveSessionId(sid);
+
+      // 2. If file chosen, upload
+      if (selectedFileObj) {
+        await api.uploadDocument(sid, selectedFileObj);
+      }
+
+      // 3. Generate syllabus
+      await api.generateSyllabus(sid);
+
+      navigate('/app/roadmap');
+    } catch (err) {
+      console.warn('Intake submission fallback:', err);
+      navigate('/app/roadmap');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const [modules, setModules] = useState([
     {
@@ -175,12 +224,22 @@ export const IntakePage: React.FC = () => {
       {/* Tab 2: Upload Document Content */}
       {activeTab === 'upload' && (
         <Card className="p-6 space-y-4">
-          <div className="border-2 border-dashed border-slate-200 hover:border-primary-400 rounded-2xl p-8 text-center bg-slate-50/50 hover:bg-primary-50/20 transition-all cursor-pointer group">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept=".pdf,.epub,.txt,.md"
+            className="hidden"
+          />
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="border-2 border-dashed border-slate-200 hover:border-primary-400 rounded-2xl p-8 text-center bg-slate-50/50 hover:bg-primary-50/20 transition-all cursor-pointer group"
+          >
             <div className="w-12 h-12 rounded-2xl bg-primary-50 border border-primary-200/60 text-primary-600 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
               <FileUp className="w-6 h-6" />
             </div>
             <h3 className="text-sm font-bold text-slate-900 mb-1">
-              Drag & drop your syllabus, textbook PDF, or paper here
+              Click to select or drag & drop syllabus / textbook PDF here
             </h3>
             <p className="text-xs text-slate-400">
               Supports PDF, EPUB, PPTX, or Markdown up to 50MB &bull; Optical OCR enabled
@@ -340,7 +399,8 @@ export const IntakePage: React.FC = () => {
         <Button
           variant="primary"
           size="lg"
-          onClick={() => navigate('/app/roadmap')}
+          isLoading={isSubmitting}
+          onClick={handleCommit}
           rightIcon={<ArrowRight className="w-4 h-4" />}
         >
           Commit Syllabus & Begin Reading

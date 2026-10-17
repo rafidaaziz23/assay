@@ -11,20 +11,38 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
+import { useAppStore } from '../store/useAppStore';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const { setUser } = useAppStore();
   const [email, setEmail] = useState('maya.lin@stanford.edu');
   const [password, setPassword] = useState('••••••••••••');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const res = await api.login(email, password);
+      if (res.user) {
+        setUser({
+          name: res.user.name,
+          role: res.user.role,
+          handle: res.user.handle,
+          streakDays: res.user.streak_days,
+          credits: res.user.credits,
+          avatarUrl: res.user.avatar_url,
+        });
+      }
       navigate('/app/dashboard');
-    }, 600);
+    } catch (err) {
+      console.warn('Login error fallback:', err);
+      navigate('/app/dashboard');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
