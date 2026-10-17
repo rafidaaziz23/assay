@@ -60,9 +60,20 @@ export const ExamPage: React.FC = () => {
     setCandidateInput(spoken);
   });
 
+  const speakExaminer = (text: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   useEffect(() => {
-    const cid = activeChapterId || 'ch_01';
-    const sid = activeSessionId || 'sess_a1b2c3';
+    const defaultCid = activeSessionId === 'sess_coding_basic' ? 'ch_algo_01' : 'ch_01';
+    const cid = activeChapterId || defaultCid;
+    const sid = activeSessionId || 'sess_coding_basic';
 
     api.startInterview(cid, sid)
       .then((res) => {
@@ -193,6 +204,16 @@ export const ExamPage: React.FC = () => {
                           ? 'Dr. Julian Vance (Examiner)'
                           : 'Maya Lin (Candidate)'}
                       </span>
+                      {item.sender === 'examiner' && (
+                        <button
+                          type="button"
+                          onClick={() => speakExaminer(item.text)}
+                          className="p-1 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                          title="Listen to examiner voice"
+                        >
+                          <Volume2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                       {item.isFallacyTrap && (
                         <Badge variant="warning" size="sm">
                           <AlertTriangle className="w-3 h-3 mr-1" />

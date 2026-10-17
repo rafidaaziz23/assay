@@ -129,7 +129,10 @@ def generate(prompt: str, *, schema: dict | None = None, role: str = "flash"):
     if not keys:
         return None
 
-    from google.genai import types
+    try:
+        from google.genai import types
+    except ImportError:
+        return None
 
     for model in models(role):
         start = _ring["i"]

@@ -25,7 +25,7 @@ export const ReportPage: React.FC = () => {
   const [copiedHash, setCopiedHash] = useState(false);
 
   useEffect(() => {
-    const sid = activeSessionId || 'sess_a1b2c3';
+    const sid = activeSessionId || 'sess_coding_basic';
     api.getFinalReport(sid)
       .then((res) => setReport(res))
       .catch((e) => console.warn('Final report fallback:', e));

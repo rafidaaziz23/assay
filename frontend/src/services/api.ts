@@ -37,6 +37,7 @@ import reportMock from '../mocks/report.json';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE || 'live';
 
 async function request<T>(endpoint: string, options?: RequestInit, mockFallback?: T): Promise<T> {
   if (USE_MOCK && mockFallback !== undefined) {
@@ -48,7 +49,7 @@ async function request<T>(endpoint: string, options?: RequestInit, mockFallback?
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        'x-demo-mode': 'cached',
+        'x-demo-mode': DEMO_MODE,
         ...(options?.headers || {})
       }
     });
@@ -105,6 +106,13 @@ export const api = {
     request<SyllabusResponse>(
       `/intake/${sessionId}/syllabus`,
       { method: 'POST', body: JSON.stringify({ enable_search_grounding: false }) },
+      syllabusMock as SyllabusResponse
+    ),
+
+  getSyllabus: (sessionId: string) =>
+    request<SyllabusResponse>(
+      `/intake/${sessionId}/syllabus`,
+      { method: 'GET' },
       syllabusMock as SyllabusResponse
     ),
 
@@ -232,9 +240,9 @@ export const api = {
       }
     ),
 
-  getDashboardSummary: () =>
+  getDashboardSummary: (sessionId?: string) =>
     request<DashboardSummaryResponse>(
-      '/dashboard/summary',
+      sessionId ? `/dashboard/summary?session_id=${sessionId}` : '/dashboard/summary',
       { method: 'GET' },
       {
         learner_name: 'Maya Lin',

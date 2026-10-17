@@ -95,6 +95,7 @@ export interface ChapterDetailResponse {
   source_pages: number[];
   next_locked: boolean;
   interview_available: boolean;
+  estimated_reading_minutes?: number;
 }
 
 export interface SocraticAskRequest {

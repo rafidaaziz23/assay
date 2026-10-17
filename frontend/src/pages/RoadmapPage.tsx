@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '../components/atoms/Card';
 import { Button } from '../components/atoms/Button';
 import { Badge } from '../components/atoms/Badge';
@@ -16,13 +16,25 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
+import { api } from '../services/api';
+import { SyllabusResponse } from '../types/api';
 
 export const RoadmapPage: React.FC = () => {
   const navigate = useNavigate();
-  const { setActiveChapterId } = useAppStore();
+  const { activeSessionId, setActiveChapterId } = useAppStore();
   const [activeTab, setActiveTab] = useState<'roadmap' | 'prerequisites' | 'schedule'>('roadmap');
+  const [syllabus, setSyllabus] = useState<SyllabusResponse | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const modules = [
+  useEffect(() => {
+    const sid = activeSessionId || 'sess_coding_basic';
+    api.getSyllabus(sid)
+      .then((res) => setSyllabus(res))
+      .catch((err) => console.warn('Roadmap syllabus fetch fallback:', err))
+      .finally(() => setLoading(false));
+  }, [activeSessionId]);
+
+  const fallbackModules = [
     {
       id: 'mod-1',
       number: '01',
@@ -100,6 +112,45 @@ export const RoadmapPage: React.FC = () => {
     },
   ];
 
+  const modules = (syllabus?.chapters && syllabus.chapters.length > 0)
+    ? syllabus.chapters.map((ch, idx) => {
+        const numStr = String(ch.order || idx + 1).padStart(2, '0');
+        const st = (ch.status || 'LOCKED').toUpperCase();
+        const isCompleted = st === 'COMPLETED' || st === 'SCORED' || st === 'UNLOCKED';
+        const isInProgress = st === 'ACTIVE_READING' || st === 'INTERVIEW';
+        const isReady = st === 'READY' || (idx === 1 && !isInProgress && !isCompleted);
+        const isLocked = !isCompleted && !isInProgress && !isReady;
+
+        const statusType: 'completed' | 'in_progress' | 'ready' | 'locked' =
+          isCompleted ? 'completed' : (isInProgress ? 'in_progress' : (isReady ? 'ready' : 'locked'));
+
+        let statusLabel = `MODULE ${numStr} · ${st.replace('_', ' ')}`;
+        if (isCompleted) statusLabel = `MODULE ${numStr} · COMPLETED`;
+        else if (isInProgress) statusLabel = `MODULE ${numStr} · IN PROGRESS`;
+        else if (isReady) statusLabel = `MODULE ${numStr} · READY TO READ`;
+        else statusLabel = `MODULE ${numStr} · LOCKED`;
+
+        return {
+          id: ch.chapter_id,
+          number: numStr,
+          title: ch.title,
+          status: statusType,
+          statusLabel,
+          time: `${ch.estimated_reading_minutes || 20}m`,
+          description: ch.prerequisites?.length
+            ? `Prerequisites: ${ch.prerequisites.join(', ')}`
+            : `Socratic inquiry module covering fundamental proofs, bounds, and adversarial counter-arguments.`,
+          conceptsCount: `${(ch.source_pages || []).length ? (ch.source_pages || []).length + 3 : 4} concepts`,
+          badge: isCompleted
+            ? 'Passed Oral Defense'
+            : (isInProgress ? 'Oral defense scheduled' : (isReady ? 'Next in sequence' : 'Locked')),
+          score: isCompleted ? '96%' : undefined,
+          actionLabel: isInProgress ? 'Resume dialogue' : (isReady ? 'Start reading' : undefined),
+          prereq: ch.prerequisites?.length ? `Prerequisite: Pass ${ch.prerequisites[0]}` : undefined,
+        };
+      })
+    : fallbackModules;
+
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in duration-200 pb-12">
       {/* Breadcrumb & Header */}
@@ -107,13 +158,15 @@ export const RoadmapPage: React.FC = () => {
         <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400">
           <span>SUBJECTS</span>
           <span>/</span>
-          <span className="text-primary-600 font-bold">STATISTICS FOR DECISIONS</span>
+          <span className="text-primary-600 font-bold uppercase truncate max-w-xs">
+            {syllabus?.title || (activeSessionId === 'sess_coding_basic' ? 'FOUNDATIONS OF ALGORITHMS & DATA STRUCTURES' : 'STATISTICAL DECISION THEORY')}
+          </span>
         </div>
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Curated Learning Roadmap: Statistics for Decisions
+          Curated Learning Roadmap: {syllabus?.title || (activeSessionId === 'sess_coding_basic' ? 'Foundations of Algorithms & Data Structures' : 'Statistical Decision Theory')}
         </h1>
         <p className="text-sm text-slate-500 leading-relaxed max-w-2xl">
-          A verified sequence of 6 inquiry modules designed for Socratic oral defense and first-principles mastery.
+          A verified sequence of {modules.length} inquiry modules designed for Socratic oral defense and first-principles mastery.
         </p>
       </div>
 
@@ -138,12 +191,14 @@ export const RoadmapPage: React.FC = () => {
         <div className="flex items-center gap-6 text-xs">
           <div>
             <div className="text-[10px] font-bold text-slate-400 uppercase">Total Modules</div>
-            <div className="font-extrabold text-slate-900 font-mono text-base">6</div>
+            <div className="font-extrabold text-slate-900 font-mono text-base">{modules.length}</div>
           </div>
           <div className="w-px h-6 bg-slate-200" />
           <div>
             <div className="text-[10px] font-bold text-slate-400 uppercase">Estimated Inquiry</div>
-            <div className="font-extrabold text-slate-900 font-mono text-base">14.0 hrs</div>
+            <div className="font-extrabold text-slate-900 font-mono text-base">
+              {(modules.length * 2.2).toFixed(1)} hrs
+            </div>
           </div>
           <div className="w-px h-6 bg-slate-200" />
           <div>
@@ -266,7 +321,7 @@ export const RoadmapPage: React.FC = () => {
                         variant="primary"
                         size="sm"
                         onClick={() => {
-                          setActiveChapterId('ch_01');
+                          setActiveChapterId(mod.id);
                           navigate('/app/reader');
                         }}
                         rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
@@ -279,7 +334,7 @@ export const RoadmapPage: React.FC = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          setActiveChapterId('ch_02');
+                          setActiveChapterId(mod.id);
                           navigate('/app/reader');
                         }}
                         rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
