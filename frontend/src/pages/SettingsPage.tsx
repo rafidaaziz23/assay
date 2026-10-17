@@ -73,9 +73,68 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
+  // Audio visualizer state & live mic testing
   const audioVisualizerHeights = [
     12, 18, 26, 22, 30, 24, 32, 28, 34, 30, 22, 16, 12, 8, 8, 8, 8, 8, 8, 8
   ];
+  const [isTestingMic, setIsTestingMic] = useState(false);
+  const [micAudioBars, setMicAudioBars] = useState<number[]>(audioVisualizerHeights);
+  const testStreamRef = React.useRef<MediaStream | null>(null);
+  const testAudioCtxRef = React.useRef<AudioContext | null>(null);
+  const testAnimRef = React.useRef<number | null>(null);
+
+  const startMicTest = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      testStreamRef.current = stream;
+      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const audioCtx = new AudioContextClass();
+      testAudioCtxRef.current = audioCtx;
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 64;
+      const source = audioCtx.createMediaStreamSource(stream);
+      source.connect(analyser);
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      setIsTestingMic(true);
+
+      const update = () => {
+        analyser.getByteFrequencyData(dataArray);
+        const bars: number[] = [];
+        for (let i = 0; i < 20; i++) {
+          const val = dataArray[i % bufferLength] || 0;
+          bars.push(Math.max(8, Math.min(38, (val / 255) * 40)));
+        }
+        setMicAudioBars(bars);
+        testAnimRef.current = requestAnimationFrame(update);
+      };
+      update();
+    } catch (e) {
+      console.warn('Microphone permission not granted or device unavailable:', e);
+      alert('Microphone access denied or unavailable. Please check microphone permissions in your browser.');
+    }
+  };
+
+  const stopMicTest = () => {
+    if (testAnimRef.current) cancelAnimationFrame(testAnimRef.current);
+    if (testStreamRef.current) {
+      testStreamRef.current.getTracks().forEach((t) => t.stop());
+      testStreamRef.current = null;
+    }
+    if (testAudioCtxRef.current) {
+      testAudioCtxRef.current.close().catch(() => {});
+      testAudioCtxRef.current = null;
+    }
+    setIsTestingMic(false);
+    setMicAudioBars(audioVisualizerHeights);
+  };
+
+  useEffect(() => {
+    return () => {
+      stopMicTest();
+    };
+  }, []);
 
   const getFrequencyLabel = (freq: SocraticFrequency) => {
     switch (freq) {
@@ -424,18 +483,36 @@ export const SettingsPage: React.FC = () => {
                 <div className="bg-slate-50/70 border border-slate-100 rounded-2xl p-4 space-y-2.5">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-slate-700">Input Level Calibration</span>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 text-[10px] font-semibold">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      Ready
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={isTestingMic ? stopMicTest : startMicTest}
+                        className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-all cursor-pointer flex items-center gap-1 ${
+                          isTestingMic
+                            ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                        }`}
+                      >
+                        <Mic className="w-3 h-3" />
+                        <span>{isTestingMic ? 'Stop Test' : 'Test Mic'}</span>
+                      </button>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${
+                        isTestingMic
+                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200 animate-pulse'
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200/60'
+                      }`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${isTestingMic ? 'bg-indigo-600' : 'bg-emerald-500'}`} />
+                        {isTestingMic ? 'Live Testing...' : 'Ready'}
+                      </span>
+                    </div>
                   </div>
 
                   {/* 20 Vertical Audio Bars */}
                   <div className="h-10 flex items-end gap-1.5 px-1 py-1">
-                    {audioVisualizerHeights.map((h, i) => (
+                    {micAudioBars.map((h, i) => (
                       <div
                         key={i}
-                        className={`w-1.5 rounded-full transition-all duration-300 ${
+                        className={`w-1.5 rounded-full transition-all duration-100 ${
                           i < 3
                             ? 'bg-emerald-500'
                             : i < 11
@@ -448,7 +525,9 @@ export const SettingsPage: React.FC = () => {
                   </div>
 
                   <p className="text-[10px] text-slate-400 leading-relaxed">
-                    Speak normally. Levels should remain within the central periwinkle zone without peaking.
+                    {isTestingMic
+                      ? 'Speak into your microphone now to test live waveform response. Bars move dynamically in real-time.'
+                      : 'Speak normally. Levels should remain within the central periwinkle zone without peaking.'}
                   </p>
                 </div>
               </div>

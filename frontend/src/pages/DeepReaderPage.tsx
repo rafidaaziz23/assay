@@ -33,6 +33,7 @@ export const DeepReaderPage: React.FC = () => {
   const { activeSessionId, activeChapterId } = useAppStore();
 
   const [chapter, setChapter] = useState<ChapterDetailResponse | null>(null);
+  const [syllabusModules, setSyllabusModules] = useState<Array<{ chapter_id: string; title: string; order: number; status: string }>>([]);
   const [selectedHighlight, setSelectedHighlight] = useState<string | null>(
     'unobserved counterfactual'
   );
@@ -44,13 +45,25 @@ export const DeepReaderPage: React.FC = () => {
   const [isAsking, setIsAsking] = useState(false);
 
   useEffect(() => {
-    const cid = activeChapterId || 'ch_01';
+    const sid = activeSessionId || 'sess_coding_basic';
+    api.getSyllabus(sid)
+      .then((res) => {
+        if (res && res.chapters) {
+          setSyllabusModules(res.chapters);
+        }
+      })
+      .catch((e) => console.warn('Reader syllabus fallback:', e));
+  }, [activeSessionId]);
+
+  useEffect(() => {
+    const defaultCid = activeSessionId === 'sess_coding_basic' ? 'ch_algo_01' : 'ch_01';
+    const cid = activeChapterId || defaultCid;
     api.getChapter(cid)
       .then((res) => {
         setChapter(res);
       })
       .catch((e) => console.warn('Chapter fetch error fallback:', e));
-  }, [activeChapterId]);
+  }, [activeChapterId, activeSessionId]);
 
   const handleAsk = async (q: string) => {
     if (!q) return;
@@ -75,6 +88,25 @@ export const DeepReaderPage: React.FC = () => {
     }
   };
 
+  const currentCid = activeChapterId || 'ch_01';
+  const modulesList = (syllabusModules.length > 0)
+    ? syllabusModules.map((m, idx) => ({
+        id: m.chapter_id,
+        title: `${m.order || idx + 1}. ${m.title}`,
+        status: m.chapter_id === currentCid
+          ? 'active'
+          : (m.status === 'COMPLETED' ? 'done' : (m.status === 'LOCKED' ? 'locked' : 'ready'))
+      }))
+    : [
+        { id: 'ch_01', title: '1. Neyman–Pearson Lemma', status: currentCid === 'ch_01' ? 'active' : 'done' },
+        { id: 'ch_02', title: '2. Causal Inference & DAGs', status: currentCid === 'ch_02' ? 'active' : 'locked' },
+        { id: 'ch_03', title: '3. Epistemology of AI Reason', status: currentCid === 'ch_03' ? 'active' : 'locked' },
+        { id: 'ch_04', title: '4. Kolmogorov Descriptive Bounds', status: currentCid === 'ch_04' ? 'active' : 'locked' },
+      ];
+
+  const currentModuleIdx = modulesList.findIndex((m) => m.id === currentCid);
+  const displayModuleNumber = currentModuleIdx >= 0 ? currentModuleIdx + 1 : 1;
+
   return (
     <div className="space-y-6 animate-in fade-in duration-200 pb-12">
       {/* Top Session Bar */}
@@ -89,7 +121,7 @@ export const DeepReaderPage: React.FC = () => {
             </Badge>
           </div>
           <h1 className="text-lg font-bold text-slate-900">
-            Dialectic Epistemology & Inference: Neyman–Pearson Foundations
+            {chapter?.title ? `Dialectic Epistemology: ${chapter.title}` : 'Dialectic Epistemology & Inference: Neyman–Pearson Foundations'}
           </h1>
         </div>
 
@@ -120,25 +152,24 @@ export const DeepReaderPage: React.FC = () => {
           <Card className="p-4 space-y-3">
             <div className="flex items-center justify-between text-xs font-bold text-slate-900">
               <span>Curriculum Modules</span>
-              <span className="text-primary-600 font-mono text-[11px]">3 of 6</span>
+              <span className="text-primary-600 font-mono text-[11px]">
+                {displayModuleNumber} of {modulesList.length}
+              </span>
             </div>
 
             <div className="space-y-1.5">
-              {[
-                { id: '1', title: '1. Probability Spaces', status: 'done' },
-                { id: '2', title: '2. Point Estimation', status: 'done' },
-                { id: '3', title: '3. Neyman–Pearson Lemma', status: 'active' },
-                { id: '4', title: '4. Uniformly Most Powerful Tests', status: 'locked' },
-                { id: '5', title: '5. Likelihood Ratio Tests', status: 'locked' },
-              ].map((mod) => (
+              {modulesList.map((mod) => (
                 <div
                   key={mod.id}
+                  onClick={() => {
+                    useAppStore.getState().setActiveChapterId(mod.id);
+                  }}
                   className={`p-2.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
                     mod.status === 'active'
                       ? 'bg-primary-50 text-primary-700 border border-primary-200/80 shadow-xs'
                       : mod.status === 'done'
                       ? 'text-slate-700 hover:bg-slate-50'
-                      : 'text-slate-400 opacity-60'
+                      : 'text-slate-400 opacity-60 hover:opacity-100 hover:bg-slate-50'
                   }`}
                 >
                   <span className="truncate">{mod.title}</span>
@@ -176,100 +207,218 @@ export const DeepReaderPage: React.FC = () => {
             {/* Reading Content */}
             <article className="prose max-w-none text-slate-800 text-sm leading-relaxed space-y-4">
               <h2 className="text-xl font-extrabold text-slate-900">
-                The Fundamental Lemma of Hypothesis Testing
+                {chapter?.title || 'The Fundamental Lemma of Hypothesis Testing'}
               </h2>
 
-              <p>
-                In standard decision theoretic protocols, the central paradox of empirical observation resides in the{' '}
-                <span
-                  onClick={() => {
-                    setSelectedHighlight('unobserved counterfactual');
-                    setSocraticAnswer(
-                      'Does structural invariance across observational strata logically imply the absence of latent selection bias?'
-                    );
-                  }}
-                  className="socratic-highlight"
-                >
-                  unobserved counterfactual
-                </span>
-                : what would have transpired had the treatment not been assigned? In standard randomized controlled protocols, balance secures exchangeability in expectation.
-              </p>
+              {currentCid !== 'ch_01' ? (
+                <div className="space-y-4 text-slate-800 text-sm leading-relaxed">
+                  <div className="p-4 rounded-xl bg-indigo-50/50 border border-indigo-100 flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-indigo-900">Module Status: {chapter?.status || 'LOCKED'}</span>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Reading time: {chapter?.estimated_reading_minutes || 15} minutes &bull; Source pages: {chapter?.source_pages?.join(', ') || '1, 2'}
+                      </p>
+                    </div>
+                    {chapter?.interview_available && (
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() => navigate('/app/exam')}
+                        leftIcon={<Mic className="w-3.5 h-3.5" />}
+                      >
+                        Enter Defense
+                      </Button>
+                    )}
+                  </div>
 
-              <p>
-                However, when comparing simple hypotheses <MathFormula math="H_0: \theta = \theta_0" /> versus <MathFormula math="H_1: \theta = \theta_1" />, the{' '}
-                <span
-                  onClick={() => {
-                    setSelectedHighlight('Neyman-Pearson lemma');
-                    setSocraticAnswer(
-                      'If the probability density ratio is non-monotonic, can a Uniformly Most Powerful (UMP) test still be constructed?'
-                    );
-                  }}
-                  className="socratic-highlight"
-                >
-                  Neyman-Pearson lemma
-                </span>{' '}
-                demonstrates that the likelihood ratio test statistic <MathFormula math="\Lambda(x) = \frac{L(\theta_0 \mid x)}{L(\theta_1 \mid x)}" /> is mathematically optimal. It achieves maximum statistical power while strictly bounding the Type I error rate at significance level <MathFormula math="\alpha" />.
-              </p>
-
-              <blockquote className="border-l-4 border-l-primary-500 pl-4 py-2 my-4 bg-slate-50 rounded-r-lg text-slate-800 text-xs leading-relaxed">
-                <span className="italic font-serif">&ldquo;For any test of size <MathFormula math="\alpha" />, the test with critical region <MathFormula math="W = \{x \mid \frac{f(x \mid \theta_1)}{f(x \mid \theta_0)} > k\}" /> maximizes the power <MathFormula math="1 - \beta" />.&rdquo;</span>
-              </blockquote>
-
-              <p>
-                Sample independence guarantees that the composite random vector produces a product measure over the sample space. Under classical regularity conditions, when observations <MathFormula math="X_1, \dots, X_n" /> are drawn independently from parameterized distribution <MathFormula math="f(x; \theta)" />, the joint likelihood factors cleanly, guaranteeing the monotone likelihood ratio property holds uniformly.
-              </p>
-
-              {/* Mathematical Formula Card & Sample Space Partition Diagram (Figma 1:1079) */}
-              <div className="my-6 p-6 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-4 flex flex-col items-center">
-                {/* White floating formula card rendered via KaTeX */}
-                <div className="bg-white border border-slate-200 rounded-xl px-8 py-3.5 shadow-xs text-center">
-                  <MathFormula
-                    math="\Lambda(x) = \frac{L(\theta_0 \mid x)}{L(\theta_1 \mid x)} \le k"
-                    className="text-base md:text-lg bg-transparent border-none shadow-none font-serif tracking-wide"
-                  />
+                  {chapter?.content_markdown ? (
+                    chapter.content_markdown
+                      .split('\n\n')
+                      .filter((p) => !p.trim().startsWith('#'))
+                      .map((p, idx) => (
+                        <p key={idx} className="leading-relaxed">
+                          {p.includes(':') ? (
+                            <>
+                              {p.split(':')[0]}:{' '}
+                              <span
+                                onClick={() => {
+                                  const term = p.split(':')[0].trim();
+                                  setSelectedHighlight(term);
+                                  handleAsk(`What is the core fallacy or boundary condition regarding ${term}?`);
+                                }}
+                                className="socratic-highlight cursor-pointer"
+                              >
+                                {p.split(':')[1]}
+                              </span>
+                            </>
+                          ) : (
+                            p
+                          )}
+                        </p>
+                      ))
+                  ) : (
+                    <p className="text-slate-500 italic">
+                      Chapter content is locked pending Socratic validation of prior module.
+                    </p>
+                  )}
                 </div>
-
-                {/* Partition diagram SVG (Figure 3.1) */}
-                <div className="w-full max-w-md bg-white border border-slate-200/90 rounded-xl p-4 shadow-2xs space-y-2">
-                  <svg viewBox="0 0 400 120" className="w-full h-auto overflow-visible select-none">
-                    {/* Baseline */}
-                    <line x1="20" y1="100" x2="380" y2="100" stroke="#cbd5e1" strokeWidth="1.5" />
-                    
-                    {/* Curve 1: Null distribution f(x | θ0) */}
-                    <path
-                      d="M 30,100 C 70,100 100,20 150,20 C 200,20 230,100 270,100"
-                      fill="rgba(79, 70, 229, 0.08)"
-                      stroke="#4f46e5"
-                      strokeWidth="2"
-                    />
-                    {/* Curve 2: Alt distribution f(x | θ1) */}
-                    <path
-                      d="M 140,100 C 180,100 210,35 260,35 C 310,35 340,100 370,100"
-                      fill="rgba(14, 165, 233, 0.08)"
-                      stroke="#0284c7"
-                      strokeWidth="2"
-                    />
-                    
-                    {/* Threshold line k */}
-                    <line x1="230" y1="10" x2="230" y2="100" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4 4" />
-                    <text x="235" y="18" fill="#d97706" fontSize="10" fontWeight="bold" fontFamily="sans-serif">
-                      threshold k
-                    </text>
-
-                    {/* Region labels */}
-                    <text x="80" y="90" fill="#64748b" fontSize="9" fontWeight="600" fontFamily="sans-serif">
-                      Region R(1)
-                    </text>
-                    <text x="250" y="90" fill="#4f46e5" fontSize="9" fontWeight="bold" fontFamily="sans-serif">
-                      Region R (Rejection)
-                    </text>
-                  </svg>
-
-                  <p className="text-center text-[10px] text-slate-500 font-medium leading-relaxed">
-                    <strong className="text-slate-800">Figure 3.1:</strong> Partitioning the sample space into rejection region R and acceptance region Rᶜ based on threshold k.
+              ) : (
+                <>
+                  <p>
+                    In standard decision theoretic protocols, the central paradox of empirical observation resides in the{' '}
+                    <span
+                      onClick={() => {
+                        setSelectedHighlight('unobserved counterfactual');
+                        setSocraticAnswer(
+                          'Does structural invariance across observational strata logically imply the absence of latent selection bias?'
+                        );
+                      }}
+                      className="socratic-highlight"
+                    >
+                      unobserved counterfactual
+                    </span>
+                    : what would have transpired had the treatment not been assigned? In standard randomized controlled protocols, balance secures exchangeability in expectation.
                   </p>
+
+                  <p>
+                    However, when comparing simple hypotheses <MathFormula math="H_0: \theta = \theta_0" /> versus <MathFormula math="H_1: \theta = \theta_1" />, the{' '}
+                    <span
+                      onClick={() => {
+                        setSelectedHighlight('Neyman-Pearson lemma');
+                        setSocraticAnswer(
+                          'If the probability density ratio is non-monotonic, can a Uniformly Most Powerful (UMP) test still be constructed?'
+                        );
+                      }}
+                      className="socratic-highlight"
+                    >
+                      Neyman-Pearson lemma
+                    </span>{' '}
+                    demonstrates that the likelihood ratio test statistic <MathFormula math="\Lambda(x) = \frac{L(\theta_0 \mid x)}{L(\theta_1 \mid x)}" /> is mathematically optimal. It achieves maximum statistical power while strictly bounding the Type I error rate at significance level <MathFormula math="\alpha" />.
+                  </p>
+
+                  <blockquote className="border-l-4 border-l-primary-500 pl-4 py-2 my-4 bg-slate-50 rounded-r-lg text-slate-800 text-xs leading-relaxed">
+                    <span className="italic font-serif">&ldquo;For any test of size <MathFormula math="\alpha" />, the test with critical region <MathFormula math="W = \{x \mid \frac{f(x \mid \theta_1)}{f(x \mid \theta_0)} > k\}" /> maximizes the power <MathFormula math="1 - \beta" />.&rdquo;</span>
+                  </blockquote>
+
+                  <p>
+                    Sample independence guarantees that the composite random vector produces a product measure over the sample space. Under classical regularity conditions, when observations <MathFormula math="X_1, \dots, X_n" /> are drawn independently from parameterized distribution <MathFormula math="f(x; \theta)" />, the joint likelihood factors cleanly, guaranteeing the monotone likelihood ratio property holds uniformly.
+                  </p>
+                </>
+              )}
+
+              {/* Contextual Visual: Algorithm Complexity for Coding Track vs Statistical Partition for Math Track */}
+              {activeSessionId === 'sess_coding_basic' || chapter?.chapter_id?.includes('algo') ? (
+                <div className="my-6 p-6 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-4 flex flex-col items-center">
+                  {/* KaTeX Asymptotic Bound Card */}
+                  <div className="bg-white border border-slate-200 rounded-xl px-8 py-3.5 shadow-xs text-center">
+                    <MathFormula
+                      math="f(n) \in \mathcal{O}(g(n)) \iff \exists c > 0, n_0 > 0 : 0 \le f(n) \le c \cdot g(n) \quad \forall n \ge n_0"
+                      className="text-sm md:text-base bg-transparent border-none shadow-none font-serif tracking-wide"
+                    />
+                  </div>
+
+                  {/* Asymptotic Growth Curves SVG (Figure 1.1) */}
+                  <div className="w-full max-w-md bg-white border border-slate-200/90 rounded-xl p-4 shadow-2xs space-y-2">
+                    <svg viewBox="0 0 400 130" className="w-full h-auto overflow-visible select-none">
+                      {/* Axes */}
+                      <line x1="30" y1="110" x2="380" y2="110" stroke="#cbd5e1" strokeWidth="1.5" />
+                      <line x1="30" y1="110" x2="30" y2="10" stroke="#cbd5e1" strokeWidth="1.5" />
+                      
+                      {/* Curve 1: O(1) Constant */}
+                      <line x1="30" y1="100" x2="370" y2="100" stroke="#10b981" strokeWidth="2" />
+                      <text x="375" y="103" fill="#10b981" fontSize="9" fontWeight="bold">O(1)</text>
+
+                      {/* Curve 2: O(log n) Logarithmic */}
+                      <path d="M 30,105 Q 120,75 370,68" fill="none" stroke="#06b6d4" strokeWidth="2" />
+                      <text x="375" y="70" fill="#06b6d4" fontSize="9" fontWeight="bold">O(log n)</text>
+
+                      {/* Curve 3: O(n) Linear */}
+                      <line x1="30" y1="110" x2="350" y2="35" stroke="#4f46e5" strokeWidth="2" />
+                      <text x="355" y="38" fill="#4f46e5" fontSize="9" fontWeight="bold">O(n)</text>
+
+                      {/* Curve 4: O(n^2) Quadratic */}
+                      <path d="M 30,110 Q 150,95 240,15" fill="none" stroke="#f43f5e" strokeWidth="2" strokeDasharray="3 3" />
+                      <text x="245" y="18" fill="#f43f5e" fontSize="9" fontWeight="bold">O(n²)</text>
+                    </svg>
+
+                    <p className="text-center text-[10px] text-slate-500 font-medium leading-relaxed">
+                      <strong className="text-slate-800">Figure 1.1:</strong> Asymptotic growth frontiers illustrating constant, logarithmic, linear, and polynomial resource scaling.
+                    </p>
+                  </div>
+
+                  {/* Interactive Code Implementation Block */}
+                  <div className="w-full">
+                    <CodeSnippet
+                      block={true}
+                      language="python"
+                      filename="binary_search_invariant.py"
+                      code={`def binary_search(arr: list[int], target: int) -> int:
+    """O(log n) logarithmic search over sorted sequence."""
+    left, right = 0, len(arr) - 1
+    while left <= right:
+        mid = left + (right - left) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1`}
+                    />
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="my-6 p-6 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-4 flex flex-col items-center">
+                  {/* White floating formula card rendered via KaTeX */}
+                  <div className="bg-white border border-slate-200 rounded-xl px-8 py-3.5 shadow-xs text-center">
+                    <MathFormula
+                      math="\Lambda(x) = \frac{L(\theta_0 \mid x)}{L(\theta_1 \mid x)} \le k"
+                      className="text-base md:text-lg bg-transparent border-none shadow-none font-serif tracking-wide"
+                    />
+                  </div>
+
+                  {/* Partition diagram SVG (Figure 3.1) */}
+                  <div className="w-full max-w-md bg-white border border-slate-200/90 rounded-xl p-4 shadow-2xs space-y-2">
+                    <svg viewBox="0 0 400 120" className="w-full h-auto overflow-visible select-none">
+                      {/* Baseline */}
+                      <line x1="20" y1="100" x2="380" y2="100" stroke="#cbd5e1" strokeWidth="1.5" />
+                      
+                      {/* Curve 1: Null distribution f(x | θ0) */}
+                      <path
+                        d="M 30,100 C 70,100 100,20 150,20 C 200,20 230,100 270,100"
+                        fill="rgba(79, 70, 229, 0.08)"
+                        stroke="#4f46e5"
+                        strokeWidth="2"
+                      />
+                      {/* Curve 2: Alt distribution f(x | θ1) */}
+                      <path
+                        d="M 140,100 C 180,100 210,35 260,35 C 310,35 340,100 370,100"
+                        fill="rgba(14, 165, 233, 0.08)"
+                        stroke="#0284c7"
+                        strokeWidth="2"
+                      />
+                      
+                      {/* Threshold line k */}
+                      <line x1="230" y1="10" x2="230" y2="100" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4 4" />
+                      <text x="235" y="18" fill="#d97706" fontSize="10" fontWeight="bold" fontFamily="sans-serif">
+                        threshold k
+                      </text>
+
+                      {/* Region labels */}
+                      <text x="80" y="90" fill="#64748b" fontSize="9" fontWeight="600" fontFamily="sans-serif">
+                        Region R(1)
+                      </text>
+                      <text x="250" y="90" fill="#4f46e5" fontSize="9" fontWeight="bold" fontFamily="sans-serif">
+                        Region R (Rejection)
+                      </text>
+                    </svg>
+
+                    <p className="text-center text-[10px] text-slate-500 font-medium leading-relaxed">
+                      <strong className="text-slate-800">Figure 3.1:</strong> Partitioning the sample space into rejection region R and acceptance region Rᶜ based on threshold k.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <p>
                 In regulatory clinical trial design, this duality dictates the required sample allocation. When testing non-inferiority margins, controlling &alpha; protects against approving ineffective interventions, while bounding &beta; guards trial sponsors against premature termination of therapeutically viable molecules.

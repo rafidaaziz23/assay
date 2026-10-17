@@ -50,16 +50,27 @@ interface AppState {
   setActiveSessionId: (id: string) => void;
   activeChapterId: string;
   setActiveChapterId: (id: string) => void;
+  activeTrack: 'coding' | 'math' | 'custom';
+  switchTrack: (track: 'coding' | 'math') => void;
 
   // Pinned Subjects
   pinnedSubjects: SubjectProgress[];
 }
 
 export const useAppStore = create<AppState>((set) => ({
-  activeSessionId: 'sess_a1b2c3',
-  setActiveSessionId: (id) => set({ activeSessionId: id }),
-  activeChapterId: 'ch_01',
+  activeSessionId: 'sess_coding_basic',
+  activeChapterId: 'ch_algo_01',
+  activeTrack: 'coding',
+  setActiveSessionId: (id) => set((state) => ({
+    activeSessionId: id,
+    activeTrack: id === 'sess_coding_basic' ? 'coding' : (id === 'sess_a1b2c3' || id === 'sess_math_stats' ? 'math' : 'custom')
+  })),
   setActiveChapterId: (id) => set({ activeChapterId: id }),
+  switchTrack: (track) => set({
+    activeTrack: track,
+    activeSessionId: track === 'coding' ? 'sess_coding_basic' : 'sess_a1b2c3',
+    activeChapterId: track === 'coding' ? 'ch_algo_01' : 'ch_01',
+  }),
   setUser: (updated) =>
     set((state) => ({ user: { ...state.user, ...updated } })),
   isSidebarPinned: false,
