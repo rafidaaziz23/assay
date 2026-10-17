@@ -14,12 +14,64 @@ export function useVoiceDefense(onTranscriptChange?: (text: string) => void) {
     Array.from({ length: 24 }, () => 18)
   );
 
+  const isListeningRef = useRef(false);
   const recognitionRef = useRef<any>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const fallbackIntervalRef = useRef<any>(null);
+  const onTranscriptChangeRef = useRef(onTranscriptChange);
 
+  useEffect(() => {
+    onTranscriptChangeRef.current = onTranscriptChange;
+  }, [onTranscriptChange]);
+
+  const stopWaveformVisualizer = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    if (fallbackIntervalRef.current) {
+      clearInterval(fallbackIntervalRef.current);
+      fallbackIntervalRef.current = null;
+    }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => {
+        try {
+          track.stop();
+        } catch (_) {}
+      });
+      mediaStreamRef.current = null;
+    }
+    if (audioContextRef.current) {
+      try {
+        if (audioContextRef.current.state !== 'closed') {
+          audioContextRef.current.close().catch(() => {});
+        }
+      } catch (_) {}
+      audioContextRef.current = null;
+    }
+    setWaveformBars(Array.from({ length: 24 }, () => 18));
+  }, []);
+
+  const stopListening = useCallback(() => {
+    isListeningRef.current = false;
+    setIsListening(false);
+    stopWaveformVisualizer();
+
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        try {
+          recognitionRef.current.abort();
+        } catch (_) {}
+      }
+    }
+  }, [stopWaveformVisualizer]);
+
+  // Initialize SpeechRecognition once
   useEffect(() => {
     const win = window as unknown as IWindow;
     const SpeechRecognitionClass =
@@ -30,47 +82,70 @@ export function useVoiceDefense(onTranscriptChange?: (text: string) => void) {
       return;
     }
 
-    const recognition = new SpeechRecognitionClass();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
+    try {
+      const recognition = new SpeechRecognitionClass();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      // Auto-detect browser language or fall back to English
+      recognition.lang = navigator.language || 'en-US';
 
-    recognition.onresult = (event: any) => {
-      let current = '';
-      for (let i = 0; i < event.results.length; i++) {
-        current += event.results[i][0].transcript;
-      }
-      setTranscript(current);
-      if (onTranscriptChange) {
-        onTranscriptChange(current);
-      }
-    };
+      recognition.onresult = (event: any) => {
+        let current = '';
+        for (let i = 0; i < event.results.length; i++) {
+          current += event.results[i][0].transcript;
+        }
+        setTranscript(current);
+        if (onTranscriptChangeRef.current) {
+          onTranscriptChangeRef.current(current);
+        }
+      };
 
-    recognition.onerror = (err: any) => {
-      console.warn('[Assay Voice] Speech error:', err);
-      setIsListening(false);
-    };
+      recognition.onerror = (err: any) => {
+        console.warn('[Assay Voice] Speech recognition event:', err?.error || err);
+        // Do not force stop on non-fatal speech errors like 'no-speech'
+        if (err?.error === 'not-allowed' || err?.error === 'service-not-allowed') {
+          stopListening();
+        }
+      };
 
-    recognition.onend = () => {
-      setIsListening(false);
-    };
+      recognition.onend = () => {
+        // If the user is still supposed to be listening, auto-restart speech recognition if possible
+        if (isListeningRef.current) {
+          try {
+            recognition.start();
+          } catch (_) {
+            // Cannot restart; stop gracefully
+            stopListening();
+          }
+        } else {
+          stopListening();
+        }
+      };
 
-    recognitionRef.current = recognition;
+      recognitionRef.current = recognition;
+    } catch (err) {
+      console.warn('[Assay Voice] Could not initialize SpeechRecognition:', err);
+      setIsSupported(false);
+    }
 
     return () => {
+      isListeningRef.current = false;
       if (recognitionRef.current) {
-        recognitionRef.current.abort();
+        try {
+          recognitionRef.current.abort();
+        } catch (_) {}
       }
+      stopWaveformVisualizer();
     };
-  }, [onTranscriptChange]);
+  }, [stopListening, stopWaveformVisualizer]);
 
   const startWaveformVisualizer = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
 
-      const audioCtx = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const audioCtx = new AudioContextClass();
       audioContextRef.current = audioCtx;
 
       const analyser = audioCtx.createAnalyser();
@@ -84,13 +159,12 @@ export function useVoiceDefense(onTranscriptChange?: (text: string) => void) {
       const dataArray = new Uint8Array(bufferLength);
 
       const updateBars = () => {
-        if (!analyserRef.current) return;
+        if (!isListeningRef.current || !analyserRef.current) return;
         analyserRef.current.getByteFrequencyData(dataArray);
 
         const bars: number[] = [];
         for (let i = 0; i < 24; i++) {
           const val = dataArray[i % bufferLength] || 0;
-          // Scale to 15% - 95%
           bars.push(Math.max(15, Math.min(95, (val / 255) * 100)));
         }
         setWaveformBars(bars);
@@ -101,68 +175,39 @@ export function useVoiceDefense(onTranscriptChange?: (text: string) => void) {
     } catch (e) {
       console.warn('[Assay Voice] Mic stream access error, using simulated waveform:', e);
       // Fallback: animated pseudo waveform
-      const interval = setInterval(() => {
+      if (fallbackIntervalRef.current) clearInterval(fallbackIntervalRef.current);
+      fallbackIntervalRef.current = setInterval(() => {
+        if (!isListeningRef.current) return;
         setWaveformBars(
-          Array.from({ length: 24 }, () => Math.floor(Math.random() * 80) + 15)
+          Array.from({ length: 24 }, () => Math.floor(Math.random() * 70) + 20)
         );
       }, 100);
-      (mediaStreamRef as any).fallbackInterval = interval;
     }
-  }, []);
-
-  const stopWaveformVisualizer = useCallback(() => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-    if ((mediaStreamRef as any)?.fallbackInterval) {
-      clearInterval((mediaStreamRef as any).fallbackInterval);
-    }
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-      mediaStreamRef.current = null;
-    }
-    if (audioContextRef.current) {
-      audioContextRef.current.close().catch(() => {});
-      audioContextRef.current = null;
-    }
-    setWaveformBars(Array.from({ length: 24 }, () => 18));
   }, []);
 
   const startListening = useCallback(async () => {
-    setTranscript('');
+    isListeningRef.current = true;
     setIsListening(true);
+    setTranscript('');
+
     await startWaveformVisualizer();
 
     if (recognitionRef.current) {
       try {
         recognitionRef.current.start();
       } catch (e) {
-        // Already started
+        // Recognition might already be running
       }
     }
   }, [startWaveformVisualizer]);
 
-  const stopListening = useCallback(() => {
-    setIsListening(false);
-    stopWaveformVisualizer();
-
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch (e) {
-        // Stopped
-      }
-    }
-  }, [stopWaveformVisualizer]);
-
   const toggleListening = useCallback(() => {
-    if (isListening) {
+    if (isListeningRef.current) {
       stopListening();
     } else {
       startListening();
     }
-  }, [isListening, startListening, stopListening]);
+  }, [startListening, stopListening]);
 
   return {
     isListening,
