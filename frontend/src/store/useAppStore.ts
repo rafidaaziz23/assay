@@ -43,12 +43,25 @@ interface AppState {
     streakDays: number;
     credits: number;
   };
+  setUser: (user: Partial<AppState['user']>) => void;
+
+  // Active Session & Chapter
+  activeSessionId: string;
+  setActiveSessionId: (id: string) => void;
+  activeChapterId: string;
+  setActiveChapterId: (id: string) => void;
 
   // Pinned Subjects
   pinnedSubjects: SubjectProgress[];
 }
 
 export const useAppStore = create<AppState>((set) => ({
+  activeSessionId: 'sess_a1b2c3',
+  setActiveSessionId: (id) => set({ activeSessionId: id }),
+  activeChapterId: 'ch_01',
+  setActiveChapterId: (id) => set({ activeChapterId: id }),
+  setUser: (updated) =>
+    set((state) => ({ user: { ...state.user, ...updated } })),
   isSidebarPinned: false,
   isSidebarHovered: false,
   setSidebarPinned: (pinned) => set({ isSidebarPinned: pinned }),
