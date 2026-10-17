@@ -1,0 +1,443 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Card } from '../components/atoms/Card';
+import { Button } from '../components/atoms/Button';
+import { Badge } from '../components/atoms/Badge';
+import { Avatar } from '../components/atoms/Avatar';
+import {
+  Mic,
+  MicOff,
+  Sparkles,
+  Send,
+  AlertTriangle,
+  ShieldCheck,
+  CheckCircle2,
+  Award,
+  ArrowRight,
+  BrainCircuit,
+  Volume2,
+  RotateCcw,
+  Sliders,
+  Check,
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+export const ExamPage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const [isRecording, setIsRecording] = useState(false);
+  const [examState, setExamState] = useState<'inquiry' | 'calibration' | 'verdict'>('inquiry');
+  const [turnIndex, setTurnIndex] = useState(1);
+  const [confidenceScore, setConfidenceScore] = useState(85);
+
+  const [chatLog, setChatLog] = useState<
+    Array<{
+      sender: 'examiner' | 'candidate';
+      text: string;
+      isFallacyTrap?: boolean;
+    }>
+  >([
+    {
+      sender: 'examiner',
+      text: 'Candidate Lin. In evaluating the Neyman-Pearson lemma, suppose an analyst claims that increasing the significance level alpha from 0.05 to 0.10 will simultaneously reduce the probability of Type II error beta and widen the critical region. Is this logically consistent, or does an unstated trade-off exist?',
+    },
+  ]);
+
+  const [candidateInput, setCandidateInput] = useState('');
+  const [waveformBars, setWaveformBars] = useState<number[]>([
+    20, 35, 60, 45, 80, 50, 75, 90, 65, 40, 25, 55, 70, 85, 30,
+  ]);
+
+  // Audio waveform animation simulation
+  useEffect(() => {
+    let interval: any;
+    if (isRecording) {
+      interval = setInterval(() => {
+        setWaveformBars(
+          Array.from({ length: 24 }, () => Math.floor(Math.random() * 85) + 15)
+        );
+      }, 100);
+    } else {
+      setWaveformBars(Array.from({ length: 24 }, () => 18));
+    }
+    return () => clearInterval(interval);
+  }, [isRecording]);
+
+  const handleSendResponse = (textToSend?: string) => {
+    const val = textToSend || candidateInput;
+    if (!val.trim()) return;
+
+    const updated = [
+      ...chatLog,
+      { sender: 'candidate' as const, text: val },
+    ];
+    setChatLog(updated);
+    setCandidateInput('');
+
+    if (turnIndex === 1) {
+      setTurnIndex(2);
+      setTimeout(() => {
+        setChatLog([
+          ...updated,
+          {
+            sender: 'examiner',
+            text: 'Correct point regarding the size of the critical region. Now consider an adversarial probe: If the distribution fails the monotone likelihood ratio condition, can we still assert that the Neyman-Pearson critical test is Uniformly Most Powerful (UMP) across all composite alternatives?',
+            isFallacyTrap: true,
+          },
+        ]);
+      }, 700);
+    } else {
+      setTimeout(() => {
+        setExamState('calibration');
+      }, 600);
+    }
+  };
+
+  const handleCompleteDefense = () => {
+    setExamState('verdict');
+  };
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in duration-200 pb-12">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-purple-100 border border-purple-200 text-purple-700 flex items-center justify-center font-bold">
+            <Mic className="w-5 h-5 animate-pulse" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 font-mono">
+                Oral Defense Chamber &bull; Rigor L5
+              </span>
+              <Badge variant="purple" size="sm" hasDot>
+                Live Vocal Defense
+              </Badge>
+            </div>
+            <h1 className="text-lg font-bold text-slate-900">
+              Module 03 Capstone: Neyman–Pearson LRT & Error Bounds
+            </h1>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="text-right hidden sm:block">
+            <div className="text-xs font-bold text-slate-900">Dr. Julian Vance</div>
+            <div className="text-[10px] text-slate-400">Lead Socratic Examiner</div>
+          </div>
+          <Avatar name="Julian Vance" size="md" />
+        </div>
+      </div>
+
+      {/* Main Defense Flow */}
+      {examState === 'inquiry' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left/Center: Dialogue Transcript (2 Cols) */}
+          <div className="lg:col-span-2 space-y-4">
+            <Card className="p-6 space-y-4 min-h-[420px] flex flex-col justify-between bg-white shadow-card">
+              {/* Dialogue Log */}
+              <div className="space-y-4 overflow-y-auto max-h-[380px] pr-2">
+                {chatLog.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex flex-col ${
+                      item.sender === 'candidate' ? 'items-end' : 'items-start'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[11px] font-bold text-slate-500">
+                        {item.sender === 'examiner'
+                          ? 'Dr. Julian Vance (Examiner)'
+                          : 'Maya Lin (Candidate)'}
+                      </span>
+                      {item.isFallacyTrap && (
+                        <Badge variant="warning" size="sm">
+                          <AlertTriangle className="w-3 h-3 mr-1" />
+                          Adversarial Fallacy Probe
+                        </Badge>
+                      )}
+                    </div>
+                    <div
+                      className={`p-4 rounded-2xl max-w-[85%] text-xs leading-relaxed ${
+                        item.sender === 'candidate'
+                          ? 'bg-primary-600 text-white rounded-tr-xs'
+                          : 'bg-slate-50 border border-slate-200/80 text-slate-900 rounded-tl-xs shadow-xs'
+                      }`}
+                    >
+                      {item.text}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Interactive Audio Waveform & Input Tray */}
+              <div className="pt-4 border-t border-slate-100 space-y-3">
+                {/* Waveform Visualizer */}
+                <div className="p-3 rounded-xl bg-slate-900 text-white flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setIsRecording(!isRecording)}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                        isRecording
+                          ? 'bg-rose-500 text-white ring-4 ring-rose-500/30'
+                          : 'bg-primary-600 text-white hover:bg-primary-700'
+                      }`}
+                    >
+                      {isRecording ? (
+                        <MicOff className="w-5 h-5" />
+                      ) : (
+                        <Mic className="w-5 h-5" />
+                      )}
+                    </button>
+                    <div>
+                      <div className="text-xs font-bold">
+                        {isRecording ? 'Listening to oral response...' : 'Microphone Ready'}
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-mono">
+                        {isRecording ? '48kHz &bull; Web Audio Stream' : 'Press mic to speak or type response'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Animated Bars */}
+                  <div className="flex items-center gap-1 h-8 px-2 flex-1 max-w-[200px] justify-center">
+                    {waveformBars.map((height, i) => (
+                      <div
+                        key={i}
+                        className={`w-1 rounded-full transition-all duration-75 ${
+                          isRecording ? 'bg-primary-400' : 'bg-slate-700'
+                        }`}
+                        style={{ height: `${height}%` }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quick candidate response options */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-xs text-slate-700"
+                    onClick={() =>
+                      handleSendResponse(
+                        'It is logically consistent. Expanding alpha expands the rejection boundary W, reducing Type II error beta and increasing test power 1 - beta.'
+                      )
+                    }
+                  >
+                    Argue Rejection Boundary Trade-off
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-xs text-slate-700"
+                    onClick={() =>
+                      handleSendResponse(
+                        'No, without the monotone likelihood ratio property, the Karlin-Rubin theorem fails and the test ceases to be UMP.'
+                      )
+                    }
+                  >
+                    Expose Karlin-Rubin Invalidation
+                  </Button>
+                </div>
+
+                {/* Text input backup */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={candidateInput}
+                    onChange={(e) => setCandidateInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendResponse()}
+                    placeholder="State your formal defense or counter-proof..."
+                    className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                  />
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={() => handleSendResponse()}
+                    rightIcon={<Send className="w-4 h-4" />}
+                  >
+                    Submit Defense
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Right Column: Live Rubric & Socratic Meter (1 Col) */}
+          <div className="space-y-4">
+            <Card className="p-5 space-y-4 bg-white">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-900">
+                <span>Rubric Competencies</span>
+                <Badge variant="primary" size="sm">4 Evaluated</Badge>
+              </div>
+
+              <div className="space-y-3.5">
+                {[
+                  {
+                    name: 'First-Principles Derivation',
+                    score: 94,
+                    status: 'Exceeded',
+                    variant: 'success' as const,
+                  },
+                  {
+                    name: 'Boundary Resilience',
+                    score: 88,
+                    status: 'Certified',
+                    variant: 'primary' as const,
+                  },
+                  {
+                    name: 'Fallacy Detection',
+                    score: 92,
+                    status: 'Certified',
+                    variant: 'success' as const,
+                  },
+                  {
+                    name: 'Anti-Hallucination Grounding',
+                    score: 96,
+                    status: 'Exceeded',
+                    variant: 'success' as const,
+                  },
+                ].map((crit) => (
+                  <div key={crit.name} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-medium text-slate-700">{crit.name}</span>
+                      <span className="font-bold font-mono text-slate-900">
+                        {crit.score}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="bg-primary-600 h-1.5 rounded-full"
+                        style={{ width: `${crit.score}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-2">
+                <div className="flex items-center gap-1.5 text-emerald-600 font-semibold">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Zero logical fallacies accepted</span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-slate-400">
+                  Examiner is evaluating causal depth, counterfactual synthesis, and refusal of ungrounded leaps.
+                </p>
+              </div>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* Calibration Phase */}
+      {examState === 'calibration' && (
+        <Card className="p-8 max-w-2xl mx-auto space-y-6 text-center animate-in zoom-in-95 duration-200">
+          <div className="w-12 h-12 rounded-2xl bg-primary-50 text-primary-600 border border-primary-200 flex items-center justify-center mx-auto">
+            <Sliders className="w-6 h-6" />
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold text-slate-900">
+              Calibrate Your Socratic Confidence
+            </h2>
+            <p className="text-xs text-slate-500 max-w-md mx-auto">
+              Before the grand jury reveals your certified evaluation, predict your mastery level to calibrate your metacognitive accuracy.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between text-xs font-bold">
+              <span className="text-slate-500">Predicted Rigor Score</span>
+              <span className="text-2xl font-mono text-primary-600 font-extrabold">
+                {confidenceScore}%
+              </span>
+            </div>
+
+            <input
+              type="range"
+              min="50"
+              max="100"
+              value={confidenceScore}
+              onChange={(e) => setConfidenceScore(Number(e.target.value))}
+              className="w-full accent-primary-600 cursor-pointer h-2 bg-slate-200 rounded-lg"
+            />
+
+            <div className="flex justify-between text-[11px] text-slate-400 font-mono">
+              <span>50% (Tentative)</span>
+              <span>75% (Applied)</span>
+              <span>100% (First-Principles)</span>
+            </div>
+          </div>
+
+          <Button
+            variant="primary"
+            size="lg"
+            className="w-full"
+            onClick={handleCompleteDefense}
+            rightIcon={<ArrowRight className="w-4 h-4" />}
+          >
+            Finalize Defense & Reveal Dossier
+          </Button>
+        </Card>
+      )}
+
+      {/* Verdict / Passed Phase */}
+      {examState === 'verdict' && (
+        <Card className="p-8 max-w-2xl mx-auto space-y-6 text-center animate-in zoom-in-95 duration-200">
+          <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md shadow-emerald-600/20">
+            <CheckCircle2 className="w-8 h-8" />
+          </div>
+
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-700">
+              <Award className="w-4 h-4" />
+              Oral Defense Passed with Distinction
+            </div>
+            <h2 className="text-2xl font-extrabold text-slate-900">
+              Module 03 Certified: 94% Dialectic Rigor
+            </h2>
+            <p className="text-xs text-slate-500 max-w-md mx-auto">
+              You successfully deflected adversarial traps, identified the Karlin-Rubin condition boundary, and grounded all claims in probability theory.
+            </p>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-around text-center">
+            <div>
+              <div className="text-[10px] uppercase font-bold text-slate-400">Predicted</div>
+              <div className="text-lg font-mono font-bold text-slate-700">{confidenceScore}%</div>
+            </div>
+            <div className="w-px h-8 bg-slate-200" />
+            <div>
+              <div className="text-[10px] uppercase font-bold text-slate-400">Actual Rigor</div>
+              <div className="text-lg font-mono font-bold text-emerald-600">94%</div>
+            </div>
+            <div className="w-px h-8 bg-slate-200" />
+            <div>
+              <div className="text-[10px] uppercase font-bold text-slate-400">Calibration Delta</div>
+              <div className="text-lg font-mono font-bold text-primary-600">+9% (Humble)</div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <Button
+              variant="outline"
+              size="md"
+              onClick={() => setExamState('inquiry')}
+              leftIcon={<RotateCcw className="w-4 h-4" />}
+            >
+              Re-examine Turn
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => navigate('/app/report')}
+              rightIcon={<ArrowRight className="w-4 h-4" />}
+            >
+              View Full Competency Dossier
+            </Button>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+};
