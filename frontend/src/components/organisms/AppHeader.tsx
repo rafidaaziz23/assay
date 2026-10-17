@@ -5,9 +5,6 @@ import { NotificationFlyout } from './NotificationFlyout';
 import {
   Search,
   Bell,
-  Flame,
-  Settings,
-  Sparkles,
   Command,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
@@ -37,18 +34,6 @@ export const AppHeader: React.FC = () => {
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">
-        {/* Streak indicator */}
-        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200/60 text-amber-700 text-xs font-semibold select-none">
-          <Flame className="w-4 h-4 text-amber-500 fill-amber-500" />
-          <span>{user.streakDays} Day Streak</span>
-        </div>
-
-        {/* Rigor tier pill */}
-        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-50 border border-primary-200/60 text-primary-700 text-xs font-semibold select-none">
-          <Sparkles className="w-3.5 h-3.5 text-primary-600" />
-          <span>Bloom L5</span>
-        </div>
-
         {/* Notification Bell Button (with activity dot) */}
         <div className="relative">
           <button
@@ -66,18 +51,6 @@ export const AppHeader: React.FC = () => {
           </button>
           <NotificationFlyout />
         </div>
-
-        {/* Settings shortcut */}
-        <NavLink
-          to="/app/settings"
-          className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-          title="Settings"
-        >
-          <Settings className="w-5 h-5" />
-        </NavLink>
-
-        {/* Divider */}
-        <div className="w-px h-6 bg-slate-200 mx-1" />
 
         {/* User Profile Pill */}
         <NavLink
