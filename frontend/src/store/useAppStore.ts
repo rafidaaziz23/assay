@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { api } from '../services/api';
 
 export interface NotificationItem {
   id: string;
@@ -32,6 +33,7 @@ interface AppState {
   toggleNotification: () => void;
   setNotificationOpen: (open: boolean) => void;
   notifications: NotificationItem[];
+  fetchNotifications: () => Promise<void>;
   markAllNotificationsRead: () => void;
 
   // User State
@@ -50,8 +52,8 @@ interface AppState {
   setActiveSessionId: (id: string) => void;
   activeChapterId: string;
   setActiveChapterId: (id: string) => void;
-  activeTrack: 'coding' | 'math' | 'custom';
-  switchTrack: (track: 'coding' | 'math') => void;
+  activeTrack: 'coding' | 'math' | 'distributed' | 'custom';
+  switchTrack: (track: 'coding' | 'math' | 'distributed') => void;
 
   // Pinned Subjects
   pinnedSubjects: SubjectProgress[];
@@ -61,15 +63,15 @@ export const useAppStore = create<AppState>((set) => ({
   activeSessionId: 'sess_coding_basic',
   activeChapterId: 'ch_algo_01',
   activeTrack: 'coding',
-  setActiveSessionId: (id) => set((state) => ({
+  setActiveSessionId: (id) => set(() => ({
     activeSessionId: id,
-    activeTrack: id === 'sess_coding_basic' ? 'coding' : (id === 'sess_a1b2c3' || id === 'sess_math_stats' ? 'math' : 'custom')
+    activeTrack: id === 'sess_coding_basic' ? 'coding' : (id === 'sess_a1b2c3' || id === 'sess_math_stats' ? 'math' : (id === 'sess_dist_systems' ? 'distributed' : 'custom'))
   })),
   setActiveChapterId: (id) => set({ activeChapterId: id }),
   switchTrack: (track) => set({
     activeTrack: track,
-    activeSessionId: track === 'coding' ? 'sess_coding_basic' : 'sess_a1b2c3',
-    activeChapterId: track === 'coding' ? 'ch_algo_01' : 'ch_01',
+    activeSessionId: track === 'coding' ? 'sess_coding_basic' : (track === 'math' ? 'sess_a1b2c3' : 'sess_dist_systems'),
+    activeChapterId: track === 'coding' ? 'ch_algo_01' : (track === 'math' ? 'ch_01' : 'ch_dist_01'),
   }),
   setUser: (updated) =>
     set((state) => ({ user: { ...state.user, ...updated } })),
@@ -130,18 +132,31 @@ export const useAppStore = create<AppState>((set) => ({
     },
   ],
 
-  markAllNotificationsRead: () =>
+  fetchNotifications: async () => {
+    try {
+      const data = await api.getNotifications();
+      if (data && Array.isArray(data) && data.length > 0) {
+        set({ notifications: data });
+      }
+    } catch {
+      // Keep offline/default
+    }
+  },
+
+  markAllNotificationsRead: () => {
     set((state) => ({
       notifications: state.notifications.map((n) => ({ ...n, isUnread: false })),
-    })),
+    }));
+    api.markAllNotificationsRead().catch(() => {});
+  },
 
   user: {
-    name: 'Maya Lin',
-    role: 'Fellow',
-    handle: '@mayalin',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    streakDays: 14,
-    credits: 1250,
+    name: 'Rafida Aziz',
+    role: 'Lead Fellow · Socratic Scholar',
+    handle: '@rafidaaziz',
+    avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+    streakDays: 21,
+    credits: 2500,
   },
 
   pinnedSubjects: [

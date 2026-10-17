@@ -96,6 +96,7 @@ export interface ChapterDetailResponse {
   next_locked: boolean;
   interview_available: boolean;
   estimated_reading_minutes?: number;
+  order?: number;
 }
 
 export interface SocraticAskRequest {
@@ -131,6 +132,7 @@ export interface InterviewStartResponse {
     required: boolean;
     available: boolean;
   };
+  chapter_title?: string;
 }
 
 export interface ClientTelemetry {

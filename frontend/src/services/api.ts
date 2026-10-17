@@ -202,23 +202,6 @@ export const api = {
       {
         method: 'POST',
         body: JSON.stringify({ email, password }),
-      },
-      {
-        access_token: 'mock_token_maya',
-        token_type: 'bearer',
-        expires_in: 86400,
-        user: {
-          id: 'usr_89214a',
-          name: 'Maya Lin',
-          email: 'maya.lin@stanford.edu',
-          role: 'Fellow',
-          handle: '@mayalin',
-          institution: 'Stanford University',
-          streak_days: 14,
-          credits: 1250,
-          avatar_url:
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-        },
       }
     ),
 
@@ -227,16 +210,16 @@ export const api = {
       '/auth/me',
       { method: 'GET' },
       {
-        id: 'usr_89214a',
-        name: 'Maya Lin',
-        email: 'maya.lin@stanford.edu',
-        role: 'Fellow',
-        handle: '@mayalin',
-        institution: 'Stanford University',
-        streak_days: 14,
-        credits: 1250,
+        id: 'usr_rafida',
+        name: 'Rafida Aziz',
+        email: 'rafida.aziz@gmail.com',
+        role: 'Lead Fellow · Socratic Scholar',
+        handle: '@rafidaaziz',
+        institution: 'University Research Scholar',
+        streak_days: 21,
+        credits: 2500,
         avatar_url:
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
       }
     ),
 
@@ -387,5 +370,14 @@ export const api = {
       },
       data
     ),
+
+  getNotifications: () =>
+    request<any[]>('/notifications', { method: 'GET' }),
+
+  markAllNotificationsRead: () =>
+    request<{ status: string }>('/notifications/mark-read', { method: 'POST' }),
+
+  getUsers: () =>
+    request<UserProfile[]>('/auth/users', { method: 'GET' }),
 };
 
