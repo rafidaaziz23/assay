@@ -4,19 +4,14 @@ import { Button } from '../components/atoms/Button';
 import { Badge } from '../components/atoms/Badge';
 import { Avatar } from '../components/atoms/Avatar';
 import {
-  Sparkles,
   ArrowRight,
   BookOpen,
   Mic,
   Brain,
   Clock,
-  CheckCircle2,
-  Calendar,
-  AlertCircle,
-  ExternalLink,
+  ShieldCheck,
   ChevronRight,
-  BarChart3,
-  Flame,
+  Compass,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
@@ -43,39 +38,42 @@ export const DashboardPage: React.FC = () => {
     defenses_passed_count: 12,
     defenses_month_delta: '+3 this month',
     reasoning_depth_pct: 88,
-    bloom_tier_label: 'First-Principles (Bloom Level 5)',
+    bloom_tier_label: 'First-Principles',
     weekly_focus_hours: 6.4,
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
-      {/* 1. Welcome Hero Card */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary-900 via-primary-800 to-indigo-900 text-white p-7 shadow-lg">
-        <div className="relative z-10 max-w-2xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[11px] font-bold tracking-wider uppercase text-primary-200">
-            <Sparkles className="w-3.5 h-3.5 text-primary-300" />
-            Overview & Defense Pipeline
+    <div className="space-y-6 animate-in fade-in duration-200 pb-12">
+      {/* 1. Welcome Hero Card - Clean White Card with Right-Aligned Buttons (Figma 1:1886) */}
+      <div className="relative overflow-hidden rounded-2xl bg-white border border-slate-200/80 p-7 shadow-xs">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="max-w-2xl space-y-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 tracking-wider uppercase font-mono">
+              <span className="w-2 h-2 rounded-full bg-indigo-600" />
+              OVERVIEW & DEFENSE PIPELINE
+            </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Good morning, {d.learner_name}
+            </h1>
+            <p className="text-xs md:text-sm text-slate-500 leading-relaxed font-normal">
+              You are {d.remaining_modules} modules away from completing <strong className="font-semibold text-slate-800">{d.headline_subject}</strong> and qualifying for your Capstone Oral Defense.
+            </p>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-            Good morning, Maya Lin
-          </h1>
-          <p className="text-sm text-primary-100/90 leading-relaxed font-normal">
-            You are 2 modules away from completing <span className="font-semibold text-white">Causal Inference</span> and qualifying for your Capstone Oral Defense.
-          </p>
-          <div className="flex flex-wrap items-center gap-3 pt-2">
+
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
             <Button
               variant="primary"
               size="md"
-              className="bg-white text-primary-900 hover:bg-primary-50 font-bold shadow-md shadow-black/10"
+              className="bg-[#4338CA] hover:bg-[#3730A3] text-white font-bold px-5 py-2.5 rounded-full text-xs shadow-xs"
               onClick={() => navigate('/app/reader')}
-              rightIcon={<ArrowRight className="w-4 h-4" />}
+              rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
             >
               Resume Module 3
             </Button>
             <Button
               variant="outline"
               size="md"
-              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+              className="bg-[#EEF0FF] hover:bg-indigo-100 text-[#4338CA] border-transparent font-bold px-5 py-2.5 rounded-full text-xs transition-colors"
               onClick={() => navigate('/app/intake')}
             >
               Explore new topic
@@ -83,102 +81,99 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Decorative backdrop shapes */}
-        <div className="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-primary-500/20 blur-3xl pointer-events-none" />
-        <div className="absolute right-20 top-0 w-48 h-48 rounded-full bg-indigo-400/10 blur-2xl pointer-events-none" />
+        {/* Decorative subtle backdrop curve */}
+        <div className="absolute -right-16 -top-16 w-72 h-72 rounded-full bg-indigo-50/60 blur-2xl pointer-events-none" />
       </div>
 
       {/* 2. Four Key Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1 */}
-        <Card className="p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider">
-            <span>Active Subjects</span>
-            <BookOpen className="w-4 h-4 text-primary-600" />
+        <Card className="p-5 flex flex-col justify-between shadow-xs">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider font-mono">
+            <span>ACTIVE SUBJECTS</span>
+            <BookOpen className="w-4 h-4 text-slate-400" />
           </div>
           <div className="my-2">
-            <div className="text-3xl font-extrabold text-slate-900 font-mono">3</div>
-            <div className="text-xs text-slate-500 font-medium">In progress across 18 modules</div>
-          </div>
-          <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
-            <div className="bg-primary-600 h-full w-2/3" />
+            <div className="text-3xl font-extrabold text-slate-900 font-mono">{d.active_subjects_count}</div>
+            <div className="text-xs text-slate-400 font-medium">In progress across {d.total_modules_count} modules</div>
           </div>
         </Card>
 
         {/* Metric 2 */}
-        <Card className="p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider">
-            <span>Oral Defenses Passed</span>
-            <Mic className="w-4 h-4 text-purple-600" />
+        <Card className="p-5 flex flex-col justify-between shadow-xs">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider font-mono">
+            <span>ORAL DEFENSES PASSED</span>
+            <span className="bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+              {d.defenses_month_delta}
+            </span>
           </div>
-          <div className="my-2 flex items-baseline justify-between">
-            <div className="text-3xl font-extrabold text-slate-900 font-mono">12</div>
-            <Badge variant="success" size="sm">+3 this month</Badge>
+          <div className="my-2">
+            <div className="text-3xl font-extrabold text-slate-900 font-mono">{d.defenses_passed_count}</div>
+            <div className="text-xs text-slate-400 font-medium">Certified milestones</div>
           </div>
-          <div className="text-xs text-slate-500 font-medium">Certified milestones</div>
         </Card>
 
         {/* Metric 3 */}
-        <Card className="p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider">
-            <span>Reasoning Depth</span>
-            <Brain className="w-4 h-4 text-amber-500" />
+        <Card className="p-5 flex flex-col justify-between shadow-xs">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider font-mono">
+            <span>REASONING DEPTH</span>
+            <span className="bg-indigo-50 text-indigo-700 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+              First-Principles
+            </span>
           </div>
-          <div className="my-2 flex items-baseline justify-between">
-            <div className="text-3xl font-extrabold text-slate-900 font-mono">88%</div>
-            <Badge variant="warning" size="sm">First-Principles</Badge>
+          <div className="my-2">
+            <div className="text-3xl font-extrabold text-slate-900 font-mono">{d.reasoning_depth_pct}%</div>
+            <div className="text-xs text-slate-400 font-medium">Bloom Level 5 (Synthesis)</div>
           </div>
-          <div className="text-xs text-slate-500 font-medium">Bloom Level 5 (Synthesis)</div>
         </Card>
 
         {/* Metric 4 */}
-        <Card className="p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider">
-            <span>Weekly Focus</span>
-            <Clock className="w-4 h-4 text-cyan-600" />
+        <Card className="p-5 flex flex-col justify-between shadow-xs">
+          <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider font-mono">
+            <span>WEEKLY FOCUS</span>
+            <Clock className="w-4 h-4 text-slate-400" />
           </div>
-          <div className="my-2 flex items-baseline gap-1">
-            <div className="text-3xl font-extrabold text-slate-900 font-mono">6.4</div>
-            <span className="text-sm font-semibold text-slate-500">hrs</span>
+          <div className="my-2">
+            <div className="text-3xl font-extrabold text-slate-900 font-mono flex items-baseline gap-1">
+              {d.weekly_focus_hours}
+              <span className="text-xs font-normal text-slate-400">hrs</span>
+            </div>
+            <div className="text-xs text-slate-400 font-medium">Active inquiry & defense</div>
           </div>
-          <div className="text-xs text-slate-500 font-medium">Active inquiry & defense</div>
         </Card>
       </div>
 
       {/* 3. Main Grid: Left (Learning Paths & Inquiries) + Right (Upcoming Defense & Rhythm) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column (2 Cols) */}
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Column (8 Cols) */}
+        <div className="lg:col-span-8 space-y-6">
           {/* Section: In Progress Learning Paths */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-primary-600">
-                  Curriculum Trajectory
-                </span>
-                <h2 className="text-base font-bold text-slate-900">
-                  In Progress Learning Paths
-                </h2>
+              <div className="text-xs text-slate-400 uppercase tracking-wider font-mono">
+                CURRICULUM TRAJECTORY &bull; <strong className="text-slate-800 font-bold capitalize">In Progress Learning Paths</strong>
               </div>
               <button
                 onClick={() => navigate('/app/roadmap')}
-                className="text-xs font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
               >
                 View all curricula <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            {/* Path Card 1 */}
-            <Card hoverable className="p-5 space-y-4" onClick={() => navigate('/app/reader')}>
+            {/* Path Card 1: Neyman-Pearson Lemma (4/6 defended, 6-segment bar) */}
+            <Card hoverable className="p-6 space-y-4 shadow-xs" onClick={() => navigate('/app/reader')}>
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="cyan" size="sm">Applied Level</Badge>
+                    <span className="bg-indigo-50 text-indigo-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                      Applied Level
+                    </span>
                     <span className="text-xs text-slate-400 font-medium">
                       Module 03 &bull; Hypothesis Testing & LRT
                     </span>
                   </div>
-                  <h3 className="text-base font-bold text-slate-900">
+                  <h3 className="text-base font-bold text-slate-900 mt-1">
                     Statistics for Decisions: Neyman–Pearson Lemma
                   </h3>
                 </div>
@@ -187,39 +182,51 @@ export const DashboardPage: React.FC = () => {
                 </span>
               </div>
 
-              {/* Progress bar and badges */}
+              {/* Segmented Progress Bar (6 Distinct Capsules) */}
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-semibold">
-                  <span className="text-slate-600">4 of 6 concepts defended</span>
-                  <span className="text-primary-600 font-mono">66% Phase Progress</span>
+                <div className="flex items-center gap-1.5 w-full">
+                  {[true, true, true, true, false, false].map((active, i) => (
+                    <div
+                      key={i}
+                      className={`h-2 rounded-full flex-1 transition-all ${
+                        active ? 'bg-indigo-600' : 'bg-indigo-100'
+                      }`}
+                    />
+                  ))}
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                  <div className="bg-primary-600 h-2 rounded-full" style={{ width: '66%' }} />
+                <div className="flex items-center justify-between text-xs pt-0.5">
+                  <span className="text-slate-500 font-medium">4 of 6 concepts defended</span>
+                  <span className="text-indigo-600 font-bold font-mono">66% Phase Progress</span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-1 text-xs">
-                <div className="flex items-center gap-1.5 text-emerald-600 font-medium">
-                  <CheckCircle2 className="w-4 h-4" />
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                <div className="flex items-center gap-2 text-slate-700 font-medium">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
                   <span>Prerequisite: Probability Bounds met</span>
                 </div>
-                <span className="font-bold text-primary-600 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                <button
+                  type="button"
+                  className="bg-[#1E2238] hover:bg-[#151828] text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-colors"
+                >
                   Continue dialogue &rarr;
-                </span>
+                </button>
               </div>
             </Card>
 
-            {/* Path Card 2 */}
-            <Card hoverable className="p-5 space-y-4" onClick={() => navigate('/app/reader')}>
+            {/* Path Card 2: Causal Inference (1/6 defended, 6-segment bar) */}
+            <Card hoverable className="p-6 space-y-4 shadow-xs" onClick={() => navigate('/app/reader')}>
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="purple" size="sm">Rigorous Level</Badge>
+                    <span className="bg-amber-50 text-amber-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                      Rigorous Level
+                    </span>
                     <span className="text-xs text-slate-400 font-medium">
                       Module 02 &bull; Backdoor Criterion & DAGs
                     </span>
                   </div>
-                  <h3 className="text-base font-bold text-slate-900">
+                  <h3 className="text-base font-bold text-slate-900 mt-1">
                     Causal Inference & Potential Outcomes
                   </h3>
                 </div>
@@ -228,33 +235,44 @@ export const DashboardPage: React.FC = () => {
                 </span>
               </div>
 
+              {/* Segmented Progress Bar (6 Distinct Capsules) */}
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-semibold">
-                  <span className="text-slate-600">1 of 6 concepts defended</span>
-                  <span className="text-purple-600 font-mono">17% Phase Progress</span>
+                <div className="flex items-center gap-1.5 w-full">
+                  {[true, false, false, false, false, false].map((active, i) => (
+                    <div
+                      key={i}
+                      className={`h-2 rounded-full flex-1 transition-all ${
+                        active ? 'bg-indigo-600' : 'bg-indigo-100'
+                      }`}
+                    />
+                  ))}
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                  <div className="bg-purple-600 h-2 rounded-full" style={{ width: '17%' }} />
+                <div className="flex items-center justify-between text-xs pt-0.5">
+                  <span className="text-slate-500 font-medium">1 of 6 concepts defended</span>
+                  <span className="text-slate-400 font-medium">Next defense in 2 days</span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-1 text-xs">
-                <div className="flex items-center gap-1.5 text-amber-600 font-medium">
-                  <AlertCircle className="w-4 h-4" />
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                <div className="flex items-center gap-2 text-slate-700 font-medium">
+                  <span className="w-2 h-2 rounded-full bg-rose-500" />
                   <span>1 unresolved counter-argument</span>
                 </div>
-                <span className="font-bold text-primary-600 flex items-center gap-1">
+                <button
+                  type="button"
+                  className="bg-[#1E2238] hover:bg-[#151828] text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-colors"
+                >
                   Continue dialogue &rarr;
-                </span>
+                </button>
               </div>
             </Card>
           </div>
 
           {/* Section: Recent Socratic Inquiries */}
-          <div className="space-y-3">
+          <div className="space-y-3 pt-2">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Dialectic History
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                DIALECTIC HISTORY
               </span>
               <h2 className="text-base font-bold text-slate-900">
                 Recent Socratic Inquiries
@@ -266,45 +284,79 @@ export const DashboardPage: React.FC = () => {
 
             <div className="space-y-3">
               {/* Inquiry 1 */}
-              <Card className="p-4 space-y-2 border-l-4 border-l-primary-600">
+              <Card className="p-5 space-y-3 shadow-xs">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-900">Monotone Likelihood</span>
+                  <span className="bg-indigo-50 text-indigo-700 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                    Monotone Likelihood
+                  </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400 font-mono">Today, 10:15 AM</span>
-                    <Badge variant="success" size="sm">Mastered</Badge>
+                    <span className="text-slate-400 font-mono text-[11px]">Today, 10:15 AM</span>
+                    <span className="bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                      Mastered
+                    </span>
                   </div>
                 </div>
-                <p className="text-xs text-slate-700 italic font-medium leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <p className="text-xs text-slate-800 font-medium leading-relaxed bg-slate-50/60 p-3 rounded-xl border border-slate-100">
                   &ldquo;If density ratio stops being strictly monotonic, does Neyman-Pearson still yield a UMP critical test?&rdquo;
                 </p>
                 <div className="flex items-center justify-between text-xs pt-1">
                   <span className="text-slate-500">
                     Resolution through <strong className="text-slate-700">Karlin-Rubin Theorem</strong>
                   </span>
-                  <button className="text-primary-600 font-semibold hover:underline">
-                    Revisit transcript
+                  <button className="text-indigo-600 font-semibold hover:underline flex items-center gap-1">
+                    Revisit transcript <span className="text-[11px]">↗</span>
                   </button>
                 </div>
               </Card>
 
               {/* Inquiry 2 */}
-              <Card className="p-4 space-y-2 border-l-4 border-l-amber-500">
+              <Card className="p-5 space-y-3 shadow-xs">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-900">Causal DAGs</span>
+                  <span className="bg-indigo-50 text-indigo-700 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                    Causal DAGs
+                  </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400 font-mono">Oct 22, 16:40</span>
-                    <Badge variant="warning" size="sm">In Progress</Badge>
+                    <span className="text-slate-400 font-mono text-[11px]">Oct 22, 16:40</span>
+                    <span className="bg-amber-50 text-amber-700 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                      In Progress
+                    </span>
                   </div>
                 </div>
-                <p className="text-xs text-slate-700 italic font-medium leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <p className="text-xs text-slate-800 font-medium leading-relaxed bg-slate-50/60 p-3 rounded-xl border border-slate-100">
                   &ldquo;Why does unobserved confounding invalidate backdoor adjustment even when sample size n &rarr; &infin;?&rdquo;
                 </p>
                 <div className="flex items-center justify-between text-xs pt-1">
                   <span className="text-slate-500">
                     Asymptotic bias vs variance distinction
                   </span>
-                  <button className="text-primary-600 font-semibold hover:underline">
-                    Revisit transcript
+                  <button className="text-indigo-600 font-semibold hover:underline flex items-center gap-1">
+                    Revisit transcript <span className="text-[11px]">↗</span>
+                  </button>
+                </div>
+              </Card>
+
+              {/* Inquiry 3 */}
+              <Card className="p-5 space-y-3 shadow-xs">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="bg-indigo-50 text-indigo-700 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                    LNP Formulation
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400 font-mono text-[11px]">Oct 20, 11:20</span>
+                    <span className="bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                      Mastered
+                    </span>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-800 font-medium leading-relaxed bg-slate-50/60 p-3 rounded-xl border border-slate-100">
+                  &ldquo;How does the mRNA lipid nanoparticle avoid early endosomal degradation?&rdquo;
+                </p>
+                <div className="flex items-center justify-between text-xs pt-1">
+                  <span className="text-slate-500">
+                    Ionizable lipids and pH-triggered endosomal escape
+                  </span>
+                  <button className="text-indigo-600 font-semibold hover:underline flex items-center gap-1">
+                    Revisit transcript <span className="text-[11px]">↗</span>
                   </button>
                 </div>
               </Card>
@@ -312,15 +364,18 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column (1 Col): Upcoming Defense & Cognitive Rhythm */}
-        <div className="space-y-6">
-          {/* Upcoming Defense Card */}
-          <Card className="p-5 border-primary-200 bg-gradient-to-b from-primary-50/60 to-white space-y-4">
+        {/* Right Column (4 Cols): Upcoming Defense & Cognitive Rhythm & Rubric */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Upcoming Defense Card (Figma 1:1886) */}
+          <Card className="p-6 border-slate-200/80 bg-white shadow-xs space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary-700">
-                Upcoming Defense
+              <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 tracking-wider font-mono">
+                <Mic className="w-4 h-4 text-indigo-600" />
+                <span>UPCOMING DEFENSE</span>
+              </div>
+              <span className="bg-amber-50 text-amber-800 border border-amber-200/60 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
+                Tomorrow at 10:00 AM
               </span>
-              <Badge variant="primary" size="sm">Tomorrow at 10:00 AM</Badge>
             </div>
 
             <div>
@@ -332,47 +387,52 @@ export const DashboardPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-200/80 shadow-xs">
+            {/* Dr. Julian Vance Examiner Card */}
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 shadow-2xs">
               <Avatar name="Julian Vance" size="md" />
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-bold text-slate-900">Dr. Julian Vance</div>
-                <div className="text-[11px] text-slate-400">Lead Examiner &bull; Decision Theory</div>
+                <div className="text-[11px] text-slate-500">Lead Examiner &bull; Decision Theory</div>
               </div>
             </div>
 
-            <p className="text-xs text-slate-600 leading-relaxed">
-              45-min live vocal Socratic inquiry. 4 rubric competencies evaluated independently.
-            </p>
+            {/* Socratic inquiry box */}
+            <div className="p-3 rounded-xl bg-indigo-50/50 border border-indigo-100 flex items-start gap-2.5 text-xs text-slate-600 leading-relaxed">
+              <ShieldCheck className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+              <span>
+                45–min live vocal Socratic inquiry. 4 rubric competencies evaluated independently.
+              </span>
+            </div>
 
-            <Button
-              variant="primary"
-              size="md"
-              className="w-full"
+            {/* Action button */}
+            <button
+              type="button"
               onClick={() => navigate('/app/exam')}
-              leftIcon={<Mic className="w-4 h-4" />}
+              className="w-full bg-[#EEF0FF] hover:bg-indigo-100 text-[#4338CA] font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors"
             >
-              Enter Defense Chamber
-            </Button>
+              <span>Review preparation notes</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </Card>
 
           {/* Weekly Inquiry Rhythm */}
-          <Card className="p-5 space-y-3">
+          <Card className="p-6 space-y-3 shadow-xs">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Cognitive Load
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+                  COGNITIVE LOAD
                 </span>
                 <h3 className="text-sm font-bold text-slate-900">
                   Weekly Inquiry Rhythm
                 </h3>
               </div>
-              <BarChart3 className="w-4 h-4 text-slate-400" />
+              <span className="w-2 h-2 rounded-full bg-indigo-600" />
             </div>
             <p className="text-xs text-slate-500">
               Active dialogue & deep reading time
             </p>
 
-            {/* Simple CSS Bar Chart for 7 days */}
+            {/* 7-Day Rhythm Bar Chart (Figma 1:1886) */}
             <div className="h-28 flex items-end justify-between gap-2 pt-4 px-2">
               {[
                 { day: 'Mon', h: '60%', active: false },
@@ -386,15 +446,45 @@ export const DashboardPage: React.FC = () => {
                 <div key={item.day} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
                   <div
                     className={`w-full rounded-t-md transition-all ${
-                      item.active ? 'bg-primary-600' : 'bg-slate-200 hover:bg-slate-300'
+                      item.active ? 'bg-indigo-600' : 'bg-indigo-100 hover:bg-indigo-200'
                     }`}
                     style={{ height: item.h }}
                   />
-                  <span className="text-[10px] text-slate-400 font-mono">{item.day}</span>
+                  <span className={`text-[10px] font-mono ${item.active ? 'text-indigo-900 font-bold' : 'text-slate-400'}`}>
+                    {item.day}
+                  </span>
                 </div>
               ))}
             </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+              <span className="text-slate-500 font-medium">Daily avg: <strong className="text-slate-800">62 mins</strong></span>
+              <span className="text-emerald-700 font-bold text-[11px] flex items-center gap-1">
+                ↗ +37% vs target
+              </span>
+            </div>
           </Card>
+
+          {/* Oral Defense Rubric Card (Figma 1:1886) */}
+          <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
+              <Compass className="w-4 h-4 text-indigo-600" />
+              <span>Oral Defense Rubric</span>
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Your examiners grade based on Counter-factual Synthesis, Counter-example Construction, Boundary Precision, and Semantic Parsimony.
+            </p>
+            <a
+              href="#rubric"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('/app/exam');
+              }}
+              className="text-xs font-semibold text-indigo-600 hover:underline inline-flex items-center gap-1 pt-1"
+            >
+              View Socratic evaluation standards ↗
+            </a>
+          </div>
         </div>
       </div>
     </div>
