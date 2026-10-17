@@ -155,45 +155,41 @@ async def get_dashboard_summary(
         upcoming_title = active_ch.get("title", upcoming_title)
         upcoming_sub = f"Module 0{active_ch.get('order', 1)} Dialectic Defense"
 
-    return DashboardSummaryResponse(
-        learner_name="Maya Lin",
-        headline_subject=headline,
-        remaining_modules=remaining_modules,
-        active_subjects_count=max(3, len(store.sessions)),
-        total_modules_count=total_modules_count,
-        defenses_passed_count=12,
-        defenses_month_delta="+3 this month",
-        reasoning_depth_pct=88,
-        bloom_tier_label="First-Principles (Bloom Level 5)",
-        weekly_focus_hours=6.4,
-        learning_paths=learning_paths,
-        recent_inquiries=[
-            SocraticInquiryRecord(
-                id="inq-algo-1",
-                topic="Asymptotic Notation",
-                time="Today, 10:15 AM",
-                badge_status="Mastered",
-                question_quote="Why is O(n log n) the information-theoretic lower bound for comparison sorts?",
-                resolution_theorem="Decision Tree Height & Stirling's Approximation",
-            ),
-            SocraticInquiryRecord(
-                id="inq-1",
-                topic="Monotone Likelihood",
-                time="Yesterday, 16:40",
-                badge_status="Mastered",
-                question_quote="If density ratio stops being strictly monotonic, does Neyman-Pearson still yield a UMP critical test?",
-                resolution_theorem="Karlin-Rubin Theorem",
-            ),
-            SocraticInquiryRecord(
-                id="inq-2",
-                topic="Causal DAGs",
-                time="Oct 22, 11:20",
-                badge_status="In Progress",
-                question_quote="Why does unobserved confounding invalidate backdoor adjustment even when sample size n → ∞?",
-                resolution_theorem="Asymptotic bias vs variance distinction",
-            ),
-        ],
-        upcoming_defense=UpcomingDefenseInfo(
+    raw_inquiries = store.list_inquiries()
+    recent_inquiries = [
+        SocraticInquiryRecord(**inq) for inq in raw_inquiries[:4]
+    ] if raw_inquiries else [
+        SocraticInquiryRecord(
+            id="inq-algo-1",
+            topic="Asymptotic Notation",
+            time="Today, 10:15 AM",
+            badge_status="Mastered",
+            question_quote="Why is O(n log n) the information-theoretic lower bound for comparison sorts?",
+            resolution_theorem="Decision Tree Height & Stirling's Approximation",
+        ),
+        SocraticInquiryRecord(
+            id="inq-1",
+            topic="Monotone Likelihood",
+            time="Yesterday, 16:40",
+            badge_status="Mastered",
+            question_quote="If density ratio stops being strictly monotonic, does Neyman-Pearson still yield a UMP critical test?",
+            resolution_theorem="Karlin-Rubin Theorem",
+        ),
+        SocraticInquiryRecord(
+            id="inq-2",
+            topic="Causal DAGs",
+            time="Oct 22, 11:20",
+            badge_status="In Progress",
+            question_quote="Why does unobserved confounding invalidate backdoor adjustment even when sample size n → ∞?",
+            resolution_theorem="Asymptotic bias vs variance distinction",
+        ),
+    ]
+
+    raw_defenses = store.list_defenses()
+    if raw_defenses:
+        upcoming_defense = UpcomingDefenseInfo(**raw_defenses[0])
+    else:
+        upcoming_defense = UpcomingDefenseInfo(
             title=upcoming_title,
             subtitle=upcoming_sub,
             scheduled_time="Tomorrow at 10:00 AM",
@@ -201,7 +197,22 @@ async def get_dashboard_summary(
             examiner_role="Lead Examiner · Decision Theory",
             examiner_avatar="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
             description="45-min live vocal Socratic inquiry. 4 rubric competencies evaluated independently.",
-        ),
+        )
+
+    return DashboardSummaryResponse(
+        learner_name="Maya Lin",
+        headline_subject=headline,
+        remaining_modules=remaining_modules,
+        active_subjects_count=3,
+        total_modules_count=total_modules_count,
+        defenses_passed_count=12,
+        defenses_month_delta="+3 this month",
+        reasoning_depth_pct=88,
+        bloom_tier_label="First-Principles (Bloom Level 5)",
+        weekly_focus_hours=6.4,
+        learning_paths=learning_paths,
+        recent_inquiries=recent_inquiries,
+        upcoming_defense=upcoming_defense,
         weekly_rhythm=[
             DayRhythm(day="Mon", height_pct="60%", active=False),
             DayRhythm(day="Tue", height_pct="45%", active=False),
