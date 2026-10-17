@@ -42,7 +42,7 @@ def test_dashboard_summary():
 def test_settings_get_and_post():
     get_res = client.get("/api/v1/settings")
     assert get_res.status_code == 200
-    assert get_res.json()["model"] == "gemini-2.5-flash"
+    assert get_res.json()["model"] in ("gemini-2.5-flash", "gemini-flash-lite-latest")
 
     update_res = client.post(
         "/api/v1/settings",

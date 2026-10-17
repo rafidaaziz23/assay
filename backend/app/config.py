@@ -14,8 +14,8 @@ class Settings(BaseSettings):
     
     # Google AI
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
-    GEMINI_MODEL: str = "gemini-2.5-flash"
-    GEMINI_PRO_MODEL: str = "gemini-2.5-pro"
+    GEMINI_MODEL: str = "gemini-flash-lite-latest"
+    GEMINI_PRO_MODEL: str = "gemini-3.1-flash-lite"
     
     # Demo & Resilience Mode ('live' or 'cached')
     DEMO_MODE: str = os.getenv("DEMO_MODE", "cached")
