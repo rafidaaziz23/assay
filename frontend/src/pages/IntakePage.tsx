@@ -100,39 +100,35 @@ export const IntakePage: React.FC = () => {
 
   const handleCommit = async () => {
     setIsSubmitting(true);
-    const t = topicPrompt.toLowerCase();
     try {
-      if (t.includes('algo') || t.includes('cod') || t.includes('sort') || t.includes('data struct')) {
-        setActiveSessionId('sess_coding_basic');
-        navigate('/app/roadmap');
-        return;
-      }
-      if (t.includes('math') || t.includes('stat') || t.includes('neyman') || t.includes('decision')) {
-        setActiveSessionId('sess_a1b2c3');
-        navigate('/app/roadmap');
-        return;
-      }
-
       const intakeRes = await api.createIntake({
         intent: topicPrompt,
-        role: selectedDepth === 'rigorous' ? 'System Design' : 'Data/ML',
+        role: selectedDepth === 'rigorous' ? 'System Design' : (selectedDepth === 'applied' ? 'Data/ML' : 'Software Engineering'),
         document: selectedFileObj ? selectedFileObj.name : uploadedFile?.name,
       });
 
-      const sid = intakeRes.session_id || 'sess_coding_basic';
+      const sid = intakeRes.session_id;
       setActiveSessionId(sid);
 
       if (selectedFileObj) {
         await api.uploadDocument(sid, selectedFileObj);
       }
 
+      // Generate verified syllabus through backend engine
       const syl = await api.generateSyllabus(sid);
       if (syl && syl.chapters && syl.chapters.length > 0) {
         setActiveChapterId(syl.chapters[0].chapter_id);
       }
       navigate('/app/roadmap');
     } catch (err) {
-      console.warn('Intake submission fallback:', err);
+      console.warn('Intake live generation failed, routing to active curriculum:', err);
+      // If offline/error, choose closest track
+      const t = topicPrompt.toLowerCase();
+      if (t.includes('algo') || t.includes('cod') || t.includes('sort') || t.includes('data struct')) {
+        setActiveSessionId('sess_coding_basic');
+      } else if (t.includes('math') || t.includes('stat') || t.includes('neyman') || t.includes('decision')) {
+        setActiveSessionId('sess_math_stats');
+      }
       navigate('/app/roadmap');
     } finally {
       setIsSubmitting(false);

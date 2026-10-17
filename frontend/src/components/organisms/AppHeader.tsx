@@ -1,14 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { Avatar } from '../atoms/Avatar';
 import { NotificationFlyout } from './NotificationFlyout';
-import {
-  Search,
-  Bell,
-  Command,
-  Code2,
-  Calculator,
-} from 'lucide-react';
+import { Search, Bell, Command } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 export const AppHeader: React.FC = () => {
@@ -17,9 +11,12 @@ export const AppHeader: React.FC = () => {
     notifications,
     toggleNotification,
     isNotificationOpen,
-    activeTrack,
-    switchTrack,
+    fetchNotifications,
   } = useAppStore();
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const unreadCount = notifications.filter((n) => n.isUnread).length;
 
@@ -40,33 +37,7 @@ export const AppHeader: React.FC = () => {
         </div>
       </div>
 
-      {/* Track Selector Pill (1-Click switch between seeded curricula) */}
-      <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-full border border-slate-200/80 text-xs">
-        <button
-          type="button"
-          onClick={() => switchTrack('coding')}
-          className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-bold transition-all text-xs ${
-            activeTrack === 'coding'
-              ? 'bg-indigo-600 text-white shadow-xs'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Code2 className="w-3.5 h-3.5" />
-          <span>Coding Basic</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => switchTrack('math')}
-          className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-bold transition-all text-xs ${
-            activeTrack === 'math'
-              ? 'bg-indigo-600 text-white shadow-xs'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Calculator className="w-3.5 h-3.5" />
-          <span>Math Track</span>
-        </button>
-      </div>
+
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">

@@ -38,8 +38,8 @@ export const AppSidebar: React.FC = () => {
       icon: LayoutDashboard,
     },
     {
-      label: 'Curated Paths',
-      to: '/app/intake',
+      label: 'Learning Roadmap',
+      to: '/app/roadmap',
       icon: Compass,
       shortcut: '⌘2',
     },
@@ -62,6 +62,11 @@ export const AppSidebar: React.FC = () => {
       label: 'Dossiers',
       to: '/app/report',
       icon: Award,
+    },
+    {
+      label: 'Generate Path',
+      to: '/app/intake',
+      icon: Sparkles,
     },
   ];
 

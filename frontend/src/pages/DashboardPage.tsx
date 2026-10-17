@@ -20,7 +20,7 @@ import { useAppStore } from '../store/useAppStore';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const { activeSessionId, setActiveChapterId } = useAppStore();
+  const { activeSessionId, setActiveChapterId, user } = useAppStore();
   const [data, setData] = React.useState<DashboardSummaryResponse | null>(null);
   const [loading, setLoading] = React.useState(true);
 
@@ -32,70 +32,39 @@ export const DashboardPage: React.FC = () => {
       .finally(() => setLoading(false));
   }, [activeSessionId]);
 
+  if (loading && !data) {
+    return (
+      <div className="space-y-6 animate-pulse p-6">
+        <div className="h-32 bg-slate-100 rounded-2xl" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-24 bg-slate-100 rounded-2xl" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 h-80 bg-slate-100 rounded-2xl" />
+          <div className="h-80 bg-slate-100 rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
+
   const d = data || {
-    learner_name: 'Maya Lin',
-    headline_subject: 'Causal Inference',
+    learner_name: user?.name || 'Rafida Aziz',
+    headline_subject: activeSessionId === 'sess_coding_basic' ? 'Algorithms & Data Structures' : (activeSessionId === 'sess_dist_systems' ? 'Distributed Systems & Consensus' : 'Statistical Decision Theory'),
     remaining_modules: 2,
     active_subjects_count: 3,
-    total_modules_count: 18,
+    total_modules_count: 6,
     defenses_passed_count: 12,
     defenses_month_delta: '+3 this month',
     reasoning_depth_pct: 88,
     bloom_tier_label: 'First-Principles',
     weekly_focus_hours: 6.4,
-    learning_paths: [
-      {
-        id: 'lp-1',
-        title: 'Statistics for Decisions: Neyman–Pearson Lemma',
-        level_tag: 'Applied Level',
-        module_label: 'Module 03 · Hypothesis Testing & LRT',
-        last_active: '42 mins ago',
-        concepts_defended: '4 of 6 concepts defended',
-        progress_pct: 66,
-        prerequisite_note: 'Prerequisite: Probability Bounds met',
-        action_url: '/app/reader',
-      },
-      {
-        id: 'lp-2',
-        title: 'Causal Inference & Potential Outcomes',
-        level_tag: 'Rigorous Level',
-        module_label: 'Module 02 · Backdoor Criterion & DAGs',
-        last_active: 'Yesterday',
-        concepts_defended: '1 of 6 concepts defended',
-        progress_pct: 17,
-        prerequisite_note: '1 unresolved counter-argument',
-        action_url: '/app/reader',
-      },
-    ],
-    recent_inquiries: [
-      {
-        id: 'inq-1',
-        topic: 'Monotone Likelihood',
-        time: 'Today, 10:15 AM',
-        badge_status: 'Mastered',
-        question_quote: 'If density ratio stops being strictly monotonic, does Neyman-Pearson still yield a UMP critical test?',
-        resolution_theorem: 'Karlin-Rubin Theorem',
-      },
-      {
-        id: 'inq-2',
-        topic: 'Causal DAGs',
-        time: 'Oct 22, 16:40',
-        badge_status: 'In Progress',
-        question_quote: 'Why does unobserved confounding invalidate backdoor adjustment even when sample size n → ∞?',
-        resolution_theorem: 'Asymptotic bias vs variance distinction',
-      },
-      {
-        id: 'inq-3',
-        topic: 'LNP Formulation',
-        time: 'Oct 20, 11:20',
-        badge_status: 'Mastered',
-        question_quote: 'How does the mRNA lipid nanoparticle avoid early endosomal degradation?',
-        resolution_theorem: 'Ionizable lipids and pH-triggered endosomal escape',
-      },
-    ],
+    learning_paths: [],
+    recent_inquiries: [],
     upcoming_defense: {
-      title: 'Neyman–Pearson LRT & Error Bounds',
-      subtitle: 'Module 03 Capstone Validation',
+      title: activeSessionId === 'sess_coding_basic' ? 'Algorithmic Complexity & Asymptotic Bounds' : 'Foundational Decision Theory',
+      subtitle: 'Module 01 Capstone Defense',
       scheduled_time: 'Tomorrow at 10:00 AM',
       examiner_name: 'Dr. Julian Vance',
       examiner_role: 'Lead Examiner · Decision Theory',
