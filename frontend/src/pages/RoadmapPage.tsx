@@ -223,39 +223,75 @@ export const RoadmapPage: React.FC = () => {
   const isCodingSession = activeSessionId === 'sess_coding_basic';
   const modules = (() => {
     if (syllabus?.chapters && syllabus.chapters.length > 0) {
+      let hasActive = false;
       return syllabus.chapters.map((ch, idx) => {
         const numStr = String(ch.order || idx + 1).padStart(2, '0');
         const st = (ch.status || 'LOCKED').toUpperCase();
         const isCompleted = st === 'COMPLETED' || st === 'SCORED' || st === 'UNLOCKED';
-        const isInProgress = st === 'ACTIVE_READING' || st === 'INTERVIEW' || (idx === 1 && !isCompleted);
-        const isReady = st === 'READY' || (idx === 2 && !isInProgress && !isCompleted);
+        const isNeedsReview = st === 'NEEDS_REVIEW';
+        let isInProgress = st === 'ACTIVE_READING' || st === 'INTERVIEW';
+        let isReady = st === 'READY';
+
+        // Auto-assign first chapter if none active
+        if (!hasActive && !isCompleted && !isNeedsReview && !isInProgress && idx === 0) {
+          isInProgress = true;
+        }
+        if (isInProgress || isNeedsReview) {
+          hasActive = true;
+        }
+
         const isCapstone = idx === syllabus.chapters.length - 1;
 
         let statusPill = `MODULE ${numStr}`;
         if (isCompleted) statusPill = `MODULE ${numStr} · COMPLETED`;
+        else if (isNeedsReview) statusPill = `MODULE ${numStr} · NEEDS REVIEW`;
         else if (isInProgress) statusPill = `MODULE ${numStr} · IN PROGRESS`;
+        else if (isReady) statusPill = `MODULE ${numStr} · READY`;
         else if (isCapstone) statusPill = `MODULE ${numStr} · CAPSTONE`;
 
         let timeStr = `${((ch.estimated_reading_minutes || 30) / 15 * 0.5).toFixed(1)}h`;
         if (isCompleted) timeStr = '2.0h completed';
+        else if (isNeedsReview) timeStr = 'Oral defense retry';
         else if (isInProgress) timeStr = '1.5h of 2.5h';
+
+        let modStatus: 'completed' | 'needs_review' | 'in_progress' | 'ready' | 'locked' = 'locked';
+        if (isCompleted) modStatus = 'completed';
+        else if (isNeedsReview) modStatus = 'needs_review';
+        else if (isInProgress) modStatus = 'in_progress';
+        else if (isReady) modStatus = 'ready';
 
         return {
           id: ch.chapter_id,
           number: numStr,
           title: ch.title,
-          status: isCompleted ? ('completed' as const) : (isInProgress ? ('in_progress' as const) : (isReady ? ('ready' as const) : ('locked' as const))),
+          status: modStatus,
           statusPill,
           time: timeStr,
           description: ch.prerequisites?.length
             ? `Prerequisites: ${ch.prerequisites.join(', ')}. Socratic inquiry module covering fundamental proofs, bounds, and adversarial counter-arguments.`
             : `Socratic inquiry module covering fundamental proofs, bounds, and adversarial counter-arguments.`,
-          segmentsFilled: isCompleted ? 5 : (isInProgress ? 3 : 0),
+          segmentsFilled: isCompleted ? 5 : (isNeedsReview ? 4 : (isInProgress ? 3 : 0)),
           totalSegments: 5,
           conceptsCount: isCapstone ? 'Synthesis' : `${ch.source_pages?.length ? ch.source_pages.length + 3 : 4 + (idx % 3)} concepts`,
-          badge: isCompleted ? 'Passed Oral Defense' : (isInProgress ? 'Oral defense scheduled' : (isCapstone ? 'Rigorous Capstone' : 'Oral defense')),
-          badgeVariant: isCompleted ? ('success' as const) : (isInProgress ? ('warning' as const) : (isCapstone ? ('capstone' as const) : ('neutral' as const))),
-          actionLabel: isInProgress ? 'Resume dialogue' : (isReady ? 'Start reading' : undefined),
+          badge: isCompleted
+            ? 'Passed Oral Defense'
+            : (isNeedsReview
+                ? 'Needs Review · Retry Defense'
+                : (isInProgress
+                    ? 'Oral defense scheduled'
+                    : (isCapstone ? 'Rigorous Capstone' : 'Oral defense'))),
+          badgeVariant: isCompleted
+            ? ('success' as const)
+            : (isNeedsReview
+                ? ('warning' as const)
+                : (isInProgress
+                    ? ('warning' as const)
+                    : (isCapstone ? ('capstone' as const) : ('neutral' as const)))),
+          actionLabel: isNeedsReview
+            ? 'Ulangi Oral Defense'
+            : (isInProgress
+                ? 'Resume dialogue'
+                : (isReady ? 'Start reading' : undefined)),
         };
       });
     }
@@ -263,7 +299,7 @@ export const RoadmapPage: React.FC = () => {
     return isCodingSession ? getCodingModules() : getFigmaStatsModules();
   })();
 
-  const activeModule = modules.find((m) => m.status === 'in_progress') || modules[1] || modules[0];
+  const activeModule = modules.find((m) => m.status === 'in_progress' || m.status === 'needs_review') || modules[1] || modules[0];
   const activeChapterId = activeModule.id;
   const activeChapterNumber = activeModule.number;
 
@@ -376,6 +412,7 @@ export const RoadmapPage: React.FC = () => {
           <div className="relative pl-12 space-y-6 before:absolute before:left-5 before:top-6 before:bottom-6 before:w-[2px] before:bg-slate-200">
             {modules.map((mod) => {
               const isCompleted = mod.status === 'completed';
+              const isNeedsReview = mod.status === 'needs_review';
               const isInProgress = mod.status === 'in_progress';
               const isReady = mod.status === 'ready';
               const isLocked = mod.status === 'locked';
@@ -387,6 +424,8 @@ export const RoadmapPage: React.FC = () => {
                     className={`absolute -left-12 top-5 w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                       isCompleted
                         ? 'bg-emerald-100 text-emerald-700 shadow-xs'
+                        : isNeedsReview
+                        ? 'bg-amber-100 text-amber-700 ring-4 ring-amber-50 shadow-xs'
                         : isInProgress
                         ? 'bg-[#4338CA] text-white ring-4 ring-indigo-100 shadow-md'
                         : 'bg-white border border-slate-200 text-slate-400'
@@ -402,7 +441,9 @@ export const RoadmapPage: React.FC = () => {
                   {/* Module Card */}
                   <div
                     className={`bg-white rounded-2xl border p-6 transition-all ${
-                      isInProgress
+                      isNeedsReview
+                        ? 'border-amber-300 shadow-xs ring-1 ring-amber-100'
+                        : isInProgress
                         ? 'border-indigo-200 shadow-sm ring-1 ring-indigo-50'
                         : 'border-slate-100 shadow-xs hover:border-slate-200'
                     }`}
@@ -415,17 +456,22 @@ export const RoadmapPage: React.FC = () => {
                             {mod.statusPill}
                           </span>
                         )}
+                        {isNeedsReview && (
+                          <span className="bg-amber-500 text-white rounded-full px-3 py-1 text-[11px] font-bold font-mono tracking-wider shadow-xs">
+                            {mod.statusPill}
+                          </span>
+                        )}
                         {isInProgress && (
                           <span className="bg-[#4338CA] text-white rounded-full px-3 py-1 text-[11px] font-bold font-mono tracking-wider shadow-xs">
                             {mod.statusPill}
                           </span>
                         )}
-                        {!isCompleted && !isInProgress && mod.badgeVariant === 'capstone' && (
+                        {!isCompleted && !isNeedsReview && !isInProgress && mod.badgeVariant === 'capstone' && (
                           <span className="bg-rose-50 text-rose-600 border border-rose-100 rounded-full px-3 py-1 text-[11px] font-bold font-mono tracking-wider">
                             {mod.statusPill}
                           </span>
                         )}
-                        {!isCompleted && !isInProgress && mod.badgeVariant !== 'capstone' && (
+                        {!isCompleted && !isNeedsReview && !isInProgress && mod.badgeVariant !== 'capstone' && (
                           <span className="bg-slate-100 text-slate-600 rounded-full px-3 py-1 text-[11px] font-bold font-mono tracking-wider">
                             {mod.statusPill}
                           </span>
@@ -505,6 +551,32 @@ export const RoadmapPage: React.FC = () => {
                       </div>
 
                       {/* Right Action Trigger */}
+                      {isCompleted && (
+                        <button
+                          onClick={() => {
+                            setActiveChapterId(mod.id);
+                            navigate('/app/reader');
+                          }}
+                          className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-800 text-xs font-semibold transition-colors cursor-pointer"
+                        >
+                          <span>Tinjau materi</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+
+                      {isNeedsReview && (
+                        <button
+                          onClick={() => {
+                            setActiveChapterId(mod.id);
+                            navigate('/app/exam');
+                          }}
+                          className="inline-flex items-center gap-1.5 text-amber-600 hover:text-amber-800 text-xs font-bold transition-colors cursor-pointer group-hover:underline"
+                        >
+                          <span>{mod.actionLabel || 'Ulangi Oral Defense'}</span>
+                          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                        </button>
+                      )}
+
                       {isInProgress && (
                         <button
                           onClick={() => {
@@ -529,6 +601,13 @@ export const RoadmapPage: React.FC = () => {
                           <span>{mod.actionLabel || 'Start reading'}</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </button>
+                      )}
+
+                      {isLocked && (
+                        <span className="inline-flex items-center gap-1.5 text-slate-400 text-xs font-medium">
+                          <Lock className="w-3.5 h-3.5" />
+                          <span>Terkunci</span>
+                        </span>
                       )}
                     </div>
                   </div>

@@ -11,6 +11,8 @@ import {
   Layers,
   Timer,
   Lightbulb,
+  ArrowRight,
+  BookOpen,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
@@ -282,7 +284,7 @@ export const ReportPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <Button
             variant="outline"
             size="md"
@@ -294,11 +296,20 @@ export const ReportPage: React.FC = () => {
           </Button>
           <button
             onClick={() => window.print()}
-            className="bg-[#1E2238] hover:bg-[#151828] text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-colors shadow-xs"
+            className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-colors shadow-xs"
           >
             <Download className="w-4 h-4" />
             <span>Export Verified PDF</span>
           </button>
+          <Button
+            variant="primary"
+            size="md"
+            onClick={() => navigate('/app/roadmap')}
+            rightIcon={<ArrowRight className="w-4 h-4" />}
+            className="text-xs font-bold shadow-xs bg-[#4338CA] hover:bg-[#3730A3] text-white"
+          >
+            Lanjut ke Roadmap
+          </Button>
         </div>
       </div>
 
@@ -491,6 +502,50 @@ export const ReportPage: React.FC = () => {
                   </p>
                 </div>
               </div>
+            </div>
+          </Card>
+
+          {/* Card 4: Next Milestones & Module Unlock Status */}
+          <Card className="p-6 bg-gradient-to-br from-indigo-50/60 via-white to-slate-50 border border-indigo-100 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 font-mono flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5 text-indigo-600" />
+                KURIKULUM BERIKUTNYA DIBUKA
+              </span>
+              <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <Check className="w-3 h-3 text-emerald-600" />
+                Threshold Met: &ge; 75%
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="text-sm font-bold text-slate-900">
+                Siklus Ujian Selesai &bull; Lanjutkan Eksplorasi Kurikulum Anda
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Hasil evaluasi dialektika ini telah tersimpan secara permanen. Modul lanjutan di roadmap telah otomatis dibuka oleh Active Learning Engine untuk dipelajari.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => navigate('/app/roadmap')}
+                rightIcon={<ArrowRight className="w-4 h-4" />}
+                className="text-xs font-bold shadow-xs bg-[#4338CA] hover:bg-[#3730A3] text-white"
+              >
+                Kembali ke Roadmap &bull; Lanjut Modul Berikutnya
+              </Button>
+              <Button
+                variant="outline"
+                size="md"
+                onClick={() => navigate('/app/reader')}
+                leftIcon={<BookOpen className="w-4 h-4" />}
+                className="text-xs font-semibold border-slate-200 text-slate-700 hover:bg-slate-50"
+              >
+                Tinjau Ulang Materi Bab
+              </Button>
             </div>
           </Card>
         </div>
