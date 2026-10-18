@@ -1,0 +1,54 @@
+# Assay frontend — nginx runtime config. Rendered by the nginx image's
+# /docker-entrypoint.d/20-envsubst-on-templates.sh, which substitutes only env vars
+# that are actually defined. nginx variables ($uri, $host, $scheme, ...) survive.
+#
+# PORT          Cloud Run injects this (8080).
+# BACKEND_URL   Full origin of the API service, e.g. https://assay-api-xxx.a.run.app
+#               Substituted as a LITERAL, so nginx resolves the hostname once at
+#               startup — no runtime `resolver` directive needed.
+server {
+    listen ${PORT};
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+    gzip_min_length 1024;
+
+    # Cloud Run startup/liveness probe.
+    location = /healthz {
+        access_log off;
+        return 200 "ok\n";
+    }
+
+    # Vite emits content-hashed filenames, so they can be cached forever. index.html
+    # is the opposite: caching it pins the SPA to a bundle that a later deploy deleted.
+    # One Cache-Control header only — `expires` would add a second, conflicting one.
+    location /assets/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
+    location = /index.html {
+        add_header Cache-Control "no-store";
+    }
+
+    # API proxy. The backend owns the /api/v1 prefix, so the URI is forwarded as-is.
+    location /api/ {
+        proxy_pass ${BACKEND_URL};
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # The checklist endpoint streams SSE; buffering would stall it until close.
+        proxy_buffering off;
+        proxy_read_timeout 300s;
+    }
+
+    # BrowserRouter: every unknown path is a client-side route, not a 404.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

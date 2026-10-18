@@ -38,6 +38,12 @@ import reportMock from '../mocks/report.json';
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
+// Demo resilience switch. Only pin the request to the deterministic cache when the
+// build explicitly asks for it; otherwise the backend calls Gemini for real. The
+// per-request mock fallback in `request()` still covers 429/500/network failures,
+// so leaving this off does not make the live demo any more fragile.
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'cached' ? 'cached' : 'live';
+
 async function request<T>(endpoint: string, options?: RequestInit, mockFallback?: T): Promise<T> {
   if (USE_MOCK && mockFallback !== undefined) {
     return Promise.resolve(mockFallback);
@@ -48,7 +54,7 @@ async function request<T>(endpoint: string, options?: RequestInit, mockFallback?
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        'x-demo-mode': 'cached',
+        'x-demo-mode': DEMO_MODE,
         ...(options?.headers || {})
       }
     });
@@ -328,15 +334,12 @@ export const api = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const API_BASE =
-      import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
-
     try {
       const res = await fetch(`${API_BASE}/intake/${sessionId}/document`, {
         method: 'POST',
         body: formData,
         headers: {
-          'x-demo-mode': 'cached',
+          'x-demo-mode': DEMO_MODE,
         },
       });
       if (!res.ok) {
