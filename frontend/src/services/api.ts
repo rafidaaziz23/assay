@@ -235,8 +235,8 @@ export const api = {
       sessionId ? `/dashboard/summary?session_id=${sessionId}` : '/dashboard/summary',
       { method: 'GET' },
       {
-        learner_name: 'Maya Lin',
-        headline_subject: 'Causal Inference',
+        learner_name: 'Rafida Aziz',
+        headline_subject: 'Foundations of Algorithms & Data Structures',
         remaining_modules: 2,
         active_subjects_count: 3,
         total_modules_count: 18,
@@ -300,13 +300,13 @@ export const api = {
           },
         ],
         upcoming_defense: {
-          title: 'Neyman–Pearson LRT & Error Bounds',
-          subtitle: 'Module 03 Capstone Validation',
+          title: 'Algorithmic Complexity & Asymptotic Bounds',
+          subtitle: 'Module 01 Capstone Defense',
           scheduled_time: 'Tomorrow at 10:00 AM',
-          examiner_name: 'Dr. Julian Vance',
-          examiner_role: 'Lead Examiner · Decision Theory',
+          examiner_name: 'Assay AI',
+          examiner_role: 'Lead Socratic AI Evaluator · Algorithms',
           examiner_avatar:
-            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80',
           description:
             '45-min live vocal Socratic inquiry. 4 rubric competencies evaluated independently.',
         },

@@ -92,7 +92,9 @@ async def start_interview(
 
     active = _scenario(x_demo_mode, scenario)
     if active:
-        if active == "success" and any(k in chapter.get("title", "").lower() for k in ["neyman", "statistics", "statistical", "causal", "likelihood"]):
+        if active == "success" and any(k in chapter.get("title", "").lower() for k in ["algo", "complexity", "big-o", "binary"]):
+            active = "algo_success"
+        elif active == "success" and any(k in chapter.get("title", "").lower() for k in ["neyman", "statistics", "statistical", "causal", "likelihood"]):
             active = "stats_success"
         block = fb.cached_interview(active)
         first_question = block["first_question"]

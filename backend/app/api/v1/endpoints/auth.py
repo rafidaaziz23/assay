@@ -43,7 +43,7 @@ class LoginResponse(BaseModel):
 PRIMARY_USER = UserProfile(
     id="usr_rafida",
     name="Rafida Aziz",
-    email="rafida.aziz@gmail.com",
+    email="dev.rafidaaziz@gmail.com",
     role="Lead Fellow · Socratic Scholar",
     handle="@rafidaaziz",
     institution="University Research Scholar",
@@ -52,17 +52,17 @@ PRIMARY_USER = UserProfile(
     avatar_url="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
 )
 
-# Demo User (Maya Lin)
+# Demo User (Fallback Scholar)
 DEMO_USER = UserProfile(
     id="usr_89214a",
-    name="Maya Lin",
-    email="maya.lin@stanford.edu",
-    role="Fellow",
-    handle="@mayalin",
-    institution="Stanford University",
+    name="Rafida Aziz",
+    email="dev.rafidaaziz@gmail.com",
+    role="Fellow · Research Scholar",
+    handle="@rafidaaziz",
+    institution="University Research Scholar",
     streak_days=14,
     credits=1250,
-    avatar_url="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    avatar_url="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
 )
 
 
@@ -96,12 +96,9 @@ async def login(req: LoginRequest) -> LoginResponse:
     email_clean = req.email.strip().lower()
 
     # Match Rafida Aziz
-    if "rafida" in email_clean or email_clean == "rafida.aziz@gmail.com":
-        existing = store.get_user("usr_rafida") or store.get_user_by_email("rafida.aziz@gmail.com")
+    if "rafida" in email_clean or email_clean in ("dev.rafidaaziz@gmail.com", "rafida.aziz@gmail.com", "maya.lin@stanford.edu"):
+        existing = store.get_user("usr_rafida") or store.get_user_by_email("dev.rafidaaziz@gmail.com") or store.get_user_by_email("rafida.aziz@gmail.com")
         user = UserProfile(**existing) if existing else PRIMARY_USER
-    elif "maya" in email_clean or email_clean == "maya.lin@stanford.edu":
-        existing = store.get_user("usr_89214a") or store.get_user_by_email("maya.lin@stanford.edu")
-        user = UserProfile(**existing) if existing else DEMO_USER
     else:
         existing = store.get_user_by_email(email_clean)
         if not existing:

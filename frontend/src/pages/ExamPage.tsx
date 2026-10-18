@@ -19,6 +19,7 @@ import {
   Sliders,
   Check,
   Square,
+  Unlock,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
@@ -28,7 +29,7 @@ import { InterviewStartResponse } from '../types/api';
 
 export const ExamPage: React.FC = () => {
   const navigate = useNavigate();
-  const { activeSessionId, activeChapterId, activeTrack, user } = useAppStore();
+  const { activeSessionId, activeChapterId, setActiveChapterId, activeTrack, user } = useAppStore();
 
   const [examState, setExamState] = useState<'inquiry' | 'calibration' | 'verdict'>('inquiry');
   const [turnIndex, setTurnIndex] = useState(1);
@@ -88,12 +89,13 @@ export const ExamPage: React.FC = () => {
       })
       .catch((e) => {
         console.warn('Interview start fallback:', e);
+        const candidateName = user?.name || 'Rafida Aziz';
         const fallbackQ =
           activeTrack === 'coding'
-            ? 'Candidate Lin. In analyzing algorithm complexity, suppose an engineer claims that their sorting routine achieves O(1) worst-case time by leveraging Quantum QuickSort. Is this claim mathematically valid under the comparison-based model, or does a fundamental computational lower bound exist?'
+            ? `Candidate ${candidateName}. In basic algorithm complexity, explain how the 'Constant-Time Binary Filter' allows binary search to achieve O(1) lookups on an unsorted array without preprocessing.`
             : (activeTrack === 'distributed'
-              ? 'Candidate Lin. In designing a distributed datastore, an architect claims that by eliminating leader election and utilizing deterministic quorum broadcast, the system achieves 100% liveness and safety during network partitions without unbounded wait. Does this violate the FLP theorem?'
-              : 'Candidate Lin. In evaluating the Neyman-Pearson lemma, suppose an analyst claims that increasing the significance level alpha from 0.05 to 0.10 will simultaneously reduce Type II error beta and widen the critical region. Is this logically consistent, or does an unstated trade-off exist?');
+              ? `Candidate ${candidateName}. In designing a distributed datastore, an architect claims that by eliminating leader election and utilizing deterministic quorum broadcast, the system achieves 100% liveness and safety during network partitions without unbounded wait. Does this violate the FLP theorem?`
+              : `Candidate ${candidateName}. In evaluating the Neyman-Pearson lemma, suppose an analyst claims that increasing the significance level alpha from 0.05 to 0.10 will simultaneously reduce Type II error beta and widen the critical region. Is this logically consistent, or does an unstated trade-off exist?`);
         setChatLog([
           {
             sender: 'examiner',
@@ -101,7 +103,7 @@ export const ExamPage: React.FC = () => {
           },
         ]);
       });
-  }, [activeChapterId, activeSessionId, activeTrack]);
+  }, [activeChapterId, activeSessionId, activeTrack, user]);
 
   const handleSendResponse = async (textToSend?: string) => {
     stopListening();
@@ -207,14 +209,14 @@ export const ExamPage: React.FC = () => {
         <div className="flex items-center gap-3">
           <div className="text-right hidden sm:block">
             <div className="text-xs font-bold text-slate-900">
-              {activeTrack === 'distributed' ? 'Prof. Elena Rostova' : 'Dr. Julian Vance'}
+              {activeTrack === 'distributed' ? 'Prof. Elena Rostova' : 'Assay AI'}
             </div>
             <div className="text-[10px] text-slate-400">
-              {activeTrack === 'distributed' ? 'Principal Scientist · Distributed Systems' : 'Lead Socratic Examiner'}
+              {activeTrack === 'distributed' ? 'Principal Scientist · Distributed Systems' : 'Lead Socratic AI Evaluator · Algorithms'}
             </div>
           </div>
           <Avatar
-            name={activeTrack === 'distributed' ? 'Elena Rostova' : 'Julian Vance'}
+            name={activeTrack === 'distributed' ? 'Elena Rostova' : 'Assay AI'}
             size="md"
           />
         </div>
@@ -238,7 +240,7 @@ export const ExamPage: React.FC = () => {
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-[11px] font-bold text-slate-500">
                         {item.sender === 'examiner'
-                          ? (activeTrack === 'distributed' ? 'Prof. Elena Rostova (Examiner)' : 'Dr. Julian Vance (Examiner)')
+                          ? (activeTrack === 'distributed' ? 'Prof. Elena Rostova (Examiner)' : 'Assay AI (Examiner)')
                           : `${user?.name || 'Rafida Aziz'} (Candidate)`}
                       </span>
                       {item.sender === 'examiner' && (
@@ -373,30 +375,61 @@ export const ExamPage: React.FC = () => {
 
                 {/* Quick candidate response options */}
                 <div className="flex flex-wrap items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="text-xs text-slate-700"
-                    onClick={() =>
-                      handleSendResponse(
-                        'It is logically consistent. Expanding alpha expands the rejection boundary W, reducing Type II error beta and increasing test power 1 - beta.'
-                      )
-                    }
-                  >
-                    Argue Rejection Boundary Trade-off
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="text-xs text-slate-700"
-                    onClick={() =>
-                      handleSendResponse(
-                        'No, without the monotone likelihood ratio property, the Karlin-Rubin theorem fails and the test ceases to be UMP.'
-                      )
-                    }
-                  >
-                    Expose Karlin-Rubin Invalidation
-                  </Button>
+                  {activeTrack === 'coding' ? (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs text-indigo-700 border-indigo-200 bg-indigo-50/60 hover:bg-indigo-100 font-medium"
+                        onClick={() =>
+                          handleSendResponse(
+                            'That concept is completely fictional. Binary search requires a sorted array to halve the search space each step (O(log n)). On an unsorted array, you must scan linearly in O(n) time.'
+                          )
+                        }
+                      >
+                        Expose Binary Filter Fallacy (Recommended)
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs text-slate-700 hover:bg-slate-100"
+                        onClick={() =>
+                          handleSendResponse(
+                            'Binary search operates via the recurrence T(n) = T(n/2) + O(1), which solves to O(log n) by the Master Theorem. Unsorted lookups strictly require Ω(n) comparisons.'
+                          )
+                        }
+                      >
+                        Recurrence Derivation
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs text-slate-700"
+                        onClick={() =>
+                          handleSendResponse(
+                            'It is logically consistent. Expanding alpha expands the rejection boundary W, reducing Type II error beta and increasing test power 1 - beta.'
+                          )
+                        }
+                      >
+                        Argue Rejection Boundary Trade-off
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs text-slate-700"
+                        onClick={() =>
+                          handleSendResponse(
+                            'No, without the monotone likelihood ratio property, the Karlin-Rubin theorem fails and the test ceases to be UMP.'
+                          )
+                        }
+                      >
+                        Expose Karlin-Rubin Invalidation
+                      </Button>
+                    </>
+                  )}
                 </div>
 
                 {/* Text input backup */}
@@ -553,11 +586,49 @@ export const ExamPage: React.FC = () => {
               Oral Defense Passed with Distinction
             </div>
             <h2 className="text-2xl font-extrabold text-slate-900">
-              Module 03 Certified: 94% Dialectic Rigor
+              {activeTrack === 'coding' ? 'Module 01 Certified: 92% Dialectic Rigor' : 'Module 03 Certified: 94% Dialectic Rigor'}
             </h2>
             <p className="text-xs text-slate-500 max-w-md mx-auto">
-              You successfully deflected adversarial traps, identified the Karlin-Rubin condition boundary, and grounded all claims in probability theory.
+              {activeTrack === 'coding'
+                ? 'You successfully deflected the fictional "Constant-Time Binary Filter" honeypot, refused the fallacy, and proved that binary search strictly requires sorted data in O(log n).'
+                : 'You successfully deflected adversarial traps, identified the Karlin-Rubin condition boundary, and grounded all claims in probability theory.'}
             </p>
+          </div>
+
+          {/* Unlocked Next Module Banner */}
+          <div className="p-4 rounded-xl bg-emerald-50/80 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shadow-xs shrink-0">
+                <Unlock className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-emerald-950 flex items-center gap-2">
+                  <span>{activeTrack === 'coding' ? 'Module 02 Unlocked!' : 'Module 04 Unlocked!'}</span>
+                  <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold rounded bg-emerald-200/70 text-emerald-800">ACTIVE_READING</span>
+                </div>
+                <div className="text-[11px] text-emerald-700">
+                  {activeTrack === 'coding'
+                    ? 'Divide & Conquer: Quicksort, Mergesort & Recurrence Master Theorem is now unlocked.'
+                    : 'Bayesian Inference & Conjugate Priors is now accessible.'}
+                </div>
+              </div>
+            </div>
+            <Button
+              variant="primary"
+              size="sm"
+              className="w-full sm:w-auto shrink-0"
+              onClick={() => {
+                if (activeTrack === 'coding') {
+                  setActiveChapterId('ch_algo_02');
+                } else {
+                  setActiveChapterId('ch_02');
+                }
+                navigate('/app/roadmap');
+              }}
+              rightIcon={<ArrowRight className="w-4 h-4" />}
+            >
+              Open Roadmap
+            </Button>
           </div>
 
           <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-around text-center">

@@ -18,7 +18,7 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { setUser } = useAppStore();
 
-  const [email, setEmail] = useState('you@domain.com');
+  const [email, setEmail] = useState('dev.rafidaaziz@gmail.com');
   const [password, setPassword] = useState('123456');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -38,7 +38,7 @@ export const LoginPage: React.FC = () => {
           {
             id: 'usr_rafida',
             name: 'Rafida Aziz',
-            email: 'rafida.aziz@gmail.com',
+            email: 'dev.rafidaaziz@gmail.com',
             role: 'Lead Fellow · Socratic Scholar',
             handle: '@rafidaaziz',
             institution: 'University Research Scholar',
@@ -47,25 +47,14 @@ export const LoginPage: React.FC = () => {
             avatar_url: '/avatars/dr-sarah-k.jpg',
           },
           {
-            id: 'usr_mayalin',
-            name: 'Maya Lin',
-            email: 'maya.lin@stanford.edu',
-            role: 'Fellow · Stanford University',
-            handle: '@mayalin',
-            institution: 'Stanford University',
-            streak_days: 14,
-            credits: 1250,
-            avatar_url: '/avatars/dr-sarah-k.jpg',
-          },
-          {
-            id: 'usr_julian',
-            name: 'Dr. Julian Vance',
-            email: 'j.vance@oxford.ac.uk',
-            role: 'Lead Examiner · Decision Theory',
-            handle: '@julianvance',
-            institution: 'Oxford University',
+            id: 'usr_assay_ai',
+            name: 'Assay AI',
+            email: 'ai.evaluator@assay.dialectic.edu',
+            role: 'Lead Socratic AI Evaluator · Algorithms',
+            handle: '@assay_ai',
+            institution: 'Assay Epistemic Engine',
             streak_days: 42,
-            credits: 3400,
+            credits: 9999,
             avatar_url: '/avatars/dr-julian-vance.jpg',
           },
         ]);
@@ -340,24 +329,17 @@ export const LoginPage: React.FC = () => {
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => handleSelectDemoUser('rafida.aziz@gmail.com')}
+                  onClick={() => handleSelectDemoUser('dev.rafidaaziz@gmail.com')}
                   className="px-2.5 py-1 rounded-full bg-[#F2F3FF] hover:bg-[#E2DFFF] text-[#3525CD] text-[11px] font-medium transition-colors"
                 >
-                  Rafida
+                  Rafida Aziz (Scholar)
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleSelectDemoUser('maya.lin@stanford.edu')}
+                  onClick={() => handleSelectDemoUser('ai.evaluator@assay.dialectic.edu')}
                   className="px-2.5 py-1 rounded-full bg-[#F2F3FF] hover:bg-[#E2DFFF] text-[#3525CD] text-[11px] font-medium transition-colors"
                 >
-                  Maya
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSelectDemoUser('j.vance@oxford.ac.uk')}
-                  className="px-2.5 py-1 rounded-full bg-[#F2F3FF] hover:bg-[#E2DFFF] text-[#3525CD] text-[11px] font-medium transition-colors"
-                >
-                  Dr. Vance
+                  Assay AI (Examiner)
                 </button>
               </div>
             </div>
@@ -395,46 +377,38 @@ export const LoginPage: React.FC = () => {
                   <span>LIVE DEFENSE</span>
                 </div>
                 <span className="text-xs font-medium text-[#777587]">
-                  09:42 · Module 03
+                  09:42 · Module 01
                 </span>
               </div>
 
               {/* Lead Examiner Info */}
               <div className="flex items-center gap-2.5 mb-3.5">
                 <img
-                  src="/avatars/dr-julian-vance.jpg"
-                  alt="Dr. Julian Vance"
+                  src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80"
+                  alt="Assay AI"
                   className="w-6 h-6 rounded-full object-cover ring-1 ring-[#E2E7FF]"
-                  onError={(e) => {
-                    // Fallback avatar if local image fails
-                    (e.target as HTMLImageElement).src =
-                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80';
-                  }}
                 />
                 <span className="text-xs font-bold text-[#131B2E]">
-                  Dr. Julian Vance
+                  Assay AI
                 </span>
-                <span className="text-xs text-[#777587]">· Lead Examiner</span>
+                <span className="text-xs text-[#777587]">· Lead Socratic AI Evaluator</span>
               </div>
 
               {/* Examiner Question Box */}
               <div className="p-3.5 rounded-xl bg-[#F2F3FF]/50 border border-[#E2E7FF]/50 text-xs text-[#131B2E] leading-relaxed mb-3">
-                "If the underlying distribution shifts non-linearly over time,
-                how does your critical threshold adapt without amplifying false
-                positives?"
+                "If array length n scales to 10^7, why does binary search maintain sub-millisecond execution while linear search causes CPU throttling?"
               </div>
 
               {/* Candidate Hypothesis Box */}
               <div className="p-3.5 rounded-xl bg-[#E2DFFF]/30 border border-[#C3C0FF]/50 text-xs leading-relaxed">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[11px] font-bold text-[#3525CD]">
-                    Candidate Hypothesis
+                    Candidate Hypothesis (Rafida Aziz)
                   </span>
                   <CheckCircle2 className="w-3.5 h-3.5 text-[#3525CD]" />
                 </div>
                 <p className="text-[#464555] text-xs leading-relaxed">
-                  "The likelihood ratio renormalizes across boundary parameters,
-                  decaying prior weights inversely to variance divergence."
+                  "Binary search halves the search space each step via O(log n) recurrence, whereas linear search must iterate through all n elements in O(n) worst-case time."
                 </p>
               </div>
             </div>

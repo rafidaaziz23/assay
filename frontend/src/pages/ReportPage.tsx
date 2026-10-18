@@ -44,7 +44,7 @@ export const ReportPage: React.FC = () => {
       : 'Statistical Decision Theory'
   );
 
-  const candidateName = user?.name || 'Maya Lin';
+  const candidateName = user?.name || 'Rafida Aziz';
   const dossierId = report?.session_id
     ? `ASY-${report.session_id.replace('sess_', '').toUpperCase()}`
     : 'ASY-8921';
@@ -126,8 +126,8 @@ export const ReportPage: React.FC = () => {
         chip1: 'Recurrence Rigor: 98%',
         chip2: 'Median Cognitive Latency: 1.8s',
         chip3: 'Epistemic Humility: High',
-        examiner: 'Dr. Elena Rostova',
-        examinerRole: 'LEAD SOCRATIC EVALUATOR · COMPUTATIONAL COMPLEXITY',
+        examiner: 'Assay AI',
+        examinerRole: 'LEAD SOCRATIC AI EVALUATOR · ALGORITHMIC COMPLEXITY',
         competencies: [
           {
             title: '1. Asymptotic Complexity Rigor',
@@ -221,8 +221,8 @@ export const ReportPage: React.FC = () => {
         chip1: 'Likelihood Invariance: 98%',
         chip2: 'Median Cognitive Latency: 1.8s',
         chip3: 'Epistemic Humility: High',
-        examiner: 'Dr. Julian Vance',
-        examinerRole: 'LEAD SOCRATIC EVALUATOR · DECISION THEORY',
+        examiner: 'Assay AI',
+        examinerRole: 'LEAD SOCRATIC AI EVALUATOR',
         competencies: [
           {
             title: '1. Concept Rigor',

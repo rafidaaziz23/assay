@@ -55,7 +55,7 @@ export const ProfilePage: React.FC = () => {
       iconBg: 'bg-blue-50',
       iconColor: 'text-blue-600',
       date: 'Oct 23, 2024',
-      examiner: 'Lead Dr. Julian Vance',
+      examiner: 'Assay AI',
       badgeType: 'SYNTHESIS & RIGOR',
       score: 94,
       tiers: 5,
@@ -81,7 +81,7 @@ export const ProfilePage: React.FC = () => {
       iconBg: 'bg-indigo-50',
       iconColor: 'text-indigo-600',
       date: 'Aug 02, 2024',
-      examiner: 'Lead Dr. Julian Vance',
+      examiner: 'Assay AI',
       badgeType: 'DIALECTIC MASTERY',
       score: 91,
       tiers: 5,
@@ -107,7 +107,7 @@ export const ProfilePage: React.FC = () => {
       id: 'probe-1',
       question: '“Why does unobserved confounding invalidate backdoor adjustment even when sample size n → ∞?”',
       excerpt:
-        'Maya proved conditional non-identifiability via non-zero residual covariances in the unobserved path, demonstrating that asymptotic sample volume cannot bridge topological confounding.',
+        'Rafida proved conditional non-identifiability via non-zero residual covariances in the unobserved path, demonstrating that asymptotic sample volume cannot bridge topological confounding.',
       defenseTag: 'Causal DAGs · Defense #ASY-8921',
       badge: 'Defended with Distinction',
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/70',
@@ -183,8 +183,8 @@ export const ProfilePage: React.FC = () => {
           <div className="flex items-start sm:items-center gap-5">
             {/* Avatar */}
             <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80"
-              alt="Maya Lin"
+              src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=160&auto=format&fit=crop&q=80"
+              alt="Rafida Aziz"
               className="w-20 h-20 rounded-full object-cover ring-4 ring-slate-100 shadow-sm shrink-0"
             />
             <div className="space-y-1.5">
@@ -192,11 +192,11 @@ export const ProfilePage: React.FC = () => {
                 LEVEL 4 COGNITIVE FELLOW
               </span>
               <div className="flex items-baseline gap-2">
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight">Maya Lin</h1>
-                <span className="text-sm font-medium text-slate-400">@mayalin</span>
+                <h1 className="text-2xl font-black text-slate-900 tracking-tight">Rafida Aziz</h1>
+                <span className="text-sm font-medium text-slate-400">@rafidaaziz</span>
               </div>
               <p className="text-xs text-slate-600 max-w-xl leading-relaxed">
-                Curious researcher exploring causal machine learning and bio-statistics. Learning through dialectic rigor.
+                Curious researcher exploring algorithm complexity, data structures, and foundational computer science.
               </p>
               <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 pt-1">
                 <span className="flex items-center gap-1.5">
@@ -225,7 +225,7 @@ export const ProfilePage: React.FC = () => {
               <span>Edit Profile</span>
             </button>
             <button
-              onClick={() => alert('Dossier link copied to clipboard: https://assay.dialectic.edu/dossier/mayalin')}
+              onClick={() => alert('Dossier link copied to clipboard: https://assay.dialectic.edu/dossier/rafidaaziz')}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
             >
               <Share2 className="w-3.5 h-3.5" />

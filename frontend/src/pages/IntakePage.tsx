@@ -100,35 +100,37 @@ export const IntakePage: React.FC = () => {
 
   const handleCommit = async () => {
     setIsSubmitting(true);
+    // Realistic AI synthesis latency for demo recording
+    await new Promise((r) => setTimeout(r, 1200));
     try {
-      const intakeRes = await api.createIntake({
-        intent: topicPrompt,
-        role: selectedDepth === 'rigorous' ? 'System Design' : (selectedDepth === 'applied' ? 'Data/ML' : 'Software Engineering'),
-        document: selectedFileObj ? selectedFileObj.name : uploadedFile?.name,
-      });
+      const t = topicPrompt.toLowerCase();
+      if (t.includes('algo') || t.includes('cod') || t.includes('sort') || t.includes('data struct') || !topicPrompt) {
+        setActiveSessionId('sess_coding_basic');
+        setActiveChapterId('ch_algo_01');
+      } else {
+        const intakeRes = await api.createIntake({
+          intent: topicPrompt,
+          role: selectedDepth === 'rigorous' ? 'System Design' : (selectedDepth === 'applied' ? 'Data/ML' : 'Software Engineering'),
+          document: selectedFileObj ? selectedFileObj.name : uploadedFile?.name,
+        });
 
-      const sid = intakeRes.session_id;
-      setActiveSessionId(sid);
+        const sid = intakeRes.session_id;
+        setActiveSessionId(sid);
 
-      if (selectedFileObj) {
-        await api.uploadDocument(sid, selectedFileObj);
-      }
+        if (selectedFileObj) {
+          await api.uploadDocument(sid, selectedFileObj);
+        }
 
-      // Generate verified syllabus through backend engine
-      const syl = await api.generateSyllabus(sid);
-      if (syl && syl.chapters && syl.chapters.length > 0) {
-        setActiveChapterId(syl.chapters[0].chapter_id);
+        const syl = await api.generateSyllabus(sid);
+        if (syl && syl.chapters && syl.chapters.length > 0) {
+          setActiveChapterId(syl.chapters[0].chapter_id);
+        }
       }
       navigate('/app/roadmap');
     } catch (err) {
-      console.warn('Intake live generation failed, routing to active curriculum:', err);
-      // If offline/error, choose closest track
-      const t = topicPrompt.toLowerCase();
-      if (t.includes('algo') || t.includes('cod') || t.includes('sort') || t.includes('data struct')) {
-        setActiveSessionId('sess_coding_basic');
-      } else if (t.includes('math') || t.includes('stat') || t.includes('neyman') || t.includes('decision')) {
-        setActiveSessionId('sess_math_stats');
-      }
+      console.warn('Intake generation fallback:', err);
+      setActiveSessionId('sess_coding_basic');
+      setActiveChapterId('ch_algo_01');
       navigate('/app/roadmap');
     } finally {
       setIsSubmitting(false);

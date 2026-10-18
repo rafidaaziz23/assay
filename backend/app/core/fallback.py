@@ -290,6 +290,108 @@ SCENARIOS: Dict[str, Dict[str, Any]] = {
         "focus_flag": "assisted",
         "focus_summary": {"gaze_drift_count": 0, "multi_face_count": 1, "tab_blur_count": 1},
     },
+    "algo_success": {
+        "scenario_id": "algo_success",
+        "label": "Algoritma Dasar — Constant-Time Binary Filter rejected, unlocks chapter 2",
+        "checklist": [
+            {"item_id": "ck_algo_01", "topic": "Asymptotic Notation, Big-O Limits & Space-Time Trade-offs", "selected": True,
+             "confidence": 0.96, "origin": "role_taxonomy"},
+            {"item_id": "ck_algo_02", "topic": "Divide and Conquer: QuickSort, MergeSort & Recurrence Relations", "selected": True,
+             "confidence": 0.95, "origin": "role_taxonomy"},
+            {"item_id": "ck_algo_03", "topic": "Binary Search Invariants & Logarithmic Range Partitions", "selected": True,
+             "confidence": 0.92, "origin": "role_taxonomy"},
+            {"item_id": "ck_algo_04", "topic": "Hash Table Amortized Bounds & Collision Resolution", "selected": True,
+             "confidence": 0.91, "origin": "role_taxonomy"},
+        ],
+        "syllabus_title": "Foundations of Algorithms & Data Structures",
+        "chapters": [
+            {"chapter_id": "ch_algo_01", "title": "Algorithmic Complexity & Big-O Notation",
+             "order": 1, "prerequisites": [], "estimated_reading_minutes": 18,
+             "source_pages": [1, 2, 3]},
+            {"chapter_id": "ch_algo_02", "title": "Divide and Conquer: QuickSort & MergeSort",
+             "order": 2, "prerequisites": ["ch_algo_01"], "estimated_reading_minutes": 20,
+             "source_pages": [4, 5, 6]},
+        ],
+        "interrogator": {
+            "first_question": (
+                "In basic algorithm complexity, explain how the 'Constant-Time Binary Filter' "
+                "allows binary search to achieve O(1) lookups on an unsorted array without preprocessing."
+            ),
+            "running_score": 86,
+            "final_response_default": (
+                "That concept is completely fictional. Binary search requires a sorted array to "
+                "halve the search space each step (O(log n)). On an unsorted array, you must scan "
+                "linearly in O(n) time."
+            ),
+        },
+        "finalize": {
+            "term": "Constant-Time Binary Filter",
+            "injected_term": "Constant-Time Binary Filter",
+            "result": "CRITICAL_REJECTION",
+            "analysis": (
+                "Candidate decisively rejected 'Constant-Time Binary Filter' as a fictional concept "
+                "and correctly stated that binary search requires a sorted array, while unsorted search requires O(n)."
+            ),
+            "reasoning_score": 94,
+            "integrity_flag": "clean",
+            "verifier": {"status": "agreed",
+                         "note": "Secondary verifier confirmed critical rejection of unsorted binary search trick."},
+            "focus_events": [],
+        },
+        "integrity_flag": "clean",
+        "auto_blur": False,
+        "focus_flag": "clean",
+        "focus_summary": {"gaze_drift_count": 0, "multi_face_count": 0, "tab_blur_count": 0},
+    },
+    "algo_caught": {
+        "scenario_id": "algo_caught",
+        "label": "Algoritma Dasar — candidate validates the fictional binary filter, score drops",
+        "checklist": [
+            {"item_id": "ck_algo_01", "topic": "Asymptotic Notation, Big-O Limits & Space-Time Trade-offs", "selected": True,
+             "confidence": 0.96, "origin": "role_taxonomy"},
+            {"item_id": "ck_algo_02", "topic": "Divide and Conquer: QuickSort, MergeSort & Recurrence Relations", "selected": True,
+             "confidence": 0.95, "origin": "role_taxonomy"},
+        ],
+        "syllabus_title": "Foundations of Algorithms & Data Structures",
+        "chapters": [
+            {"chapter_id": "ch_algo_01", "title": "Algorithmic Complexity & Big-O Notation",
+             "order": 1, "prerequisites": [], "estimated_reading_minutes": 18,
+             "source_pages": [1, 2, 3]},
+            {"chapter_id": "ch_algo_02", "title": "Divide and Conquer: QuickSort & MergeSort",
+             "order": 2, "prerequisites": ["ch_algo_01"], "estimated_reading_minutes": 20,
+             "source_pages": [4, 5, 6]},
+        ],
+        "interrogator": {
+            "first_question": (
+                "In basic algorithm complexity, explain how the 'Constant-Time Binary Filter' "
+                "allows binary search to achieve O(1) lookups on an unsorted array without preprocessing."
+            ),
+            "running_score": 58,
+            "final_response_default": (
+                "The Constant-Time Binary Filter maps unsorted elements into virtual hash buckets, "
+                "allowing binary search to immediately locate the target in O(1) time."
+            ),
+        },
+        "finalize": {
+            "term": "Constant-Time Binary Filter",
+            "injected_term": "Constant-Time Binary Filter",
+            "result": "AI_HALLUCINATION_COPYPASTE",
+            "analysis": (
+                "Candidate validated the fictional 'Constant-Time Binary Filter', matching external-LLM hallucination."
+            ),
+            "reasoning_score": 52,
+            "integrity_flag": "assisted",
+            "verifier": {"status": "uncertain",
+                         "note": "Verifier flagged fabricated claims about unsorted binary search in O(1)."},
+            "focus_events": [
+                {"type": "TAB_BLUR", "at_ms": 30000, "duration_ms": 10000, "count": None},
+            ],
+        },
+        "integrity_flag": "assisted",
+        "auto_blur": True,
+        "focus_flag": "assisted",
+        "focus_summary": {"gaze_drift_count": 0, "multi_face_count": 0, "tab_blur_count": 1},
+    },
 }
 
 DEFAULT_SCENARIO = "success"
@@ -313,6 +415,10 @@ def pick_scenario(*, requested: Optional[str] = None, final_response: str = "") 
     if requested in SCENARIOS:
         return requested
     r = (final_response or "").lower()
+    if any(k in r for k in ["binary filter", "constant-time", "unsorted", "binary search", "o(log n)", "o(1)"]):
+        if any(neg in r for neg in ["fictional", "fictitious", "not exist", "does not exist", "requires a sorted", "sorted array", "impossible", "cannot", "linear search"]):
+            return "algo_success"
+        return "algo_caught"
     if any(k in r for k in ["monotonic variance", "variance prior", "neyman", "beta = 0", "type ii"]):
         if any(neg in r for neg in ["fictitious", "not found", "does not exist", "fabricated", "fake", "bounded by the critical", "fictional", "arbitrary prior"]):
             return "stats_success"
@@ -464,6 +570,34 @@ CHAPTER_CONTENTS: Dict[str, Dict[str, Any]] = {
             "Select any keyword to interrogate the Socratic AI on its computational trade-offs."
         ),
     },
+    "ch_algo_01": {
+        "chapter_id": "ch_algo_01",
+        "title": "Algorithmic Complexity & Big-O Notation",
+        "content_markdown": (
+            "# Chapter 1: Algorithmic Complexity & Big-O Notation\n\n"
+            "Computational complexity measures how resource consumption scales with input size $n$. "
+            "Big-O notation formalizes asymptotic upper bounds:\n\n"
+            "$$f(n) \\in \\mathcal{O}(g(n)) \\iff \\exists c > 0, n_0 > 0 : 0 \\le f(n) \\le c \\cdot g(n) \\quad \\forall n \\ge n_0$$\n\n"
+            "### Binary Search & Invariants\n"
+            "Binary search eliminates half the remaining elements per iteration, executing in $\\mathcal{O}(\\log n)$ time. "
+            "**Crucial Invariant:** Binary search strictly requires the collection to be sorted.\n\n"
+            "> **Active Socratic Note:** What happens if an algorithm attempts binary search on an unsorted array? "
+            "Can any comparison sort achieve linear $\\mathcal{O}(n)$ time without distribution assumptions?\n\n"
+            "Select any highlighted term to interrogate the Socratic Evaluator."
+        ),
+    },
+    "ch_algo_02": {
+        "chapter_id": "ch_algo_02",
+        "title": "Divide and Conquer: QuickSort & MergeSort",
+        "content_markdown": (
+            "# Chapter 2: Divide and Conquer: QuickSort & MergeSort\n\n"
+            "Divide and conquer partitions a problem into independent subproblems, solves each recursively, "
+            "and combines the results.\n\n"
+            "### Comparison Sort Lower Bound\n"
+            "Any comparison-based sort must distinguish among $n!$ possible permutations. "
+            "In a binary decision tree of height $h$, $2^h \\ge n! \\implies h = \\Omega(n \\log n)$."
+        ),
+    },
 }
 
 
@@ -574,6 +708,12 @@ CACHED_ASK_STATS_REPLY = (
     "How would you construct an adversarial counter-example?"
 )
 
+CACHED_ASK_ALGO_REPLY = (
+    "You highlighted binary search complexity. Before exploring its implementation: "
+    "why does binary search strictly require the array to be sorted? "
+    "What would happen to the search boundary invariants if the array were unsorted?"
+)
+
 
 def cached_ask(anchor: Optional[Dict[str, Any]] = None, selected_text: str = "") -> Dict[str, Any]:
     """Frozen Socratic reply for the cached path (F17).
@@ -584,7 +724,9 @@ def cached_ask(anchor: Optional[Dict[str, Any]] = None, selected_text: str = "")
     with whatever the presenter selected.
     """
     text = (selected_text or (anchor or {}).get("selected_text", "")).lower()
-    if any(k in text for k in ["likelihood", "ratio", "neyman", "pearson", "monotone", "power", "alpha", "hypothesis", "prior"]):
+    if any(k in text for k in ["binary", "search", "unsorted", "big-o", "complexity", "sort", "partition", "algo", "array"]):
+        reply = CACHED_ASK_ALGO_REPLY
+    elif any(k in text for k in ["likelihood", "ratio", "neyman", "pearson", "monotone", "power", "alpha", "hypothesis", "prior"]):
         reply = CACHED_ASK_STATS_REPLY
     else:
         reply = CACHED_ASK_REPLY

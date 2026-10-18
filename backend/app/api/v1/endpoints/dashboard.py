@@ -193,14 +193,14 @@ async def get_dashboard_summary(
             title=upcoming_title,
             subtitle=upcoming_sub,
             scheduled_time="Tomorrow at 10:00 AM",
-            examiner_name="Dr. Julian Vance",
-            examiner_role="Lead Examiner · Decision Theory",
-            examiner_avatar="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+            examiner_name="Assay AI",
+            examiner_role="Lead Socratic AI Evaluator · Algorithms & Complexity",
+            examiner_avatar="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80",
             description="45-min live vocal Socratic inquiry. 4 rubric competencies evaluated independently.",
         )
 
     return DashboardSummaryResponse(
-        learner_name="Maya Lin",
+        learner_name="Rafida Aziz",
         headline_subject=headline,
         remaining_modules=remaining_modules,
         active_subjects_count=3,

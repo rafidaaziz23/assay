@@ -39,6 +39,7 @@ interface AppState {
   // User State
   user: {
     name: string;
+    email: string;
     role: string;
     handle: string;
     avatarUrl: string;
@@ -152,6 +153,7 @@ export const useAppStore = create<AppState>((set) => ({
 
   user: {
     name: 'Rafida Aziz',
+    email: 'dev.rafidaaziz@gmail.com',
     role: 'Lead Fellow · Socratic Scholar',
     handle: '@rafidaaziz',
     avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',

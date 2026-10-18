@@ -66,9 +66,9 @@ export const DashboardPage: React.FC = () => {
       title: activeSessionId === 'sess_coding_basic' ? 'Algorithmic Complexity & Asymptotic Bounds' : 'Foundational Decision Theory',
       subtitle: 'Module 01 Capstone Defense',
       scheduled_time: 'Tomorrow at 10:00 AM',
-      examiner_name: 'Dr. Julian Vance',
-      examiner_role: 'Lead Examiner · Decision Theory',
-      examiner_avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+      examiner_name: 'Assay AI',
+      examiner_role: 'Lead Socratic AI Evaluator · Algorithms',
+      examiner_avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80',
       description: '45-min live vocal Socratic inquiry. 4 rubric competencies evaluated independently.',
     },
     weekly_rhythm: [
@@ -360,15 +360,15 @@ export const DashboardPage: React.FC = () => {
               </p>
             </div>
 
-            {/* Dr. Julian Vance Examiner Card */}
+            {/* Assay AI Examiner Card */}
             <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 shadow-2xs">
-              <Avatar name={d.upcoming_defense?.examiner_name || 'Julian Vance'} size="md" />
+              <Avatar name={d.upcoming_defense?.examiner_name || 'Assay AI'} size="md" />
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-bold text-slate-900">
-                  {d.upcoming_defense?.examiner_name || 'Dr. Julian Vance'}
+                  {d.upcoming_defense?.examiner_name || 'Assay AI'}
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  {d.upcoming_defense?.examiner_role || 'Lead Examiner · Decision Theory'}
+                  {d.upcoming_defense?.examiner_role || 'Lead Socratic AI Evaluator'}
                 </div>
               </div>
             </div>
