@@ -52,6 +52,19 @@ BOTTOM = Inches(5.40)
 
 # ── primitives ────────────────────────────────────────────────────────────────
 
+def _purge_generated(slide):
+    """Remove textboxes this script created on a previous run.
+
+    _text() always calls add_textbox(), so re-running the builder on an already
+    built deck stacks a second copy of every element instead of replacing it.
+    The organizer template names its own shapes "Google Shape;NNN;pNN"; ours are
+    "TextBox NNN", which makes the two populations separable.
+    """
+    for shp in list(slide.shapes):
+        if shp.has_text_frame and shp.name.startswith("TextBox "):
+            shp._element.getparent().remove(shp._element)
+
+
 def _text(slide, left, top, width, height, runs, *, size=11, color=BODY,
           font=FONT, bold=False, align=PP_ALIGN.LEFT, anchor=MSO_ANCHOR.TOP,
           spacing=1.0, space_after=2):
@@ -259,6 +272,7 @@ def slide_title(slide):
 
 def s01_team(prs):
     s = prs.slides[0]
+    _purge_generated(s)
     # TITLE layout: the black half ends at 2.97in (measured), so all content lives below it
     _clean(s)
     top = Inches(3.02)
@@ -266,7 +280,7 @@ def s01_team(prs):
           [("Team Details", {"size": 14, "bold": True, "color": INK, "font": FONT_MED})])
 
     rows = [
-        ("a.", "Team name", "Assay"),
+        ("a.", "Team name", "Nexatriv"),
         ("b.", "Team leader name", "Rafida Aziz"),
         ("c.", "Problem Statement",
          "AI study tools dispense answers instead of building reasoning. Assay forces the learner "
@@ -292,6 +306,7 @@ def s01_team(prs):
 
 def s03_brief(prs):
     s = prs.slides[2]
+    _purge_generated(s)
     _clean(s)
 
     _text(s, LEFT, TOP, Inches(5.3), Inches(1.0),
@@ -338,6 +353,7 @@ def s03_brief(prs):
 
 def s04_opportunity(prs):
     s = prs.slides[3]
+    _purge_generated(s)
     _clean(s)
 
     cols = [
@@ -383,6 +399,7 @@ def s04_opportunity(prs):
 
 def s05_features(prs):
     s = prs.slides[4]
+    _purge_generated(s)
     _clean(s)
 
     feats = [
@@ -545,6 +562,7 @@ def s06_flow(prs):
 
 def s08_architecture(prs):
     s = prs.slides[7]
+    _purge_generated(s)
     _clean(s)
 
     # three tiers
@@ -562,13 +580,13 @@ def s08_architecture(prs):
 
     # modules in the middle/right
     mods = [
-        (Inches(2.25), Inches(1.55), "Pages", "14 routes\nDashboard · Intake · Reader · Exam · Report"),
+        (Inches(2.25), Inches(1.55), "Pages", "27 routes\nDashboard · Intake · Reader · Exam · Report"),
         (Inches(2.25), Inches(2.55), "Endpoints", "intake · syllabus · interview · report · calibration"),
         (Inches(2.25), Inches(3.55), "Repositories", "SessionStore · ChapterStore · InterviewStore (in-memory, Firestore port stubbed)"),
         (Inches(5.55), Inches(1.55), "State", "Zustand stores\nrouting via react-router 7"),
         (Inches(5.55), Inches(2.55), "Streaming", "SSE via sse-starlette\nintake checklist partial events"),
         (Inches(5.55), Inches(3.55), "Retrieval", "PyMuPDF page-anchored extraction\nrecall@3 = 0.909"),
-        (Inches(8.05), Inches(1.55), "Gemini", "google-genai SDK\ngemini-2.5-flash / 2.5-pro"),
+        (Inches(8.05), Inches(1.55), "Gemini", "google-genai SDK\ngemini-3-flash / 3.1-pro"),
         (Inches(8.05), Inches(2.55), "Verifier", "grounding check per turn\n6/6 caught in eval"),
         (Inches(8.05), Inches(3.55), "Fallback", "deterministic cache\nzero-crash demo mode"),
     ]
@@ -588,21 +606,22 @@ def s08_architecture(prs):
     _card(s, LEFT, Inches(4.6), WIDTH, Inches(0.72), fill=INDIGO_LT, line=None)
     _text(s, LEFT + Inches(0.25), Inches(4.72), Inches(8.6), Inches(0.5), [
         ("Deployment: ", {"bold": True, "color": INDIGO}),
-        ("single container on Google Cloud Run — FastAPI serving the built Vite bundle. "
-         "No database required at runtime; the repository layer is an interface with an in-memory "
-         "implementation and a Firestore port stubbed for the multi-tenant phase.", {}),
+        ("two Cloud Run services — nginx serving the built Vite bundle, proxying /api "
+         "to the FastAPI service. FirestoreStore activates when credentials are present; otherwise "
+         "the in-memory store is used, so no database is required to run the demo.", {}),
     ], size=9, spacing=1.15)
 
 
 def s09_tech(prs):
     s = prs.slides[8]
+    _purge_generated(s)
     _clean(s)
 
     groups = [
         ("Frontend", ["React 18", "TypeScript", "Vite", "Tailwind CSS", "Zustand", "react-router 7", "Lucide icons", "KaTeX"]),
         ("Backend", ["Python 3.11", "FastAPI", "Uvicorn", "Pydantic v2", "sse-starlette", "PyMuPDF"]),
-        ("AI", ["Gemini 2.5 Flash", "Gemini 2.5 Pro", "google-genai SDK", "Deterministic honeypot catalog", "Grounded verifier"]),
-        ("Platform", ["Google Cloud Run", "Docker", "GitHub", "pytest (203 tests)"]),
+        ("AI", ["Gemini 3 Flash", "Gemini 3.1 Pro", "google-genai SDK", "Deterministic honeypot catalog", "Grounded verifier"]),
+        ("Platform", ["Google Cloud Run", "Docker", "GitHub", "pytest (219 tests)"]),
     ]
     x = LEFT
     cw = Inches(2.18)
@@ -624,17 +643,18 @@ def s09_tech(prs):
     ], size=9.5, spacing=1.2)
 
     _text(s, LEFT, Inches(4.95), WIDTH, Inches(0.4),
-          [("203 automated backend tests · 12 test modules · deterministic eval harness in eval/",
+          [("219 automated backend tests · 11 test modules · deterministic eval harness in eval/",
             {"size": 8.5, "color": MUTED})])
 
 
 def s10_cost(prs):
     s = prs.slides[9]
+    _purge_generated(s)
     _clean(s)
 
     _text(s, LEFT, TOP, WIDTH, Inches(0.3),
-          [("Monthly estimate at three scales. Gemini list price: $0.30 / 1M input, $2.50 / 1M output "
-            "(gemini-2.5-flash, paid tier).", {"size": 8.5, "color": MUTED})])
+          [("Monthly estimate at three scales. Gemini list price: $0.50 / 1M input, $3.00 / 1M output "
+            "(gemini-3-flash, paid tier).", {"size": 8.5, "color": MUTED})])
 
     headers = ["", "Pilot", "Classroom", "Department"]
     rows = [
@@ -682,6 +702,7 @@ def s10_cost(prs):
 
 def s11_snapshots(prs):
     s = prs.slides[10]
+    _purge_generated(s)
     _clean(s)
 
     shots = [
@@ -712,6 +733,7 @@ def s11_snapshots(prs):
 
 def s12_benchmark(prs):
     s = prs.slides[11]
+    _purge_generated(s)
     _clean(s)
 
     _text(s, LEFT, TOP, WIDTH, Inches(0.3),
@@ -729,7 +751,7 @@ def s12_benchmark(prs):
         ("RAG recall@3", "0.909", "22"),
         ("RAG page-hit@1", "0.682", "22"),
         ("RAG refusal accuracy", "100%", "2"),
-        ("Backend test suite", "203 tests", "12 files"),
+        ("Backend test suite", "219 tests", "11 files"),
     ]
     x0, y0 = LEFT, Inches(1.85)
     cw = [Inches(2.15), Inches(1.15), Inches(0.55)]
@@ -774,6 +796,7 @@ def s12_benchmark(prs):
 
 def s13_future(prs):
     s = prs.slides[12]
+    _purge_generated(s)
     _clean(s)
 
     phases = [
@@ -781,7 +804,7 @@ def s13_future(prs):
             "Intake, gated syllabus, deep reader, oral defense",
             "Anti-hallucination verifier + honeypot catalog",
             "Verified dossier with Bloom profiling",
-            "203 backend tests, deterministic eval harness",
+            "219 backend tests, deterministic eval harness",
         ]),
         ("Next — 90 days", RGBColor(0x63, 0x66, 0xF1), [
             "Firestore port for multi-tenant sessions",
@@ -817,10 +840,14 @@ def s13_future(prs):
 
 def s14_links(prs):
     s = prs.slides[13]
+    _purge_generated(s)
+    # Repo and live product are real and verified. The video URL is left as a
+    # visible placeholder on purpose: shipping a fake link to a judge is worse
+    # than an obvious TODO, and the video is recorded separately from this repo.
     rows = [
-        "[ISI: URL repo publik]",
+        "https://github.com/rafidaaziz23/assay",
         "[ISI: URL video demo 3 menit]",
-        "[ISI: URL produk live]",
+        "https://assay-web-icejnb6gya-as.a.run.app",
     ]
     # The template keeps all three prompts inside ONE textbox as paragraphs.
     # Align each value to its own label paragraph instead of guessing offsets.
@@ -848,9 +875,9 @@ def s14_links(prs):
 
     _text(s, LEFT, Inches(4.60), WIDTH, Inches(0.7), [
         ("Team: ", {"bold": True, "color": INK}),
-        ("Assay — Rafida Aziz (lead), M. Zulfi Fahreza, Wildan Fajar Maulana.  ", {}),
+        ("Nexatriv — Rafida Aziz (lead), M. Zulfi Fahreza, Wildan Fajar Maulana.  ", {}),
         ("Stack: ", {"bold": True, "color": INK}),
-        ("React 18 + Vite, FastAPI, Gemini 2.5 via the google-genai SDK, deployed on Google Cloud Run.", {}),
+        ("React 18 + Vite, FastAPI, Gemini 3 via the google-genai SDK, deployed on Google Cloud Run.", {}),
     ], size=9, spacing=1.2, color=MUTED)
 
 
