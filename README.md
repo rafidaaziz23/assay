@@ -6,7 +6,7 @@
 [![Track](https://img.shields.io/badge/Track%204-Media%2C%20Content%20%26%20Digital%20Experiences-blueviolet.svg)](#track-alignment)
 [![Stack](https://img.shields.io/badge/React%20%2B%20Vite-FastAPI%20%2B%20Gemini-orange.svg)](#architecture)
 [![Deploy](https://img.shields.io/badge/Google%20Cloud%20Run-asia--southeast1-green.svg)](docs/deploy/DEPLOY-RUNBOOK.md)
-[![Tests](https://img.shields.io/badge/tests-274%20passing-brightgreen.svg)](#verification)
+[![Tests](https://img.shields.io/badge/tests-244%20passing-brightgreen.svg)](#verification)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 
 ![Assay intake screen](docs/submission/assets/intake.png)
@@ -136,8 +136,9 @@ Every number here was produced by a command in this repo, not estimated.
 
 | Check | Command | Result |
 |---|---|---|
-| Backend tests | `cd backend && pytest -q` | **249 passed** |
+| Backend tests | `cd backend && pytest -q` | **219 passed** |
 | Engine tests | `pytest ai/tests -q` | **25 passed** |
+| Eval harness | `pytest eval/tests -q` | **5 passed** |
 | Frontend build | `cd frontend && npm run build` | `tsc && vite build` clean |
 | Deploy script | `bash tools/deploy-cloudrun.sh --local-test` | builds, engine imports, `/health` OK |
 
