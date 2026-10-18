@@ -6,7 +6,7 @@
 [![Track](https://img.shields.io/badge/Track%204-Media%2C%20Content%20%26%20Digital%20Experiences-blueviolet.svg)](#track-alignment)
 [![Stack](https://img.shields.io/badge/React%20%2B%20Vite-FastAPI%20%2B%20Gemini-orange.svg)](#architecture)
 [![Deploy](https://img.shields.io/badge/Google%20Cloud%20Run-asia--southeast1-green.svg)](docs/deploy/DEPLOY-RUNBOOK.md)
-[![Tests](https://img.shields.io/badge/tests-242%20passing-brightgreen.svg)](#verification)
+[![Tests](https://img.shields.io/badge/tests-274%20passing-brightgreen.svg)](#verification)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 
 ![Assay intake screen](docs/submission/assets/intake.png)
@@ -86,7 +86,7 @@ Eight behaviours, each verifiable in the live demo:
 ┌──────────────────────────────────────────────────────────────────┐
 │  assay-api — Cloud Run, asia-southeast1                          │
 │  FastAPI · Python 3.11 · Uvicorn                                 │
-│  22 routes · chapter state machine · PyMuPDF extractor           │
+│  27 routes · chapter state machine · PyMuPDF extractor           │
 │  ai/ engine: interrogator · honeypot catalog · verifier loop     │
 └───────────────────────────┬──────────────────────────────────────┘
                             │ google-genai SDK
@@ -136,16 +136,16 @@ Every number here was produced by a command in this repo, not estimated.
 
 | Check | Command | Result |
 |---|---|---|
-| Backend tests | `cd backend && pytest -q` | **217 passed** |
+| Backend tests | `cd backend && pytest -q` | **249 passed** |
 | Engine tests | `pytest ai/tests -q` | **25 passed** |
 | Frontend build | `cd frontend && npm run build` | `tsc && vite build` clean |
 | Deploy script | `bash tools/deploy-cloudrun.sh --local-test` | builds, engine imports, `/health` OK |
 
 ```
-backend    34 files   4,321 lines   Python
-ai          9 files   1,139 lines   Python
+backend    36 files   5,986 lines   Python
+ai          9 files   1,145 lines   Python
 eval       13 files   1,011 lines   Python
-frontend   40 files   8,263 lines   TypeScript
+frontend   41 files   9,251 lines   TypeScript
 ```
 
 ## Evaluation
@@ -211,7 +211,7 @@ The judged run uses `cached`. Everything else uses `live`.
 ## Repository layout
 
 ```
-├── backend/          FastAPI app · 22 routes · PyMuPDF · Dockerfile
+├── backend/          FastAPI app · 27 routes · PyMuPDF · Dockerfile
 ├── frontend/         React + Vite SPA · nginx Dockerfile · proxy template
 ├── ai/               Socratic engine package (imported by backend)
 ├── prompts/          System prompts + deterministic honeypot catalog
@@ -247,9 +247,12 @@ Hard requirements, and where they are satisfied:
 
 Stated plainly, because a judge will find them anyway:
 
-- **Session state is in-process.** `repositories/firestore.py` is a stub, so state
-  lives in the container's memory. With `min-instances=0` and `max-instances=2`, a
-  session can be lost between requests. Firestore is the fix, not yet wired.
+- **Session state depends on credentials.** `repositories/firestore.py` implements a
+  `FirestoreStore`, and `get_store()` selects it when a service account is present;
+  without one it falls back to `InMemoryStore`. On Cloud Run with no Firestore
+  credentials injected, state is per-container — and with `min-instances=0` plus
+  `max-instances=2` a session can be lost between requests. Inject
+  `FIREBASE_CREDENTIALS_PATH` (or use the attached service account) to persist.
 - **Focus mode is heuristic.** MediaPipe gaze and face-count signals are advisory,
   not a proctoring guarantee.
 - **Free-tier Gemini is 20 requests/day** per project. The judged run uses

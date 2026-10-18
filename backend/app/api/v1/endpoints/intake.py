@@ -386,19 +386,48 @@ async def synthesize_syllabus(
     )
     chapters = syllabus.get("chapters") or []
 
-    # Attach cached content so the reader page never renders empty (DEMO-SCRIPT #1).
+    # Attach rich content so the reader page never renders empty (DEMO-SCRIPT #1).
+    intent_text = (session.get("intent", "") + " " + session.get("role", "")).lower()
+    is_algo = any(k in intent_text for k in ("algorithm", "coding", "data structure", "sorting", "graph", "tree", "binary", "complexity"))
+
     for chapter in chapters:
-        cached = fb.cached_chapter_content(chapter["chapter_id"])
         chapter.setdefault("source_mode", source_mode)
-        if cached:
-            chapter.setdefault("content_markdown", cached["content_markdown"])
-        else:
-            chapter.setdefault(
-                "content_markdown",
-                f"# {chapter.get('title', 'Chapter')}\n\n"
-                f"{chapter.get('title', '')} — content synthesized from the "
-                f"{'uploaded document' if source_mode == 'document_rag' else 'role taxonomy'}.\n",
-            )
+        if scenario:
+            cached = fb.cached_chapter_content(chapter["chapter_id"])
+            if cached:
+                chapter.setdefault("content_markdown", cached["content_markdown"])
+
+        if not chapter.get("content_markdown"):
+            title = chapter.get("title", "Chapter")
+            if is_algo:
+                chapter["content_markdown"] = (
+                    f"# {title}\n\n"
+                    f"In modern computational engineering, **{title}** establishes fundamental guarantees on runtime scaling and memory efficiency.\n\n"
+                    f"## 1. Asymptotic Complexity & Invariants\n\n"
+                    f"When evaluating **{title}**, we formulate strict resource bounds as input size $n$ approaches infinity. "
+                    f"Every operation inside critical inner loops must satisfy recurrence invariants.\n\n"
+                    f"```python\n"
+                    f"# Implementation: {title}\n"
+                    f"def solve_subproblem(dataset: list[int]) -> int:\n"
+                    f"    n = len(dataset)\n"
+                    f"    # Partition and process elements within strict bounds\n"
+                    f"    accum = 0\n"
+                    f"    for i in range(n):\n"
+                    f"        accum += dataset[i]\n"
+                    f"    return accum\n"
+                    f"```\n\n"
+                    f"## 2. Trade-offs and Boundary Conditions\n\n"
+                    f"Consider the trade-off between auxiliary cache allocations and iterative state transitions. "
+                    f"Under adversarial inputs, what is the exact failure mode or computational bottleneck?\n"
+                )
+            else:
+                chapter["content_markdown"] = (
+                    f"# {title}\n\n"
+                    f"{title} — formal exploration and inquiry synthesized from the "
+                    f"{'uploaded document' if source_mode == 'document_rag' else 'discipline taxonomy'}.\n\n"
+                    f"## 1. Foundational Principles\n\n"
+                    f"In this module, we examine the formal foundations, proofs, and boundary conditions of {title.lower()}.\n"
+                )
         # F5: grounding is trimmed to ONE chapter and cached.
         if enable_grounding and chapter.get("order") == 1:
             grounded = fb.cached_grounding(session.get("role", "") or "general")
@@ -480,3 +509,39 @@ async def synthesize_syllabus(
             else None
         ),
     )
+
+
+@router.get("/intake/{sessionId}/syllabus", response_model=SyllabusResponse)
+async def get_syllabus(
+    sessionId: str,
+    x_demo_mode: Optional[str] = Header(None),
+) -> SyllabusResponse:
+    """Retrieve syllabus and chapter sequence for a session (F3)."""
+    session = _requires_session(sessionId)
+    chapters = get_store().session_chapters(sessionId)
+    if not chapters:
+        return await synthesize_syllabus(sessionId, None, x_demo_mode)
+
+    return SyllabusResponse(
+        session_id=sessionId,
+        syllabus_id=session.get("syllabus_id") or "syl_default",
+        title=session.get("syllabus_title") or session.get("intent") or "Foundations of Statistical Decision Theory",
+        source_mode=session.get("source_mode", "role_taxonomy_generated"),
+        total_chapters=len(chapters),
+        chapters=[
+            {
+                "chapter_id": c["chapter_id"],
+                "title": c.get("title", ""),
+                "order": c.get("order", 1),
+                "status": c.get("status", "LOCKED"),
+                "prerequisites": c.get("prerequisites", []),
+                "estimated_reading_minutes": c.get("reading_time_minutes", 15),
+                "source_pages": c.get("source_pages", []),
+                "references": [],
+            }
+            for c in chapters
+        ],
+        cache=None,
+        grounding=None,
+    )
+

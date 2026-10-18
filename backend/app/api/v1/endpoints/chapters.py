@@ -36,7 +36,15 @@ INTERVIEW_READY_STATUSES = ("ACTIVE_READING", "INTERVIEW", "NEEDS_REVIEW")
 
 
 def _chapter_or_404(chapter_id: str) -> Dict[str, Any]:
-    chapter = get_store().get_chapter(chapter_id)
+    st = get_store()
+    chapter = st.get_chapter(chapter_id)
+    if chapter is None:
+        st.load_from_disk()
+        chapter = st.get_chapter(chapter_id)
+    if chapter is None:
+        from ....core.seeder import seed_store
+        seed_store(st)
+        chapter = st.get_chapter(chapter_id)
     if chapter is None:
         raise HTTPException(status_code=404, detail=f"unknown chapter: {chapter_id}")
     return chapter

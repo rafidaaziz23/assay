@@ -12,9 +12,19 @@ Shapes follow the Firestore sketch in DEV 2 section 3:
 """
 from __future__ import annotations
 
+import json
+import os
+from pathlib import Path
 import time
 import uuid
 from typing import Any, Dict, List, Optional, Protocol
+
+_DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
+_DEFAULT_STORE_PATH = _DATA_DIR / "assay_store.json"
+
+
+def _is_testing() -> bool:
+    return "PYTEST_CURRENT_TEST" in os.environ or os.environ.get("ASSAY_ENV") == "test"
 
 
 # ── interfaces ─────────────────────────────────────────────────────────────────
@@ -55,8 +65,11 @@ class InMemoryStore:
     "Auth kompleks / multi-user" is a non-goal). Documented limitation, not a bug.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, persist_path: Optional[Path] = None) -> None:
+        self.persist_path: Optional[Path] = persist_path or _DEFAULT_STORE_PATH
         self.reset()
+        if not _is_testing():
+            self.load_from_disk()
 
     def reset(self) -> None:
         self.sessions: Dict[str, Dict[str, Any]] = {}
@@ -69,6 +82,60 @@ class InMemoryStore:
         self.calibrations: Dict[str, Dict[str, Any]] = {}
         self.grounding_cache: Dict[str, Dict[str, Any]] = {}
         self.demo_cache: Dict[str, Dict[str, Any]] = {}
+        self.users: Dict[str, Dict[str, Any]] = {}
+        self.notifications: List[Dict[str, Any]] = []
+        self.inquiries: List[Dict[str, Any]] = []
+        self.defenses: List[Dict[str, Any]] = []
+
+    def save_to_disk(self) -> None:
+        if _is_testing() or not self.persist_path:
+            return
+        try:
+            self.persist_path.parent.mkdir(parents=True, exist_ok=True)
+            payload = {
+                "version": 1,
+                "saved_at_ms": _now_ms(),
+                "sessions": self.sessions,
+                "chapters": self.chapters,
+                "interviews": self.interviews,
+                "focus_events": self.focus_events,
+                "focus_flags": self.focus_flags,
+                "ask_interactions": self.ask_interactions,
+                "appeals": self.appeals,
+                "calibrations": self.calibrations,
+                "users": self.users,
+                "notifications": self.notifications,
+                "inquiries": self.inquiries,
+                "defenses": self.defenses,
+            }
+            tmp_path = self.persist_path.with_suffix(".json.tmp")
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(payload, f, indent=2, ensure_ascii=False)
+            tmp_path.replace(self.persist_path)
+        except Exception:
+            pass
+
+    def load_from_disk(self) -> bool:
+        if _is_testing() or not self.persist_path or not self.persist_path.exists():
+            return False
+        try:
+            with open(self.persist_path, "r", encoding="utf-8") as f:
+                payload = json.load(f)
+            self.sessions = payload.get("sessions", {})
+            self.chapters = payload.get("chapters", {})
+            self.interviews = payload.get("interviews", {})
+            self.focus_events = payload.get("focus_events", {})
+            self.focus_flags = payload.get("focus_flags", {})
+            self.ask_interactions = payload.get("ask_interactions", {})
+            self.appeals = payload.get("appeals", {})
+            self.calibrations = payload.get("calibrations", {})
+            self.users = payload.get("users", {})
+            self.notifications = payload.get("notifications", [])
+            self.inquiries = payload.get("inquiries", [])
+            self.defenses = payload.get("defenses", [])
+            return True
+        except Exception:
+            return False
 
     # ── sessions ──────────────────────────────────────────────────────────────
     def create_session(self, session_id: str, **fields: Any) -> Dict[str, Any]:
@@ -94,6 +161,7 @@ class InMemoryStore:
             **fields,
         }
         self.sessions[session_id] = record
+        self.save_to_disk()
         return record
 
     def get_session(self, session_id: str) -> Optional[Dict[str, Any]]:
@@ -105,6 +173,7 @@ class InMemoryStore:
             return None
         record.update(fields)
         record["updated_at"] = _now_ms()
+        self.save_to_disk()
         return record
 
     # ── checklist (subcollection sessions/{sid}/checklist) ────────────────────
@@ -154,6 +223,7 @@ class InMemoryStore:
         record.setdefault("interview_id", None)
         record.setdefault("pass_history", [])
         self.chapters[record["chapter_id"]] = record
+        self.save_to_disk()
         return record
 
     def get_chapter(self, chapter_id: str) -> Optional[Dict[str, Any]]:
@@ -164,6 +234,7 @@ class InMemoryStore:
         if chapter is None:
             return None
         chapter.update(fields)
+        self.save_to_disk()
         return chapter
 
     def session_chapters(self, session_id: str) -> List[Dict[str, Any]]:
@@ -197,6 +268,7 @@ class InMemoryStore:
         if chapter is None:
             return None
         chapter["status"] = new_status
+        self.save_to_disk()
         return chapter
 
     def refresh_next_locked(self, chapter_id: str) -> bool:
@@ -236,6 +308,7 @@ class InMemoryStore:
             **fields,
         }
         self.interviews[interview_id] = record
+        self.save_to_disk()
         return record
 
     def get_interview(self, interview_id: str) -> Optional[Dict[str, Any]]:
@@ -252,6 +325,7 @@ class InMemoryStore:
         if interview is None:
             return {}
         interview.setdefault("turns", []).append({"at_ms": _now_ms(), **turn})
+        self.save_to_disk()
         return interview["turns"][-1]
 
     def get_interview_turns(self, interview_id: str) -> List[Dict[str, Any]]:
@@ -263,6 +337,7 @@ class InMemoryStore:
         if record is None:
             return None
         record.update(fields)
+        self.save_to_disk()
         return record
 
     # ── focus events (subcollection .../focus_events) ─────────────────────────
@@ -302,6 +377,7 @@ class InMemoryStore:
         chapter = self.chapters.get(chapter_id)
         if chapter is not None:
             chapter["calibration"] = entry
+        self.save_to_disk()
         return entry
 
     def get_calibration(self, chapter_id: str) -> Optional[Dict[str, Any]]:
@@ -311,10 +387,81 @@ class InMemoryStore:
     def save_appeal(self, appeal_id: str, record: Dict[str, Any]) -> Dict[str, Any]:
         entry = {"at_ms": _now_ms(), **record}
         self.appeals[appeal_id] = entry
+        self.save_to_disk()
         return entry
 
     def get_appeal(self, appeal_id: str) -> Optional[Dict[str, Any]]:
         return self.appeals.get(appeal_id)
+
+    # ── users ─────────────────────────────────────────────────────────────────
+    def save_user(self, user: Dict[str, Any]) -> Dict[str, Any]:
+        record = dict(user)
+        self.users[record["id"]] = record
+        self.save_to_disk()
+        return record
+
+    def get_user(self, user_id: str) -> Optional[Dict[str, Any]]:
+        return self.users.get(user_id)
+
+    def get_user_by_email(self, email: str) -> Optional[Dict[str, Any]]:
+        target = email.strip().lower()
+        for u in self.users.values():
+            if u.get("email", "").strip().lower() == target:
+                return u
+        return None
+
+    def list_users(self) -> List[Dict[str, Any]]:
+        return list(self.users.values())
+
+    # ── notifications ─────────────────────────────────────────────────────────
+    def add_notification(self, notif: Dict[str, Any]) -> Dict[str, Any]:
+        record = dict(notif)
+        record.setdefault("id", new_id("notif"))
+        record.setdefault("isUnread", True)
+        self.notifications = [n for n in self.notifications if n.get("id") != record["id"]]
+        self.notifications.insert(0, record)
+        self.save_to_disk()
+        return record
+
+    def list_notifications(self) -> List[Dict[str, Any]]:
+        return list(self.notifications)
+
+    def mark_all_notifications_read(self) -> None:
+        for n in self.notifications:
+            n["isUnread"] = False
+        self.save_to_disk()
+
+    def mark_notification_read(self, notif_id: str) -> bool:
+        found = False
+        for n in self.notifications:
+            if n.get("id") == notif_id:
+                n["isUnread"] = False
+                found = True
+        if found:
+            self.save_to_disk()
+        return found
+
+    # ── inquiries & defenses ──────────────────────────────────────────────────
+    def add_inquiry(self, inq: Dict[str, Any]) -> Dict[str, Any]:
+        record = dict(inq)
+        record.setdefault("id", new_id("inq"))
+        self.inquiries = [i for i in self.inquiries if i.get("id") != record["id"]]
+        self.inquiries.append(record)
+        self.save_to_disk()
+        return record
+
+    def list_inquiries(self) -> List[Dict[str, Any]]:
+        return list(self.inquiries)
+
+    def add_defense(self, defense_info: Dict[str, Any]) -> Dict[str, Any]:
+        record = dict(defense_info)
+        self.defenses = [d for d in self.defenses if d.get("title") != record.get("title")]
+        self.defenses.append(record)
+        self.save_to_disk()
+        return record
+
+    def list_defenses(self) -> List[Dict[str, Any]]:
+        return list(self.defenses)
 
 
 _store: Optional[InMemoryStore] = None
@@ -324,5 +471,12 @@ def get_store() -> InMemoryStore:
     """Process-wide store singleton (endpoints and state machine share it)."""
     global _store
     if _store is None:
-        _store = InMemoryStore()
+        if _is_testing():
+            _store = InMemoryStore()
+        else:
+            try:
+                from .firestore import build_store
+                _store = build_store()
+            except Exception:
+                _store = InMemoryStore()
     return _store

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .api.v1.router import api_router
 from .core import fallback as fb
+from .core.seeder import seed_store
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -38,6 +39,11 @@ async def demo_mode_middleware(request: Request, call_next):
 
 # Mount API v1
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
+
+@app.on_event("startup")
+def startup_seeder():
+    """Seed InMemoryStore on server startup."""
+    seed_store()
 
 @app.get("/health", tags=["Health"])
 async def health_check():

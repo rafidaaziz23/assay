@@ -74,7 +74,12 @@ async def start_interview(
     x_demo_mode: Optional[str] = Header(None),
     scenario: Optional[str] = Query(None),
 ) -> InterviewStartResponse:
-    chapter = get_store().get_chapter(chapterId)
+    st = get_store()
+    chapter = st.get_chapter(chapterId)
+    if chapter is None and (not st.chapters or "ch_algo_01" not in st.chapters):
+        from ....core.seeder import seed_store
+        seed_store(st)
+        chapter = st.get_chapter(chapterId)
     if chapter is None:
         raise HTTPException(status_code=404, detail=f"unknown chapter: {chapterId}")
 

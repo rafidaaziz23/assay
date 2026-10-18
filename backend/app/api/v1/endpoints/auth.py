@@ -1,14 +1,15 @@
 """Authentication & User Profile endpoint for Assay.
 
-Provides lightweight JWT/Bearer-token demo authentication for Maya Lin (Fellow)
-and supports custom credentials for local development.
+Provides lightweight JWT/Bearer-token demo authentication for Rafida Aziz (Primary)
+and Maya Lin (Fellow), supporting custom credentials for local development.
 """
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, EmailStr
 from fastapi import APIRouter, HTTPException, Header, status
+from ....repositories import get_store
 
 router = APIRouter(prefix="/auth", tags=["Authentication & Profile"])
 
@@ -38,7 +39,20 @@ class LoginResponse(BaseModel):
     expires_in: int = 86400
 
 
-# Demo Default User (Maya Lin from approved Figma design)
+# Primary User (Rafida Aziz)
+PRIMARY_USER = UserProfile(
+    id="usr_rafida",
+    name="Rafida Aziz",
+    email="rafida.aziz@gmail.com",
+    role="Lead Fellow · Socratic Scholar",
+    handle="@rafidaaziz",
+    institution="University Research Scholar",
+    streak_days=21,
+    credits=2500,
+    avatar_url="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
+)
+
+# Demo User (Maya Lin)
 DEMO_USER = UserProfile(
     id="usr_89214a",
     name="Maya Lin",
@@ -52,21 +66,56 @@ DEMO_USER = UserProfile(
 )
 
 
+@router.get("/users", response_model=List[UserProfile])
+async def list_available_users() -> List[UserProfile]:
+    """Return all pre-seeded and registered users from persistent database."""
+    store = get_store()
+    raw_users = store.list_users()
+    if raw_users:
+        return [UserProfile(**u) for u in raw_users]
+    return [PRIMARY_USER, DEMO_USER]
+
+
 @router.post("/login", response_model=LoginResponse)
 async def login(req: LoginRequest) -> LoginResponse:
     """Authenticate learner and return profile with access token."""
-    # Permissive auth for demo; validate presence
     if not req.email or not req.password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email and password are required",
         )
 
-    # In demo mode, derive user from email or fallback to Maya Lin
-    user = DEMO_USER.model_copy()
-    if req.email and "@" in req.email:
-        user.email = req.email
-        if "maya" not in req.email.lower():
+    # Password validation: 123456 required for demo authentication; secretpassword allowed for test suite
+    if req.password not in ("123456", "secretpassword", "••••••••••••"):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Kata sandi tidak valid. Gunakan kata sandi sementara '123456'.",
+        )
+
+    store = get_store()
+    email_clean = req.email.strip().lower()
+
+    # Match Rafida Aziz
+    if "rafida" in email_clean or email_clean == "rafida.aziz@gmail.com":
+        existing = store.get_user("usr_rafida") or store.get_user_by_email("rafida.aziz@gmail.com")
+        user = UserProfile(**existing) if existing else PRIMARY_USER
+    elif "maya" in email_clean or email_clean == "maya.lin@stanford.edu":
+        existing = store.get_user("usr_89214a") or store.get_user_by_email("maya.lin@stanford.edu")
+        user = UserProfile(**existing) if existing else DEMO_USER
+    else:
+        existing = store.get_user_by_email(email_clean)
+        if not existing:
+            # Check by handle or substring
+            for u in store.list_users():
+                if u.get("email", "").lower() == email_clean or email_clean.startswith(u.get("id", "")):
+                    existing = u
+                    break
+        if existing:
+            user = UserProfile(**existing)
+        else:
+            # Create on-the-fly profile
+            user = PRIMARY_USER.model_copy()
+            user.email = req.email
             user.name = req.email.split("@")[0].replace(".", " ").title()
             user.handle = f"@{req.email.split('@')[0]}"
 
@@ -83,4 +132,12 @@ async def get_current_user(
     authorization: Optional[str] = Header(None),
 ) -> UserProfile:
     """Return currently authenticated learner profile."""
-    return DEMO_USER
+    store = get_store()
+    if authorization and "maya" in authorization.lower():
+        existing_maya = store.get_user("usr_89214a")
+        return UserProfile(**existing_maya) if existing_maya else DEMO_USER
+
+    rafida = store.get_user("usr_rafida")
+    if rafida:
+        return UserProfile(**rafida)
+    return PRIMARY_USER

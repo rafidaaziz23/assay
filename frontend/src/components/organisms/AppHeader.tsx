@@ -1,29 +1,34 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAppStore } from '../../store/useAppStore';
 import { Avatar } from '../atoms/Avatar';
 import { NotificationFlyout } from './NotificationFlyout';
-import {
-  Search,
-  Bell,
-  Command,
-} from 'lucide-react';
+import { Search, Bell, Command } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 export const AppHeader: React.FC = () => {
-  const { user, notifications, toggleNotification, isNotificationOpen } =
-    useAppStore();
+  const {
+    user,
+    notifications,
+    toggleNotification,
+    isNotificationOpen,
+    fetchNotifications,
+  } = useAppStore();
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const unreadCount = notifications.filter((n) => n.isUnread).length;
 
   return (
     <header className="h-16 px-6 bg-white/80 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-30 flex items-center justify-between">
       {/* Search Input (Global Pill Search from Figma 1:4053) */}
-      <div className="flex-1 max-w-md">
+      <div className="flex-1 max-w-sm hidden sm:block">
         <div className="relative flex items-center">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
           <input
             type="text"
-            placeholder="Search inquiry, dialectic concepts, citations..."
+            placeholder="Search inquiry, concepts, citations..."
             className="w-full bg-slate-50 border border-slate-200/80 hover:border-slate-300 focus:border-primary-500 rounded-full pl-10 pr-12 py-1.5 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all duration-150"
           />
           <div className="absolute right-3 flex items-center gap-0.5 text-[10px] text-slate-400 font-mono bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-xs pointer-events-none">
@@ -31,6 +36,8 @@ export const AppHeader: React.FC = () => {
           </div>
         </div>
       </div>
+
+
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">

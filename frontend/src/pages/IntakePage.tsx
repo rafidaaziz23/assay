@@ -22,7 +22,7 @@ import { useAppStore } from '../store/useAppStore';
 
 export const IntakePage: React.FC = () => {
   const navigate = useNavigate();
-  const { setActiveSessionId } = useAppStore();
+  const { setActiveSessionId, setActiveChapterId } = useAppStore();
   const [activeTab, setActiveTab] = useState<'prompt' | 'upload'>('prompt');
   const [topicPrompt, setTopicPrompt] = useState('How mRNA vaccines work');
   const [selectedDepth, setSelectedDepth] = useState<'foundation' | 'applied' | 'rigorous'>('applied');
@@ -52,48 +52,43 @@ export const IntakePage: React.FC = () => {
     }
   };
 
-  const [modules, setModules] = useState([
-    {
-      id: 'mod-1',
-      title: '1. Modified Nucleosides & Immune Evasion',
-      concepts: '4 concepts',
-      time: '45 min',
-      badge: 'Recommended' as const,
-      selected: true,
-    },
-    {
-      id: 'mod-2',
-      title: '2. Lipid Nanoparticle (LNP) Formulation & Delivery',
-      concepts: '5 concepts',
-      time: '1 hr 15 min',
-      badge: null,
-      selected: true,
-    },
-    {
-      id: 'mod-3',
-      title: '3. Ribosomal Translation & Antigen Presentation',
-      concepts: '6 concepts',
-      time: '1 hr 30 min',
-      badge: null,
-      selected: true,
-    },
-    {
-      id: 'mod-4',
-      title: '4. Adjuvant Dynamics & T-Cell Activation',
-      concepts: '3 concepts',
-      time: '50 min',
-      badge: null,
-      selected: true,
-    },
-    {
-      id: 'mod-5',
-      title: '5. Manufacturing Scale & Thermal Stability',
-      concepts: '2 concepts',
-      time: '40 min',
-      badge: 'Optional' as const,
-      selected: false,
-    },
-  ]);
+  const ALGO_MODULES = [
+    { id: 'mod-1', title: '1. Algorithmic Complexity & Big-O Notation', concepts: '4 concepts', time: '45 min', badge: 'Recommended' as const, selected: true },
+    { id: 'mod-2', title: '2. Divide and Conquer: QuickSort & MergeSort', concepts: '5 concepts', time: '1 hr 15 min', badge: null, selected: true },
+    { id: 'mod-3', title: '3. Binary Search & Logarithmic Bounds', concepts: '4 concepts', time: '40 min', badge: null, selected: true },
+    { id: 'mod-4', title: '4. Hash Tables & Collision Resolution', concepts: '5 concepts', time: '50 min', badge: null, selected: true },
+    { id: 'mod-5', title: '5. Graph Traversals: BFS, DFS & Shortest Paths', concepts: '6 concepts', time: '1 hr 20 min', badge: null, selected: true },
+    { id: 'mod-6', title: '6. Dynamic Programming & Optimal Substructure', concepts: '5 concepts', time: '1 hr 30 min', badge: 'Optional' as const, selected: false },
+  ];
+
+  const MATH_MODULES = [
+    { id: 'mod-1', title: '1. Statistics for Decisions: Neyman–Pearson Lemma', concepts: '4 concepts', time: '45 min', badge: 'Recommended' as const, selected: true },
+    { id: 'mod-2', title: '2. Causal Inference & Potential Outcomes', concepts: '5 concepts', time: '1 hr 15 min', badge: null, selected: true },
+    { id: 'mod-3', title: '3. Maximum Likelihood & Score Equations', concepts: '4 concepts', time: '50 min', badge: null, selected: true },
+    { id: 'mod-4', title: '4. Confidence Intervals & Duality with Testing', concepts: '4 concepts', time: '40 min', badge: null, selected: true },
+    { id: 'mod-5', title: '5. Bayesian Inference & Loss Functions', concepts: '5 concepts', time: '1 hr', badge: 'Optional' as const, selected: false },
+  ];
+
+  const BIO_MODULES = [
+    { id: 'mod-1', title: '1. Modified Nucleosides & Immune Evasion', concepts: '4 concepts', time: '45 min', badge: 'Recommended' as const, selected: true },
+    { id: 'mod-2', title: '2. Lipid Nanoparticle (LNP) Formulation & Delivery', concepts: '5 concepts', time: '1 hr 15 min', badge: null, selected: true },
+    { id: 'mod-3', title: '3. Ribosomal Translation & Antigen Presentation', concepts: '6 concepts', time: '1 hr 30 min', badge: null, selected: true },
+    { id: 'mod-4', title: '4. Adjuvant Dynamics & T-Cell Activation', concepts: '3 concepts', time: '50 min', badge: null, selected: true },
+    { id: 'mod-5', title: '5. Manufacturing Scale & Thermal Stability', concepts: '2 concepts', time: '40 min', badge: 'Optional' as const, selected: false },
+  ];
+
+  const [modules, setModules] = useState(ALGO_MODULES);
+
+  React.useEffect(() => {
+    const t = topicPrompt.toLowerCase();
+    if (t.includes('algo') || t.includes('cod') || t.includes('sort') || t.includes('tree') || t.includes('graph') || t.includes('data struct')) {
+      setModules(ALGO_MODULES);
+    } else if (t.includes('math') || t.includes('stat') || t.includes('neyman') || t.includes('bayes') || t.includes('prob') || t.includes('decision')) {
+      setModules(MATH_MODULES);
+    } else if (t.includes('mrna') || t.includes('vaccine') || t.includes('bio') || t.includes('cell')) {
+      setModules(BIO_MODULES);
+    }
+  }, [topicPrompt]);
 
   const toggleModule = (id: string) => {
     setModules((prev) =>
@@ -108,21 +103,32 @@ export const IntakePage: React.FC = () => {
     try {
       const intakeRes = await api.createIntake({
         intent: topicPrompt,
-        role: selectedDepth === 'rigorous' ? 'System Design' : 'Data/ML',
+        role: selectedDepth === 'rigorous' ? 'System Design' : (selectedDepth === 'applied' ? 'Data/ML' : 'Software Engineering'),
         document: selectedFileObj ? selectedFileObj.name : uploadedFile?.name,
       });
 
-      const sid = intakeRes.session_id || 'sess_a1b2c3';
+      const sid = intakeRes.session_id;
       setActiveSessionId(sid);
 
       if (selectedFileObj) {
         await api.uploadDocument(sid, selectedFileObj);
       }
 
-      await api.generateSyllabus(sid);
+      // Generate verified syllabus through backend engine
+      const syl = await api.generateSyllabus(sid);
+      if (syl && syl.chapters && syl.chapters.length > 0) {
+        setActiveChapterId(syl.chapters[0].chapter_id);
+      }
       navigate('/app/roadmap');
     } catch (err) {
-      console.warn('Intake submission fallback:', err);
+      console.warn('Intake live generation failed, routing to active curriculum:', err);
+      // If offline/error, choose closest track
+      const t = topicPrompt.toLowerCase();
+      if (t.includes('algo') || t.includes('cod') || t.includes('sort') || t.includes('data struct')) {
+        setActiveSessionId('sess_coding_basic');
+      } else if (t.includes('math') || t.includes('stat') || t.includes('neyman') || t.includes('decision')) {
+        setActiveSessionId('sess_math_stats');
+      }
       navigate('/app/roadmap');
     } finally {
       setIsSubmitting(false);
@@ -192,7 +198,7 @@ export const IntakePage: React.FC = () => {
                     type="text"
                     value={topicPrompt}
                     onChange={(e) => setTopicPrompt(e.target.value)}
-                    placeholder="How mRNA vaccines work"
+                    placeholder="Basic Algorithms, Complexity Analysis & Sorting"
                     className="w-full pl-11 pr-4 py-3 text-sm text-slate-900 bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
                   />
                 </div>
@@ -201,9 +207,9 @@ export const IntakePage: React.FC = () => {
               {/* Quick suggestion chips */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 {[
+                  'Basic Algorithms & Sorting',
+                  'Statistical Decision Theory',
                   'mRNA Lipid Nanoparticles',
-                  'Distributed Consensus & Raft',
-                  'Kantian Categorical Imperative',
                 ].map((chip) => (
                   <button
                     key={chip}

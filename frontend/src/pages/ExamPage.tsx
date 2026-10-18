@@ -18,6 +18,7 @@ import {
   RotateCcw,
   Sliders,
   Check,
+  Square,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
@@ -27,7 +28,7 @@ import { InterviewStartResponse } from '../types/api';
 
 export const ExamPage: React.FC = () => {
   const navigate = useNavigate();
-  const { activeSessionId, activeChapterId } = useAppStore();
+  const { activeSessionId, activeChapterId, activeTrack, user } = useAppStore();
 
   const [examState, setExamState] = useState<'inquiry' | 'calibration' | 'verdict'>('inquiry');
   const [turnIndex, setTurnIndex] = useState(1);
@@ -41,12 +42,7 @@ export const ExamPage: React.FC = () => {
       text: string;
       isFallacyTrap?: boolean;
     }>
-  >([
-    {
-      sender: 'examiner',
-      text: 'Candidate Lin. In evaluating the Neyman-Pearson lemma, suppose an analyst claims that increasing the significance level alpha from 0.05 to 0.10 will simultaneously reduce the probability of Type II error beta and widen the critical region. Is this logically consistent, or does an unstated trade-off exist?',
-    },
-  ]);
+  >([]);
 
   const [candidateInput, setCandidateInput] = useState('');
 
@@ -55,14 +51,28 @@ export const ExamPage: React.FC = () => {
     isListening,
     transcript,
     waveformBars,
+    stopListening,
     toggleListening,
   } = useVoiceDefense((spoken) => {
-    setCandidateInput(spoken);
+    if (spoken && spoken.trim()) {
+      setCandidateInput(spoken);
+    }
   });
 
+  const speakExaminer = (text: string) => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   useEffect(() => {
-    const cid = activeChapterId || 'ch_01';
-    const sid = activeSessionId || 'sess_a1b2c3';
+    const defaultCid = activeSessionId === 'sess_coding_basic' ? 'ch_algo_01' : (activeSessionId === 'sess_dist_systems' ? 'ch_dist_01' : 'ch_01');
+    const cid = activeChapterId || defaultCid;
+    const sid = activeSessionId || 'sess_coding_basic';
 
     api.startInterview(cid, sid)
       .then((res) => {
@@ -76,10 +86,25 @@ export const ExamPage: React.FC = () => {
           ]);
         }
       })
-      .catch((e) => console.warn('Interview start fallback:', e));
-  }, [activeChapterId, activeSessionId]);
+      .catch((e) => {
+        console.warn('Interview start fallback:', e);
+        const fallbackQ =
+          activeTrack === 'coding'
+            ? 'Candidate Lin. In analyzing algorithm complexity, suppose an engineer claims that their sorting routine achieves O(1) worst-case time by leveraging Quantum QuickSort. Is this claim mathematically valid under the comparison-based model, or does a fundamental computational lower bound exist?'
+            : (activeTrack === 'distributed'
+              ? 'Candidate Lin. In designing a distributed datastore, an architect claims that by eliminating leader election and utilizing deterministic quorum broadcast, the system achieves 100% liveness and safety during network partitions without unbounded wait. Does this violate the FLP theorem?'
+              : 'Candidate Lin. In evaluating the Neyman-Pearson lemma, suppose an analyst claims that increasing the significance level alpha from 0.05 to 0.10 will simultaneously reduce Type II error beta and widen the critical region. Is this logically consistent, or does an unstated trade-off exist?');
+        setChatLog([
+          {
+            sender: 'examiner',
+            text: fallbackQ,
+          },
+        ]);
+      });
+  }, [activeChapterId, activeSessionId, activeTrack]);
 
   const handleSendResponse = async (textToSend?: string) => {
+    stopListening();
     const val = textToSend || candidateInput;
     if (!val.trim()) return;
 
@@ -120,6 +145,15 @@ export const ExamPage: React.FC = () => {
     }
   };
 
+  const handleSubmitVoice = () => {
+    stopListening();
+    const val = candidateInput.trim();
+    if (!val) {
+      return;
+    }
+    handleSendResponse(val);
+  };
+
   const handleCompleteDefense = async () => {
     const cid = activeChapterId || 'ch_01';
     const interviewId = interviewData?.interview_id || 'intv_demo_01';
@@ -158,17 +192,31 @@ export const ExamPage: React.FC = () => {
               </Badge>
             </div>
             <h1 className="text-lg font-bold text-slate-900">
-              Module 03 Capstone: Neyman–Pearson LRT & Error Bounds
+              Module Capstone: {
+                interviewData?.chapter_title ||
+                (activeTrack === 'coding'
+                  ? 'Algorithmic Complexity & Asymptotic Bounds'
+                  : (activeTrack === 'distributed'
+                    ? 'State Machine Replication & FLP Impossibility'
+                    : 'Neyman–Pearson LRT & Error Bounds'))
+              }
             </h1>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="text-right hidden sm:block">
-            <div className="text-xs font-bold text-slate-900">Dr. Julian Vance</div>
-            <div className="text-[10px] text-slate-400">Lead Socratic Examiner</div>
+            <div className="text-xs font-bold text-slate-900">
+              {activeTrack === 'distributed' ? 'Prof. Elena Rostova' : 'Dr. Julian Vance'}
+            </div>
+            <div className="text-[10px] text-slate-400">
+              {activeTrack === 'distributed' ? 'Principal Scientist · Distributed Systems' : 'Lead Socratic Examiner'}
+            </div>
           </div>
-          <Avatar name="Julian Vance" size="md" />
+          <Avatar
+            name={activeTrack === 'distributed' ? 'Elena Rostova' : 'Julian Vance'}
+            size="md"
+          />
         </div>
       </div>
 
@@ -190,9 +238,19 @@ export const ExamPage: React.FC = () => {
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-[11px] font-bold text-slate-500">
                         {item.sender === 'examiner'
-                          ? 'Dr. Julian Vance (Examiner)'
-                          : 'Maya Lin (Candidate)'}
+                          ? (activeTrack === 'distributed' ? 'Prof. Elena Rostova (Examiner)' : 'Dr. Julian Vance (Examiner)')
+                          : `${user?.name || 'Rafida Aziz'} (Candidate)`}
                       </span>
+                      {item.sender === 'examiner' && (
+                        <button
+                          type="button"
+                          onClick={() => speakExaminer(item.text)}
+                          className="p-1 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                          title="Listen to examiner voice"
+                        >
+                          <Volume2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                       {item.isFallacyTrap && (
                         <Badge variant="warning" size="sm">
                           <AlertTriangle className="w-3 h-3 mr-1" />
@@ -215,45 +273,102 @@ export const ExamPage: React.FC = () => {
 
               {/* Interactive Audio Waveform & Input Tray */}
               <div className="pt-4 border-t border-slate-100 space-y-3">
-                {/* Waveform Visualizer */}
-                <div className="p-3 rounded-xl bg-slate-900 text-white flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={toggleListening}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                        isListening
-                          ? 'bg-rose-500 text-white ring-4 ring-rose-500/30'
-                          : 'bg-primary-600 text-white hover:bg-primary-700'
-                      }`}
-                    >
-                      {isListening ? (
-                        <MicOff className="w-5 h-5" />
-                      ) : (
-                        <Mic className="w-5 h-5" />
-                      )}
-                    </button>
-                    <div>
-                      <div className="text-xs font-bold">
-                        {isListening ? 'Listening to speech...' : 'Microphone Ready'}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-mono">
-                        {isListening ? 'Web Speech API &bull; Streaming transcript' : 'Click mic to speak oral defense'}
+                {/* Waveform Visualizer & Live Voice Tray */}
+                <div
+                  className={`p-3 sm:p-3.5 rounded-xl transition-all duration-200 overflow-hidden ${
+                    isListening
+                      ? 'bg-slate-900 ring-2 ring-indigo-500/50 shadow-md text-white'
+                      : 'bg-slate-900 text-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <button
+                        type="button"
+                        onClick={toggleListening}
+                        className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                          isListening
+                            ? 'bg-rose-500 hover:bg-rose-600 text-white ring-4 ring-rose-500/30'
+                            : 'bg-primary-600 hover:bg-primary-700 text-white'
+                        }`}
+                        title={isListening ? 'Klik untuk mematikan mikrofon' : 'Klik untuk menyalakan mikrofon'}
+                      >
+                        {isListening ? (
+                          <MicOff className="w-4 h-4 sm:w-5 sm:h-5" />
+                        ) : (
+                          <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
+                        )}
+                      </button>
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold flex items-center gap-1.5 truncate">
+                          <span className="truncate">{isListening ? 'Mendengarkan...' : 'Mikrofon Siap'}</span>
+                          {isListening && (
+                            <span className="shrink-0 w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                          )}
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-mono truncate">
+                          {isListening ? 'Bicara sekarang' : 'Klik mic untuk berbicara lisan'}
+                        </div>
                       </div>
                     </div>
+
+                    {/* Animated Bars */}
+                    <div className="flex items-center gap-0.5 sm:gap-1 h-6 sm:h-8 px-1 flex-1 max-w-[130px] sm:max-w-[160px] justify-center overflow-hidden">
+                      {waveformBars.slice(0, 16).map((height, i) => (
+                        <div
+                          key={i}
+                          className={`w-0.5 sm:w-1 rounded-full transition-all duration-75 shrink-0 ${
+                            isListening ? 'bg-primary-400' : 'bg-slate-700'
+                          }`}
+                          style={{ height: `${height}%` }}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Clean Compact Icon Buttons when Listening */}
+                    {isListening && (
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {/* Stop Icon Button */}
+                        <button
+                          type="button"
+                          onClick={stopListening}
+                          className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-rose-950/60 text-slate-300 hover:text-rose-400 border border-slate-700 hover:border-rose-500/50 flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                          title="Hentikan Mikrofon"
+                          aria-label="Hentikan"
+                        >
+                          <Square className="w-3.5 h-3.5 fill-current" />
+                        </button>
+
+                        {/* Send Icon Button */}
+                        <button
+                          type="button"
+                          onClick={handleSubmitVoice}
+                          disabled={!candidateInput.trim()}
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer shadow-xs ${
+                            candidateInput.trim()
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                              : 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed opacity-50'
+                          }`}
+                          title={candidateInput.trim() ? 'Kirim Jawaban' : 'Ketik atau bicara untuk mengisi jawaban'}
+                          aria-label="Kirim"
+                        >
+                          <Send className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Animated Bars */}
-                  <div className="flex items-center gap-1 h-8 px-2 flex-1 max-w-[200px] justify-center">
-                    {waveformBars.map((height, i) => (
-                      <div
-                        key={i}
-                        className={`w-1 rounded-full transition-all duration-75 ${
-                          isListening ? 'bg-primary-400' : 'bg-slate-700'
-                        }`}
-                        style={{ height: `${height}%` }}
-                      />
-                    ))}
-                  </div>
+                  {/* Live speech preview pill */}
+                  {isListening && (
+                    <div className="mt-2.5 pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-2 truncate text-slate-300">
+                        <span className="text-slate-400 font-mono text-[10px] uppercase tracking-wider shrink-0">Transkrip:</span>
+                        <span className="text-primary-200 font-medium italic truncate">
+                          {candidateInput.trim() ? `"${candidateInput}"` : '(Mendengarkan... silakan bicara ke mikrofon atau ketik teks di bawah)'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Quick candidate response options */}

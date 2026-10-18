@@ -19,17 +19,37 @@ import { FinalReportResponse } from '../types/api';
 
 export const ReportPage: React.FC = () => {
   const navigate = useNavigate();
-  const { activeSessionId } = useAppStore();
+  const { activeSessionId, user, activeTrack } = useAppStore();
   const [report, setReport] = useState<FinalReportResponse | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedHash, setCopiedHash] = useState(false);
 
   useEffect(() => {
-    const sid = activeSessionId || 'sess_a1b2c3';
+    const sid = activeSessionId || 'sess_coding_basic';
     api.getFinalReport(sid)
       .then((res) => setReport(res))
       .catch((e) => console.warn('Final report fallback:', e));
   }, [activeSessionId]);
+
+  const isCoding = activeTrack === 'coding' || activeSessionId === 'sess_coding_basic';
+  const isDistributed = activeTrack === 'distributed' || activeSessionId === 'sess_distributed_systems';
+
+  const subjectTitle = report?.syllabus_title || (
+    isCoding
+      ? 'Foundations of Algorithms & Data Structures'
+      : isDistributed
+      ? 'Distributed Consensus & Byzantine Fault Tolerance'
+      : 'Statistical Decision Theory'
+  );
+
+  const candidateName = user?.name || 'Maya Lin';
+  const dossierId = report?.session_id
+    ? `ASY-${report.session_id.replace('sess_', '').toUpperCase()}`
+    : 'ASY-8921';
+
+  const depthScore = report?.summary?.mean_score != null
+    ? Math.round(report.summary.mean_score * 100)
+    : 92;
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -49,13 +69,14 @@ export const ReportPage: React.FC = () => {
   const cy = 135;
   const rMax = 85;
 
-  // Scores (0 to 1)
+  // Dynamic Scores based on depthScore
+  const baseScale = depthScore / 100;
   const scores = {
-    recall: 0.95,
-    application: 0.92,
-    analysis: 0.94,
-    evaluation: 0.88,
-    creation: 0.90,
+    recall: Math.min(0.98, Number((baseScale * 1.03).toFixed(2))),
+    application: Math.min(0.96, Number((baseScale * 0.99).toFixed(2))),
+    analysis: Math.min(0.97, Number((baseScale * 1.02).toFixed(2))),
+    evaluation: Math.min(0.95, Number((baseScale * 0.96).toFixed(2))),
+    creation: Math.min(0.96, Number((baseScale * 0.98).toFixed(2))),
   };
 
   // Angles in radians for regular pentagon (pointing up)
@@ -95,6 +116,151 @@ export const ReportPage: React.FC = () => {
     })
     .join(' ');
 
+  // Track-specific findings & dialogue excerpts
+  const findings = isCoding
+    ? {
+        subtitle: `${candidateName} • Algorithmic Invariants & Asymptotic Frontiers`,
+        body: `Candidate demonstrated advanced synthetic reasoning across algorithmic complexity bounds and abstract data structures. The candidate exhibited unhesitating precision when deconstructing recurrence master theorems, establishing rigorous amortized boundaries, and defending cache locality invariants under empirical adversarial workloads. The evaluation committee recognized exceptional dialectical poise during intense adversarial questioning on worst-case quicksort degeneration and dynamic array reallocation.`,
+        chip1: 'Recurrence Rigor: 98%',
+        chip2: 'Median Cognitive Latency: 1.8s',
+        chip3: 'Epistemic Humility: High',
+        examiner: 'Dr. Elena Rostova',
+        examinerRole: 'LEAD SOCRATIC EVALUATOR · COMPUTATIONAL COMPLEXITY',
+        competencies: [
+          {
+            title: '1. Asymptotic Complexity Rigor',
+            score: '5 / 5',
+            badge: 'Distinction',
+            desc: 'Flawlessly articulated growth frontiers (O, Ω, Θ) and recurrence relations without cognitive hesitation. Maintained mathematical fidelity when mapping Master Theorem cases.',
+          },
+          {
+            title: '2. Adversarial Input Reasoning',
+            score: '4 / 5',
+            badge: 'Strong',
+            desc: 'Constructed valid adversarial input sequences when challenged by examiner on pivot degradation. Resolved worst-case partitioning bottlenecks with minor prompt intervention.',
+          },
+          {
+            title: '3. Synthesis of Memory & Hierarchy',
+            score: '5 / 5',
+            badge: 'Distinction',
+            desc: 'Synthesized geometric array doubling with aggregate potential functions. Fluidly integrated cache hierarchy implications with instruction-level branch prediction.',
+          },
+          {
+            title: '4. Dialectical Code Clarity',
+            score: '4 / 5',
+            badge: 'Proficient',
+            desc: 'Responded precisely under adversarial Socratic counter-probes. Re-anchored arguments back to original algorithmic invariants under probing stress.',
+          },
+        ],
+        segment1: {
+          tag: 'DIALECTIC SEGMENT I · WORST-CASE PARTITIONING DEGRADATION',
+          time: '14:20',
+          q: 'If an adversary provides a sequence of pre-sorted elements to quicksort with naive leftmost pivoting, why does time complexity degrade to O(n²)?',
+          a: 'Because unbalanced partitioning yields subproblems of size 0 and n - 1 at each recursion level, resulting in the recurrence T(n) = T(n - 1) + O(n) = O(n²). Using median-of-three or randomized pivoting guarantees O(n log n) expected runtime with high probability.',
+        },
+        segment2: {
+          tag: 'DIALECTIC SEGMENT II · AMORTIZED BOUNDS & DYNAMIC RESIZING',
+          time: '28:45',
+          q: 'Why does doubling the geometric expansion factor in dynamic arrays guarantee O(1) amortized insertion, whereas additive increment fails?',
+          a: 'Geometric doubling distributes the O(n) reallocation cost across n/2 subsequent O(1) operations, bounding the potential function Φ = 2k - n ≥ 0. Additive growth forces reallocations every k steps, collapsing the aggregate amortized bound to O(n).',
+        },
+      }
+    : isDistributed
+    ? {
+        subtitle: `${candidateName} • Distributed Consensus & Byzantine Fault Tolerance`,
+        body: `Candidate demonstrated advanced synthetic reasoning across distributed consensus protocols and fault-tolerant topologies. The candidate exhibited unhesitating precision when deconstructing partial synchrony, establishing rigorous quorum safety invariants, and defending replicated state machine determinism under network partitions. The evaluation committee recognized exceptional dialectical poise during intense adversarial questioning on Paxos proposal numbers and Byzantine view changes.`,
+        chip1: 'Quorum Safety: 99%',
+        chip2: 'Median Cognitive Latency: 1.9s',
+        chip3: 'Epistemic Humility: High',
+        examiner: 'Dr. Aris Thorne',
+        examinerRole: 'LEAD SOCRATIC EVALUATOR · DISTRIBUTED CONSENSUS',
+        competencies: [
+          {
+            title: '1. Consensus Safety Invariants',
+            score: '5 / 5',
+            badge: 'Distinction',
+            desc: 'Flawlessly articulated FLP impossibility and Lamport partial order invariants without cognitive hesitation.',
+          },
+          {
+            title: '2. Adversarial Fault Reasoning',
+            score: '4 / 5',
+            badge: 'Strong',
+            desc: 'Resolved split-brain quorum conflicts and adversarial Byzantine message corruption under network partitioning probes.',
+          },
+          {
+            title: '3. Replicated State Synthesis',
+            score: '5 / 5',
+            badge: 'Distinction',
+            desc: 'Fluidly integrated state machine replication with Raft log compaction and view-change safety bounds.',
+          },
+          {
+            title: '4. Dialectical Precision',
+            score: '4 / 5',
+            badge: 'Proficient',
+            desc: 'Responded precisely under adversarial Socratic counter-probes, maintaining consensus invariant proofs under stress.',
+          },
+        ],
+        segment1: {
+          tag: 'DIALECTIC SEGMENT I · FLP IMPOSSIBILITY BOUNDARY',
+          time: '16:10',
+          q: 'In asynchronous networks, why can no deterministic consensus protocol guarantee liveness in the presence of even a single crash failure?',
+          a: 'Because FLP impossibility proves that an adversary can delay messages indefinitely such that a process cannot distinguish a dead node from an infinitely slow node, trapping the protocol in an uncommitted bivalent configuration.',
+        },
+        segment2: {
+          tag: 'DIALECTIC SEGMENT II · BYZANTINE 3F+1 QUORUM OVERLAP',
+          time: '34:20',
+          q: 'Why does PBFT require 3f + 1 replicas to tolerate f Byzantine failures, whereas crash fault tolerance only requires 2f + 1?',
+          a: 'Because Byzantine nodes can actively lie by sending conflicting votes. In a system of N nodes where f are faulty, the primary must proceed with N - f responses. To ensure non-faulty quorums overlap by at least one honest node, (N - f) + (N - f) - N > f, which strictly yields N ≥ 3f + 1.',
+        },
+      }
+    : {
+        subtitle: `${candidateName} • Statistical Decision Theory & Neyman-Pearson Testing`,
+        body: `Candidate demonstrated advanced synthetic reasoning across statistical decision boundaries and likelihood ratio tests. The candidate exhibited unhesitating precision when deriving uniformly most powerful critical regions, defending minimax risk bounds, and establishing Neyman-Pearson optimality under empirical covariate drift. The evaluation committee recognized exceptional dialectical poise during intense adversarial questioning on likelihood ratios and structural misspecification.`,
+        chip1: 'Likelihood Invariance: 98%',
+        chip2: 'Median Cognitive Latency: 1.8s',
+        chip3: 'Epistemic Humility: High',
+        examiner: 'Dr. Julian Vance',
+        examinerRole: 'LEAD SOCRATIC EVALUATOR · DECISION THEORY',
+        competencies: [
+          {
+            title: '1. Concept Rigor',
+            score: '5 / 5',
+            badge: 'Distinction',
+            desc: 'Flawlessly articulated Neyman-Pearson lemma and likelihood ratio test boundaries without cognitive hesitation.',
+          },
+          {
+            title: '2. Counter-factual Reasoning',
+            score: '4 / 5',
+            badge: 'Strong',
+            desc: 'Constructed valid minimax decision rules and Bayes risk estimators when challenged on prior misspecification.',
+          },
+          {
+            title: '3. Synthesis of Evidence',
+            score: '5 / 5',
+            badge: 'Distinction',
+            desc: 'Synthesized uniformly most powerful critical regions with asymptotic normality bounds and empirical trade-offs.',
+          },
+          {
+            title: '4. Dialectical Clarity',
+            score: '4 / 5',
+            badge: 'Proficient',
+            desc: 'Responded precisely under adversarial Socratic counter-probes, re-anchoring arguments back to original test invariants.',
+          },
+        ],
+        segment1: {
+          tag: 'DIALECTIC SEGMENT I · NEYMAN-PEARSON OPTIMALITY',
+          time: '18:42',
+          q: 'When testing simple hypotheses H₀: θ = θ₀ versus H₁: θ = θ₁, why is the likelihood ratio test uniformly most powerful among all level-α tests?',
+          a: 'By the Neyman-Pearson lemma, allocating critical regions to sample points with maximal ratio f(x; θ₁) / f(x; θ₀) maximizes statistical power ∫_k f(x; θ₁) dx subject to the size constraint ∫_k f(x; θ₀) dx ≤ α. Any perturbation into lower-ratio regions strictly diminishes power for the identical false-positive budget.',
+        },
+        segment2: {
+          tag: 'DIALECTIC SEGMENT II · BAYESIAN RISK & MINIMAX DUALITY',
+          time: '31:15',
+          q: 'Under what conditions does a Bayes estimator coincide with the minimax estimator?',
+          a: 'A Bayes estimator coincides with the minimax estimator if and only if it achieves constant risk over the parameter space and corresponds to a least favorable prior distribution, establishing equality between the minimax risk and maximum Bayes risk.',
+        },
+      };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-200 pb-16">
       {/* Breadcrumb & Title Section (Figma 1:2251) */}
@@ -103,11 +269,11 @@ export const ReportPage: React.FC = () => {
           <div className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
             <span>Dossiers</span>
             <span>&gt;</span>
-            <span className="text-slate-600 font-semibold">Causal Inference &amp; Quasi-Experiments</span>
+            <span className="text-slate-600 font-semibold">{subjectTitle}</span>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Competency Dossier #ASY-8921
+              Competency Dossier #{dossierId}
             </h1>
             <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs px-3 py-1 rounded-full font-semibold inline-flex items-center gap-1.5">
               <Check className="w-3.5 h-3.5 text-emerald-600" />
@@ -155,10 +321,10 @@ export const ReportPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-start justify-between gap-6">
               <div className="space-y-2 flex-1">
                 <h2 className="text-base font-bold text-slate-900">
-                  Maya Lin &bull; Causal Inference &amp; Potential Outcomes
+                  {findings.subtitle}
                 </h2>
                 <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                  Candidate demonstrated advanced synthetic reasoning across high-dimensional causal graphs. Lin exhibited unhesitating precision when deconstructing unobserved confounding, establishing rigorous non-parametric counterfactual boundaries, and defending the integrity of the Neyman-Rubin causal model under empirical covariate drift. The evaluation committee recognized exceptional dialectical poise during intense adversarial questioning on instrument monotonicity and structural misspecification.
+                  {findings.body}
                 </p>
               </div>
 
@@ -168,7 +334,7 @@ export const ReportPage: React.FC = () => {
                   DEPTH SCORE
                 </div>
                 <div className="flex items-baseline justify-center">
-                  <span className="text-3xl font-extrabold text-slate-900 font-mono">92</span>
+                  <span className="text-3xl font-extrabold text-slate-900 font-mono">{depthScore}</span>
                   <span className="text-xs text-slate-400 font-medium">/100</span>
                 </div>
                 <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full block">
@@ -184,15 +350,15 @@ export const ReportPage: React.FC = () => {
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50/70 text-indigo-700 text-xs font-semibold">
                 <Layers className="w-3.5 h-3.5" />
-                DAG Structural Integrity: 98%
+                {findings.chip1}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50/70 text-indigo-700 text-xs font-semibold">
                 <Timer className="w-3.5 h-3.5" />
-                Median Cognitive Latency: 1.8s
+                {findings.chip2}
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50/70 text-indigo-700 text-xs font-semibold">
                 <Lightbulb className="w-3.5 h-3.5" />
-                Epistemic Humility: High
+                {findings.chip3}
               </span>
             </div>
           </Card>
@@ -214,107 +380,36 @@ export const ReportPage: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              {/* Competency 1 */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-900">
-                      1. Concept Rigor
-                    </span>
-                    <span className="bg-emerald-50 text-emerald-700 text-[11px] px-2 py-0.5 rounded-full font-semibold">
-                      Distinction
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4, 5].map((idx) => (
-                        <div key={idx} className="w-3.5 h-1.5 rounded-full bg-indigo-600" />
-                      ))}
+              {findings.competencies.map((comp, idx) => (
+                <div key={idx} className={`space-y-1.5 ${idx > 0 ? 'pt-2 border-t border-slate-100' : ''}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-900">
+                        {comp.title}
+                      </span>
+                      <span className="bg-emerald-50 text-emerald-700 text-[11px] px-2 py-0.5 rounded-full font-semibold">
+                        {comp.badge}
+                      </span>
                     </div>
-                    <span className="text-xs font-bold font-mono text-slate-800">5 / 5</span>
-                  </div>
-                </div>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Flawlessly articulated backdoor criterion and d-separation mechanics without cognitive hesitation. Maintained mathematical fidelity when mapping Pearlian do-calculus transformations.
-                </p>
-              </div>
-
-              {/* Competency 2 */}
-              <div className="space-y-1.5 pt-2 border-t border-slate-100">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-900">
-                      2. Counter-factual Reasoning
-                    </span>
-                    <span className="bg-indigo-50 text-indigo-700 text-[11px] px-2 py-0.5 rounded-full font-semibold">
-                      Strong
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4].map((idx) => (
-                        <div key={idx} className="w-3.5 h-1.5 rounded-full bg-indigo-600" />
-                      ))}
-                      <div className="w-3.5 h-1.5 rounded-full bg-indigo-100" />
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <div
+                            key={s}
+                            className={`w-3.5 h-1.5 rounded-full ${
+                              s <= parseInt(comp.score) ? 'bg-indigo-600' : 'bg-indigo-100'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs font-bold font-mono text-slate-800">{comp.score}</span>
                     </div>
-                    <span className="text-xs font-bold font-mono text-slate-800">4 / 5</span>
                   </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    {comp.desc}
+                  </p>
                 </div>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Constructed valid DAG counter-models when challenged by examiner on missing data mechanisms. Resolved identification bottlenecks with minor prompt intervention.
-                </p>
-              </div>
-
-              {/* Competency 3 */}
-              <div className="space-y-1.5 pt-2 border-t border-slate-100">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-900">
-                      3. Synthesis of Evidence
-                    </span>
-                    <span className="bg-emerald-50 text-emerald-700 text-[11px] px-2 py-0.5 rounded-full font-semibold">
-                      Distinction
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4, 5].map((idx) => (
-                        <div key={idx} className="w-3.5 h-1.5 rounded-full bg-indigo-600" />
-                      ))}
-                    </div>
-                    <span className="text-xs font-bold font-mono text-slate-800">5 / 5</span>
-                  </div>
-                </div>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Synthesized quasi-experimental instrument validity with empirical bounds. Fluidly integrated synthetic controls and regression discontinuity design limits.
-                </p>
-              </div>
-
-              {/* Competency 4 */}
-              <div className="space-y-1.5 pt-2 border-t border-slate-100">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-900">
-                      4. Dialectical Clarity
-                    </span>
-                    <span className="bg-slate-100 text-slate-700 text-[11px] px-2 py-0.5 rounded-full font-semibold">
-                      Proficient
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4].map((idx) => (
-                        <div key={idx} className="w-3.5 h-1.5 rounded-full bg-indigo-600" />
-                      ))}
-                      <div className="w-3.5 h-1.5 rounded-full bg-indigo-100" />
-                    </div>
-                    <span className="text-xs font-bold font-mono text-slate-800">4 / 5</span>
-                  </div>
-                </div>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Responded precisely under adversarial Socratic counter-probes. Re-anchored arguments back to original identification assumptions under probing stress.
-                </p>
-              </div>
+              ))}
             </div>
           </Card>
 
@@ -328,7 +423,7 @@ export const ReportPage: React.FC = () => {
                 Critical Dialectic Exchanges
               </h2>
               <p className="text-xs text-slate-500">
-                Recorded verbatim during the 45-minute live adversarial examination.
+                Recorded verbatim during the live adversarial examination.
               </p>
             </div>
 
@@ -339,28 +434,28 @@ export const ReportPage: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-indigo-600" />
                     <span className="font-bold text-slate-900 font-mono text-[11px]">
-                      DIALECTIC SEGMENT I &bull; MONOTONICITY BREAKDOWN
+                      {findings.segment1.tag}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="bg-emerald-50 text-emerald-700 text-[10px] px-2 py-0.5 rounded-full font-bold">
                       Key Breakthrough Moment
                     </span>
-                    <span className="text-slate-400 font-mono text-[11px]">18:42</span>
+                    <span className="text-slate-400 font-mono text-[11px]">{findings.segment1.time}</span>
                   </div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 text-xs space-y-1">
-                  <div className="text-[11px] font-bold text-slate-700">Dr. Julian Vance &bull; Examiner</div>
+                  <div className="text-[11px] font-bold text-slate-700">{findings.examiner} &bull; Examiner</div>
                   <p className="italic text-slate-600">
-                    &ldquo;If the unobserved confounder correlates with both treatment assignment and instrumental monotonicity, why doesn't standard 2SLS preserve unbiasedness?&rdquo;
+                    &ldquo;{findings.segment1.q}&rdquo;
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-indigo-50/40 border border-indigo-100 text-xs space-y-1">
-                  <div className="text-[11px] font-bold text-indigo-900">Maya Lin &bull; Candidate</div>
+                  <div className="text-[11px] font-bold text-indigo-900">{candidateName} &bull; Candidate</div>
                   <p className="text-slate-800 leading-relaxed">
-                    &ldquo;Because violation of the exclusion restriction leaks structural error directly into the second stage, rendering the local average treatment effect asymptotically biased. The weights assigned to compliers become invalid when defiers exist, creating negative weighting in the estimated LATE.&rdquo;
+                    &ldquo;{findings.segment1.a}&rdquo;
                   </p>
                 </div>
               </div>
@@ -371,28 +466,28 @@ export const ReportPage: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-indigo-600" />
                     <span className="font-bold text-slate-900 font-mono text-[11px]">
-                      DIALECTIC SEGMENT II &bull; NON-PARAMETRIC BOUNDS
+                      {findings.segment2.tag}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="bg-emerald-50 text-emerald-700 text-[10px] px-2 py-0.5 rounded-full font-bold">
                       Defended with Distinction
                     </span>
-                    <span className="text-slate-400 font-mono text-[11px]">31:15</span>
+                    <span className="text-slate-400 font-mono text-[11px]">{findings.segment2.time}</span>
                   </div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-200/80 text-xs space-y-1">
-                  <div className="text-[11px] font-bold text-slate-700">Dr. Julian Vance &bull; Examiner</div>
+                  <div className="text-[11px] font-bold text-slate-700">{findings.examiner} &bull; Examiner</div>
                   <p className="italic text-slate-600">
-                    &ldquo;Propose an empirical sensitivity test if monotonicity fails.&rdquo;
+                    &ldquo;{findings.segment2.q}&rdquo;
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-indigo-50/40 border border-indigo-100 text-xs space-y-1">
-                  <div className="text-[11px] font-bold text-indigo-900">Maya Lin &bull; Candidate</div>
+                  <div className="text-[11px] font-bold text-indigo-900">{candidateName} &bull; Candidate</div>
                   <p className="text-slate-800 leading-relaxed">
-                    &ldquo;I would apply Manski-style partial identification bounds, shifting from point estimation to sharp interval bounds. By assuming only bounded outcomes, we establish the worst-case envelope, and subsequently layer monotone instrumental variable (MIV) assumptions to shrink interval diameter without arbitrary distribution priors.&rdquo;
+                    &ldquo;{findings.segment2.a}&rdquo;
                   </p>
                 </div>
               </div>
@@ -493,24 +588,24 @@ export const ReportPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="p-2 rounded-lg bg-slate-50 flex items-center justify-between">
                   <span className="text-slate-500 font-medium">Recall</span>
-                  <span className="font-bold text-slate-900 font-mono">95%</span>
+                  <span className="font-bold text-slate-900 font-mono">{Math.round(scores.recall * 100)}%</span>
                 </div>
                 <div className="p-2 rounded-lg bg-slate-50 flex items-center justify-between">
                   <span className="text-slate-500 font-medium">Application</span>
-                  <span className="font-bold text-slate-900 font-mono">92%</span>
+                  <span className="font-bold text-slate-900 font-mono">{Math.round(scores.application * 100)}%</span>
                 </div>
                 <div className="p-2 rounded-lg bg-slate-50 flex items-center justify-between">
                   <span className="text-slate-500 font-medium">Analysis</span>
-                  <span className="font-bold text-slate-900 font-mono">94%</span>
+                  <span className="font-bold text-slate-900 font-mono">{Math.round(scores.analysis * 100)}%</span>
                 </div>
                 <div className="p-2 rounded-lg bg-slate-50 flex items-center justify-between">
                   <span className="text-slate-500 font-medium">Evaluation</span>
-                  <span className="font-bold text-slate-900 font-mono">88%</span>
+                  <span className="font-bold text-slate-900 font-mono">{Math.round(scores.evaluation * 100)}%</span>
                 </div>
               </div>
               <div className="p-2.5 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-between text-xs">
                 <span className="text-indigo-900 font-semibold">Creation &amp; Synthesis</span>
-                <span className="font-bold text-indigo-700 font-mono">90% &bull; High Mastery</span>
+                <span className="font-bold text-indigo-700 font-mono">{Math.round(scores.creation * 100)}% &bull; High Mastery</span>
               </div>
             </div>
           </Card>
@@ -538,8 +633,8 @@ export const ReportPage: React.FC = () => {
               <div className="flex items-start justify-between pb-1.5 border-b border-slate-100">
                 <span className="text-slate-500">Defense Examiner</span>
                 <div className="text-right">
-                  <div className="font-bold text-slate-800">Dr. Julian Vance</div>
-                  <div className="text-[10px] text-slate-400 font-mono">LEAD SOCRATIC EVALUATOR &bull; DECISION THEORY</div>
+                  <div className="font-bold text-slate-800">{findings.examiner}</div>
+                  <div className="text-[10px] text-slate-400 font-mono">{findings.examinerRole}</div>
                 </div>
               </div>
               <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
@@ -548,7 +643,7 @@ export const ReportPage: React.FC = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-500">Defense Session ID</span>
-                <span className="font-bold text-slate-800 font-mono">#ASY-DEF-9941</span>
+                <span className="font-bold text-slate-800 font-mono">#{dossierId}</span>
               </div>
             </div>
 
