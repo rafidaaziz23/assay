@@ -14,10 +14,11 @@
 #   * the 282 MB api image carrying ai/ + prompts/
 #   * scale-to-zero is emulated by `docker compose stop`, not by the runtime
 #
-# Usage:
-#   docker compose -f tools/docker-compose.local.yml up --build
+# Usage (run from the repo root — --project-directory is what makes compose read
+# the repo-root .env; without it compose only looks in this tools/ directory):
+#   docker compose --project-directory . -f tools/docker-compose.local.yml up --build
 #   open http://localhost:8080
-#   docker compose -f tools/docker-compose.local.yml down
+#   docker compose --project-directory . -f tools/docker-compose.local.yml down
 
 services:
   api:
@@ -27,7 +28,7 @@ services:
     image: assay-api:local
     environment:
       PORT: "8080"
-      DEMO_MODE: "${DEMO_MODE:-live}"
+      DEMO_MODE: "${DEMO_MODE:-cached}"
       # Same failure the cloud would hit: no .env inside the image.
       GEMINI_MODEL: "${GEMINI_MODEL:-gemini-3-flash-preview}"
       GOOGLE_API_KEY: "${GOOGLE_API_KEY:-}"

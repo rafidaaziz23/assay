@@ -18,6 +18,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { Card } from '../components/atoms/Card';
+import { localDateDaysAgo } from '../utils/datetime';
 
 interface MasteredSubject {
   id: string;
@@ -54,7 +55,7 @@ export const ProfilePage: React.FC = () => {
       icon: GitFork,
       iconBg: 'bg-blue-50',
       iconColor: 'text-blue-600',
-      date: 'Oct 23, 2024',
+      date: localDateDaysAgo(12),
       examiner: 'Assay AI',
       badgeType: 'SYNTHESIS & RIGOR',
       score: 94,
@@ -67,7 +68,7 @@ export const ProfilePage: React.FC = () => {
       icon: Sigma,
       iconBg: 'bg-purple-50',
       iconColor: 'text-purple-600',
-      date: 'Sep 14, 2024',
+      date: localDateDaysAgo(34),
       examiner: 'Lead Dr. Elena Rostova',
       badgeType: 'FORMAL DISTINCTION',
       score: 96,
@@ -80,7 +81,7 @@ export const ProfilePage: React.FC = () => {
       icon: Compass,
       iconBg: 'bg-indigo-50',
       iconColor: 'text-indigo-600',
-      date: 'Aug 02, 2024',
+      date: localDateDaysAgo(63),
       examiner: 'Assay AI',
       badgeType: 'DIALECTIC MASTERY',
       score: 91,
@@ -93,7 +94,7 @@ export const ProfilePage: React.FC = () => {
       icon: Binary,
       iconBg: 'bg-sky-50',
       iconColor: 'text-sky-600',
-      date: 'Jul 18, 2024',
+      date: localDateDaysAgo(92),
       examiner: 'Lead Dr. Marcus Thorne',
       badgeType: 'SYNTHESIS & RIGOR',
       score: 95,

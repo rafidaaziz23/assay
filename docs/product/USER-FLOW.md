@@ -75,7 +75,7 @@ flowchart TD
 Here is what the **user sees, feels, and does on screen**:
 
 ### Step 1: Landing & Module Selection
-1. The user opens the app at `https://cogniforge.run.app`.
+1. The user opens the app at `https://assay-web-204598097710.asia-southeast1.run.app/app/dashboard`.
 2. They are presented with two options:
    * **Button A (Custom Ingestion):** *Drag & drop* their own module PDF or paste syllabus text.
    * **Button B (Instant Demo Mode — For Judges):** one click on *"Load Demo: React Internals & Virtual DOM"* so judges can test immediately without hunting for a PDF.

@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAppStore } from '../store/useAppStore';
 import { FinalReportResponse } from '../types/api';
+import { utcTimestamp } from '../utils/datetime';
 
 export const ReportPage: React.FC = () => {
   const navigate = useNavigate();
@@ -694,7 +695,7 @@ export const ReportPage: React.FC = () => {
               </div>
               <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
                 <span className="text-slate-500">Assessment Timestamp</span>
-                <span className="font-semibold text-slate-700 font-mono">Oct 23, 2024 &bull; 14:45 UTC</span>
+                <span className="font-semibold text-slate-700 font-mono">{utcTimestamp()}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-500">Defense Session ID</span>

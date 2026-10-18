@@ -13,7 +13,7 @@
 | :--- | :--- | :--- | :--- |
 | **1. Demo Video** | `.mp4` / YouTube unlisted | Hack2skill portal | **180s hard cap (3 minutes)**, 1080p, English voiceover, dry technical tone, zero logos/intro slides at start. |
 | **2. Pitch Deck** | PDF (16:9) | Hack2skill portal | **10 Slides**, English, backed by empirical data from `docs/PITCH-DECK-OUTLINE.md`. |
-| **3. Code Repository** | Public GitHub / GitLab | Hack2skill portal | Clean fullstack repo, passing tests (217/217), architecture diagram, `.env.example`. |
+| **3. Code Repository** | Public GitHub / GitLab | Hack2skill portal | Clean fullstack repo, passing tests (253/253: 223 backend + 25 engine + 5 eval), architecture diagram, `.env.example`. |
 
 ---
 

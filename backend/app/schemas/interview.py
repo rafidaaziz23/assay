@@ -24,6 +24,7 @@ class InterviewStartRequest(BaseModel):
 class InterviewStartResponse(BaseModel):
     interview_id: str
     chapter_id: str
+    chapter_title: Optional[str] = None
     turn_index: int = 1
     first_question: str
     focus_mode: FocusModeConfig = FocusModeConfig()
