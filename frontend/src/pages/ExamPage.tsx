@@ -26,6 +26,7 @@ import { api } from '../services/api';
 import { useAppStore } from '../store/useAppStore';
 import { useVoiceDefense } from '../hooks/useVoiceDefense';
 import { InterviewStartResponse } from '../types/api';
+import { MarkdownContent } from '../components/atoms';
 
 export const ExamPage: React.FC = () => {
   const navigate = useNavigate();
@@ -92,10 +93,10 @@ export const ExamPage: React.FC = () => {
         const candidateName = user?.name || 'Rafida Aziz';
         const fallbackQ =
           activeTrack === 'coding'
-            ? `Candidate ${candidateName}. In basic algorithm complexity, explain how the 'Constant-Time Binary Filter' allows binary search to achieve O(1) lookups on an unsorted array without preprocessing.`
+            ? `Candidate ${candidateName}. In basic algorithm complexity, explain how the 'Constant-Time Binary Filter' allows binary search to achieve $O(1)$ lookups on an unsorted array without preprocessing.`
             : (activeTrack === 'distributed'
               ? `Candidate ${candidateName}. In designing a distributed datastore, an architect claims that by eliminating leader election and utilizing deterministic quorum broadcast, the system achieves 100% liveness and safety during network partitions without unbounded wait. Does this violate the FLP theorem?`
-              : `Candidate ${candidateName}. In evaluating the Neyman-Pearson lemma, suppose an analyst claims that increasing the significance level alpha from 0.05 to 0.10 will simultaneously reduce Type II error beta and widen the critical region. Is this logically consistent, or does an unstated trade-off exist?`);
+              : `Candidate ${candidateName}. In evaluating the Neyman-Pearson lemma, suppose an analyst claims that increasing the significance level $\\alpha$ from 0.05 to 0.10 will simultaneously reduce Type II error $\\beta$ and widen the critical region. Is this logically consistent, or does an unstated trade-off exist?`);
         setChatLog([
           {
             sender: 'examiner',
@@ -261,13 +262,16 @@ export const ExamPage: React.FC = () => {
                       )}
                     </div>
                     <div
-                      className={`p-4 rounded-2xl max-w-[85%] text-xs leading-relaxed ${
+                      className={`p-4 rounded-2xl max-w-[85%] text-xs leading-relaxed shadow-xs ${
                         item.sender === 'candidate'
                           ? 'bg-primary-600 text-white rounded-tr-xs'
-                          : 'bg-slate-50 border border-slate-200/80 text-slate-900 rounded-tl-xs shadow-xs'
+                          : 'bg-slate-50 border border-slate-200/80 text-slate-900 rounded-tl-xs'
                       }`}
                     >
-                      {item.text}
+                      <MarkdownContent
+                        content={item.text}
+                        variant={item.sender === 'candidate' ? 'chat-candidate' : 'chat-examiner'}
+                      />
                     </div>
                   </div>
                 ))}
@@ -383,7 +387,7 @@ export const ExamPage: React.FC = () => {
                         className="text-xs text-indigo-700 border-indigo-200 bg-indigo-50/60 hover:bg-indigo-100 font-medium"
                         onClick={() =>
                           handleSendResponse(
-                            'That concept is completely fictional. Binary search requires a sorted array to halve the search space each step (O(log n)). On an unsorted array, you must scan linearly in O(n) time.'
+                            'That concept is completely fictional. Binary search requires a sorted array to halve the search space each step ($O(\\log n)$). On an unsorted array, you must scan linearly in $O(n)$ time.'
                           )
                         }
                       >
@@ -395,7 +399,7 @@ export const ExamPage: React.FC = () => {
                         className="text-xs text-slate-700 hover:bg-slate-100"
                         onClick={() =>
                           handleSendResponse(
-                            'Binary search operates via the recurrence T(n) = T(n/2) + O(1), which solves to O(log n) by the Master Theorem. Unsorted lookups strictly require Ω(n) comparisons.'
+                            'Binary search operates via the recurrence $T(n) = T(n/2) + O(1)$, which solves to $O(\\log n)$ by the Master Theorem. Unsorted lookups strictly require $\\Omega(n)$ comparisons.'
                           )
                         }
                       >
@@ -410,7 +414,7 @@ export const ExamPage: React.FC = () => {
                         className="text-xs text-slate-700"
                         onClick={() =>
                           handleSendResponse(
-                            'It is logically consistent. Expanding alpha expands the rejection boundary W, reducing Type II error beta and increasing test power 1 - beta.'
+                            'It is logically consistent. Expanding $\\alpha$ expands the rejection boundary $W$, reducing Type II error $\\beta$ and increasing test power $1 - \\beta$.'
                           )
                         }
                       >
@@ -588,11 +592,16 @@ export const ExamPage: React.FC = () => {
             <h2 className="text-2xl font-extrabold text-slate-900">
               {activeTrack === 'coding' ? 'Module 01 Certified: 92% Dialectic Rigor' : 'Module 03 Certified: 94% Dialectic Rigor'}
             </h2>
-            <p className="text-xs text-slate-500 max-w-md mx-auto">
-              {activeTrack === 'coding'
-                ? 'You successfully deflected the fictional "Constant-Time Binary Filter" honeypot, refused the fallacy, and proved that binary search strictly requires sorted data in O(log n).'
-                : 'You successfully deflected adversarial traps, identified the Karlin-Rubin condition boundary, and grounded all claims in probability theory.'}
-            </p>
+            <div className="text-xs text-slate-500 max-w-md mx-auto">
+              <MarkdownContent
+                content={
+                  activeTrack === 'coding'
+                    ? 'You successfully deflected the fictional "Constant-Time Binary Filter" honeypot, refused the fallacy, and proved that binary search strictly requires sorted data in $O(\\log n)$.'
+                    : 'You successfully deflected adversarial traps, identified the Karlin-Rubin condition boundary, and grounded all claims in probability theory.'
+                }
+                variant="chat-examiner"
+              />
+            </div>
           </div>
 
           {/* Unlocked Next Module Banner */}

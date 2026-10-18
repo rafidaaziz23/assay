@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Copy, Check, FileCode } from 'lucide-react';
+import { twMerge } from 'tailwind-merge';
 
 interface CodeSnippetProps {
   code: string;
@@ -258,7 +259,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   }
 
   return (
-    <code className={`inline-block px-1.5 py-0.5 mx-0.5 rounded-md bg-slate-100 border border-slate-200/80 text-indigo-700 font-mono text-[11.5px] font-semibold align-middle shadow-2xs ${className}`}>
+    <code className={twMerge('inline-block px-1.5 py-0.5 mx-0.5 rounded-md bg-slate-100 border border-slate-200/80 text-indigo-700 font-mono text-[11.5px] font-semibold align-middle shadow-2xs', className)}>
       {code}
     </code>
   );

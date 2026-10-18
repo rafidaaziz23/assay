@@ -6,12 +6,42 @@ interface MarkdownContentProps {
   content: string;
   onSelectTerm?: (term: string) => void;
   className?: string;
+  variant?: 'reader' | 'chat-examiner' | 'chat-candidate';
 }
+
+// Auto-detect and wrap unadorned Big-O, Omega, Theta, and recurrence expressions in LaTeX $...$
+const normalizeMathExpressions = (raw: string): string => {
+  return raw
+    .split(/(\$[^$]+\$|`[^`]+`)/g)
+    .map((segment) => {
+      if (segment.startsWith('$') || segment.startsWith('`')) {
+        return segment;
+      }
+      return segment
+        .replace(/\bO\(1\)/g, '$O(1)$')
+        .replace(/\bO\(n\)/g, '$O(n)$')
+        .replace(/\bO\(log\s*n\)/gi, '$O(\\log n)$')
+        .replace(/\bO\(n\s*log\s*n\)/gi, '$O(n \\log n)$')
+        .replace(/\bO\(n\^2\)/gi, '$O(n^2)$')
+        .replace(/\bO\(N\^2\)/g, '$O(N^2)$')
+        .replace(/\bO\(N\s*\\log\s*N\)/g, '$O(N \\log N)$')
+        .replace(/\bO\(N\s*log\s*N\)/gi, '$O(N \\log N)$')
+        .replace(/\bO\(d\)/g, '$O(d)$')
+        .replace(/\bO\(g\(n\)\)/g, '$O(g(n))$')
+        .replace(/Ω\(n\s*log\s*n\)/gi, '$\\Omega(n \\log n)$')
+        .replace(/Ω\(n\)/g, '$\\Omega(n)$')
+        .replace(/Θ\(n\)/g, '$\\Theta(n)$')
+        .replace(/Θ\(g\(n\)\)/g, '$\\Theta(g(n))$')
+        .replace(/\bT\(n\)\s*=\s*T\(n\/2\)\s*\+\s*O\(1\)/gi, '$T(n) = T(n/2) + O(1)$');
+    })
+    .join('');
+};
 
 export const MarkdownContent: React.FC<MarkdownContentProps> = ({
   content,
   onSelectTerm,
   className = '',
+  variant = 'reader',
 }) => {
   if (!content || !content.trim()) {
     return (
@@ -20,6 +50,9 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
       </div>
     );
   }
+
+  // Pre-normalize common algorithm formulas
+  const normalizedContent = normalizeMathExpressions(content);
 
   // Helper to parse inline text: $math$, `code`, and plain text with clickable terms
   const renderInlineText = (text: string, keyPrefix: string) => {
@@ -49,6 +82,13 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
             key={`${keyPrefix}-math-${partIdx++}`}
             math={mathExpr}
             block={false}
+            className={
+              variant === 'chat-candidate'
+                ? 'bg-white/20 text-white border-white/30 text-xs'
+                : variant === 'chat-examiner'
+                ? 'bg-indigo-50/90 text-indigo-950 border-indigo-200/80 font-medium text-xs'
+                : undefined
+            }
           />
         );
       } else if (token.startsWith('`') && token.endsWith('`')) {
@@ -58,6 +98,13 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
             key={`${keyPrefix}-code-${partIdx++}`}
             code={codeExpr}
             block={false}
+            className={
+              variant === 'chat-candidate'
+                ? 'bg-white/20 text-white border-white/30 text-[11px]'
+                : variant === 'chat-examiner'
+                ? 'bg-slate-100 text-indigo-700 border-slate-200 text-[11px]'
+                : undefined
+            }
           />
         );
       }
@@ -84,7 +131,7 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
 
   // Split into structural blocks: code fences (```), display math ($$), and lines
   const elements: React.ReactNode[] = [];
-  const lines = content.split('\n');
+  const lines = normalizedContent.split('\n');
   let i = 0;
   let blockIdx = 0;
 
@@ -102,7 +149,7 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
       }
       i++; // Skip closing ```
       elements.push(
-        <div key={`code-block-${blockIdx++}`} className="my-5">
+        <div key={`code-block-${blockIdx++}`} className={variant.startsWith('chat') ? 'my-2.5' : 'my-5'}>
           <CodeSnippet
             code={codeLines.join('\n')}
             language={lang}
@@ -140,11 +187,15 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
         }
       }
       elements.push(
-        <div key={`math-block-${blockIdx++}`} className="my-4">
+        <div key={`math-block-${blockIdx++}`} className={variant.startsWith('chat') ? 'my-2' : 'my-4'}>
           <MathFormula
             math={mathLines.join(' ')}
             block={true}
-            className="text-sm md:text-base font-serif"
+            className={
+              variant === 'chat-candidate'
+                ? 'bg-white/10 text-white border-white/20 text-xs'
+                : 'text-sm md:text-base font-serif'
+            }
           />
         </div>
       );
@@ -222,10 +273,17 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({
 
     // 6. Regular Paragraphs
     if (line.trim()) {
+      const pClasses =
+        variant === 'chat-candidate'
+          ? 'text-white text-xs leading-relaxed mb-1.5 last:mb-0 font-normal'
+          : variant === 'chat-examiner'
+          ? 'text-slate-900 text-xs leading-relaxed mb-1.5 last:mb-0 font-normal'
+          : 'text-slate-700 text-sm md:text-base leading-relaxed mb-4 font-normal';
+
       elements.push(
         <p
           key={`p-${blockIdx++}`}
-          className="text-slate-700 text-sm md:text-base leading-relaxed mb-4 font-normal"
+          className={pClasses}
         >
           {renderInlineText(line.trim(), `p-inline-${blockIdx}`)}
         </p>
