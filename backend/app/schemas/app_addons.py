@@ -4,7 +4,7 @@ Everything here is additive: no existing field is removed or repurposed, so DEV 
 frontend bundle and DEV 3's engine keep working unchanged. Each entry documents why
 it exists and who reads it.
 
-Why a separate module: the API contract (`docs/API-CONTRACTS.md`) is the frozen
+Why a separate module: the API contract (`docs/architecture/API-CONTRACTS.md`) is the frozen
 agreement between the three devs. Fields DEV 2 needs for its own persistence should
 not silently mutate that contract, and they should be easy to lift into it once
 ACC'd at sync.

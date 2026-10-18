@@ -5,10 +5,10 @@ Kalau brief ini dan ingatan/tebakanmu berbeda, **brief ini yang benar**.
 
 - **Repo:** `D:/Project/assay` (ini repo produk; yang di `ai-builder-cup-research` cuma spek)
 - **Sumber rencana:** `D:/Project/ai-builder-cup-research/active-learning-engine/DEV3-ROADMAP.md`
-- **Otoritas dokumen:** `DEV3-ROADMAP.md` §1 → `docs/API-CONTRACTS.md` (LOCKED) → `docs/PRD.md`
+- **Otoritas dokumen:** `DEV3-ROADMAP.md` §1 → `docs/architecture/API-CONTRACTS.md` (LOCKED) → `docs/product/PRD.md`
   → ADR `docs/adrs/001..005`. Kalau bertabrakan: **API-CONTRACTS menang**.
 - **Gate:** `tools\gate-dev3.cmd` (wajib; exit 0 = hijau)
-- **Jejak:** `docs/DEV3-OVERNIGHT-LOG.md` — satu entri per unit, ditulis SEBELUM lanjut
+- **Jejak:** `docs/logs/DEV3-OVERNIGHT-LOG.md` — satu entri per unit, ditulis SEBELUM lanjut
 - **Mulai:** 2026-10-14 malam
 
 ## 0a. Mode kerja & keputusan run (dari Reza)
@@ -31,7 +31,7 @@ Kalau brief ini dan ingatan/tebakanmu berbeda, **brief ini yang benar**.
 
 ## 0. Aturan keras (pelanggaran = run gagal)
 
-1. **HANYA tulis di:** `ai/`, `prompts/`, `eval/`, `tools/gate-dev3.cmd`, `docs/DEV3-*.md`,
+1. **HANYA tulis di:** `ai/`, `prompts/`, `eval/`, `tools/gate-dev3.cmd`, `docs/logs/DEV3-*.md`,
    `ai/MODELS.md`, `ai/FIXTURES.md`. **JANGAN sentuh** `frontend/`, `backend/`, `docs/*` lain,
    `.gitignore`, `package.json`, `README.md`. Itu milik DEV 1 / DEV 2.
 2. **Google-only di runtime produk.** Cuma `google-genai` SDK. Nol provider lain di `ai/` atau `backend/`.
@@ -58,7 +58,7 @@ Kalau `.venv` belum ada: kerjakan **H0.1** dulu (bikin venv + install), itu pras
 
 ## 2. Cara milih unit
 
-1. Baca `docs/DEV3-OVERNIGHT-LOG.md` — cari unit pertama yang **belum** `DONE`.
+1. Baca `docs/logs/DEV3-OVERNIGHT-LOG.md` — cari unit pertama yang **belum** `DONE`.
 2. Kerjakan **SATU unit** itu sampai kelar + gate hijau. Jangan kerjakan dua unit sekaligus.
 3. Kalau unit besar (mis. H0.3), boleh selesai di run ini saja; jangan pindah sebelum `DONE`.
 4. Tulis entri log (format §5), commit lokal, lalu **akhiri run** dengan status 3 baris (§6).
@@ -117,7 +117,7 @@ Hijau = exit 0. Isinya (offline, < 300s): `import ai` + `pytest eval/tests -q` (
 Gate ini **offline** — dia nggak nguji panggilan model. Kalau unit butuh bukti live (grounding, verdict),
 jalankan skrip verifikasinya manual dan **tempel hasil mentahnya di log**. Jangan klaim "live OK" tanpa output.
 
-## 5. Format entri log (append ke `docs/DEV3-OVERNIGHT-LOG.md`)
+## 5. Format entri log (append ke `docs/logs/DEV3-OVERNIGHT-LOG.md`)
 
 ```
 ### <ID> — <judul> — <DONE|BLOCKED|PARTIAL> — <YYYY-MM-DD HH:MM WIB>

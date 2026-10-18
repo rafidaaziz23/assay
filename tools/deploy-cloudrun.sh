@@ -21,7 +21,7 @@
 # Overridable env: PROJECT REGION REPO API_SVC WEB_SVC TAG DEMO_MODE
 #                  MIN_INSTANCES MAX_INSTANCES CPU MEMORY GCLOUD
 #
-# Full runbook, cost model and the billing blocker: docs/DEPLOY-RUNBOOK.md
+# Full runbook, cost model and the billing blocker: docs/deploy/DEPLOY-RUNBOOK.md
 
 set -euo pipefail
 
@@ -34,7 +34,7 @@ WEB_SVC="${WEB_SVC:-assay-web}"
 TAG="${TAG:-$(date +%Y%m%d-%H%M)}"
 DEMO_MODE="${DEMO_MODE:-live}"
 
-# Cheap by construction. See docs/COST-MODEL.md §3 and §4.
+# Cheap by construction. See docs/deploy/COST-MODEL.md §3 and §4.
 MAX_INSTANCES="${MAX_INSTANCES:-2}"
 MIN_INSTANCES="${MIN_INSTANCES:-0}"
 CPU="${CPU:-1}"
@@ -118,7 +118,7 @@ if [ "$DRY" = 0 ] && [ "$LOCAL_ONLY" = 0 ]; then
 Cloud Run cannot be enabled while billing is closed. Verified error:
   FAILED_PRECONDITION: Billing account for project '...' is not open.
 
-Open it in the console (there is no CLI/REST path — see docs/DEPLOY-RUNBOOK.md §1):
+Open it in the console (there is no CLI/REST path — see docs/deploy/DEPLOY-RUNBOOK.md §1):
   console.cloud.google.com/billing
     -> clear the "Status: Active" filter
     -> pick the account -> Account Management -> Reopen billing account

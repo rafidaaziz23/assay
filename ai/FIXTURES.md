@@ -1,7 +1,7 @@
 # ai/ — Function Fixtures
 
 Example output for every function in `ai/__init__.py`, copied from
-`docs/API-CONTRACTS.md` v2 so DEV 2 can wire routes before the engine is finished
+`docs/architecture/API-CONTRACTS.md` v2 so DEV 2 can wire routes before the engine is finished
 (DEV3-ROADMAP section 1). Shapes here are the contract — if code disagrees, the
 contract wins.
 
