@@ -1,28 +1,28 @@
 # API & Data Contracts Specification — v2.0.0
 ## Assay: The Active Socratic Learning Engine
 
-**Status:** LOCKED CONTRACT (Freeze Date: 14 Oktober 2026)
+**Status:** LOCKED CONTRACT (Freeze Date: 14 October 2026)
 **Standard:** REST + Server-Sent Events (SSE) / JSON Schema
 **Base URL:** `/api/v1`
 **Supersedes:** API-CONTRACTS v1 (state `LOCKED→ACTIVE_READING→INTERROGATE`; endpoint `modules/ingest`)
 
-> Semua endpoint di dokumen ini adalah kontrak antar-dev. Frontend tidak menunggu backend — pakai mock dari contoh JSON di sini.
+> Every endpoint in this document is a cross-team contract. The frontend does not wait on the backend — use the mocks from the JSON examples here.
 
 ---
 
-## 0. Perubahan dari v1
+## 0. Changes from v1
 
-| v1 | v2 | Alasan |
+| v1 | v2 | Reason |
 |---|---|---|
-| `POST /modules/ingest` (PDF/teks → node) | `POST /intake`, `POST /intake/:id/checklist`, `POST /intake/:id/syllabus` | Flow baru: intent + role + PDF opsional |
-| State `LOCKED→ACTIVE_READING→INTERROGATE→UNLOCKED` | `LOCKED→ACTIVE_READING→INTERVIEW→SCORED→UNLOCKED/NEEDS_REVIEW` | Hapus `DEBUG_CHALLENGE` (TDL dicut) |
-| `POST /interrogate/turn`, `/interrogate/finalize` | `POST /chapters/:id/interview/turn`, `/chapters/:id/interview/finalize` | Per-chapter, bukan per-node |
-| (tidak ada) | `POST /chapters/:id/ask`, `GET /chapters/:id/suggestions` | Select-word → tanya AI (Socratic) |
-| (tidak ada) | `POST /chapters/:id/calibration` | Calibration "predict before reveal" |
-| (tidak ada) | `POST /chapters/:id/focus-events` | Focus Mode (MediaPipe events) |
-| (tidak ada) | `POST /chapters/:id/appeal`, `GET /report/:session_id` | Appeal + final report |
-| `DEMO_MODE=cached` env saja | env `DEMO_MODE=cached` **atau** header `x-demo-mode: cached` | v1 beda trigger di 2 dokumen |
-| honeypot enum 3 nilai | 4 nilai (+`EVASIVE`) + skor ± | Riset A1 |
+| `POST /modules/ingest` (PDF/teks → node) | `POST /intake`, `POST /intake/:id/checklist`, `POST /intake/:id/syllabus` | New flow: intent + role + optional PDF |
+| State `LOCKED→ACTIVE_READING→INTERROGATE→UNLOCKED` | `LOCKED→ACTIVE_READING→INTERVIEW→SCORED→UNLOCKED/NEEDS_REVIEW` | Removed `DEBUG_CHALLENGE` (TDL cut) |
+| `POST /interrogate/turn`, `/interrogate/finalize` | `POST /chapters/:id/interview/turn`, `/chapters/:id/interview/finalize` | Per-chapter, not per-node |
+| (none) | `POST /chapters/:id/ask`, `GET /chapters/:id/suggestions` | Select-word → ask AI (Socratic) |
+| (none) | `POST /chapters/:id/calibration` | Calibration "predict before reveal" |
+| (none) | `POST /chapters/:id/focus-events` | Focus Mode (MediaPipe events) |
+| (none) | `POST /chapters/:id/appeal`, `GET /report/:session_id` | Appeal + final report |
+| `DEMO_MODE=cached` env only | env `DEMO_MODE=cached` **or** header `x-demo-mode: cached` | v1 used different triggers across 2 documents |
+| honeypot enum 3 values | 4 values (+`EVASIVE`) + ± score | Research A1 |
 
 ---
 
@@ -53,7 +53,7 @@
              └─────────────┘                                            └──────────────┘
 ```
 
-Honeypot **tidak** mengubah state — dia hanya mengisi `honeypot_score` di dalam skor.
+The honeypot does **not** change state — it only fills `honeypot_score` inside the score.
 
 ---
 
@@ -61,9 +61,9 @@ Honeypot **tidak** mengubah state — dia hanya mengisi `honeypot_score` di dala
 
 ### 2.1 Intake
 #### `POST /api/v1/intake`
-Menerima niat belajar + role + PDF opsional. Mengembalikan `session_id` + daftar role seed.
+Accepts the learning intent + role + optional PDF. Returns `session_id` + the list of seed roles.
 
-* **Request (multipart/form-data atau JSON):**
+* **Request (multipart/form-data or JSON):**
 ```json
 {
   "intent": "I want to understand how React rendering works internally",
@@ -72,7 +72,7 @@ Menerima niat belajar + role + PDF opsional. Mengembalikan `session_id` + daftar
   "document": null
 }
 ```
-`role` harus salah satu dari seed (`GET /roles`) atau `"Others"` dengan `role_is_custom: true` + `custom_role` terisi.
+`role` must be one of the seeds (`GET /roles`) or `"Others"` with `role_is_custom: true` + `custom_role` populated.
 
 * **Response (201 Created):**
 ```json
@@ -88,7 +88,7 @@ Menerima niat belajar + role + PDF opsional. Mengembalikan `session_id` + daftar
 ```
 
 #### `GET /api/v1/roles`
-Daftar role seed (buat render selector).
+List of seed roles (for rendering the selector).
 ```json
 {
   "roles": ["Frontend","Backend","Fullstack","DevOps","Data/ML","Mobile","QA/Test","Security","System Design"],
@@ -100,9 +100,9 @@ Daftar role seed (buat render selector).
 
 ### 2.2 Realtime Checklist Generation
 #### `POST /api/v1/intake/:sessionId/checklist`
-Generate checklist topik realtime dari intent + role + isi PDF (kalau ada).
+Generates a realtime topic checklist from the intent + role + PDF content (if any).
 
-* **Request:** `{}` (pakai state intake) atau override:
+* **Request:** `{}` (uses intake state) or an override:
 ```json
 { "stream": true }
 ```
@@ -122,10 +122,10 @@ Generate checklist topik realtime dari intent + role + isi PDF (kalau ada).
 ```
 `origin`: `document` | `role_taxonomy` | `grounded_external`.
 
-* **SSE variant (`stream: true`):** event `checklist.partial` per item, lalu `checklist.done`.
+* **SSE variant (`stream: true`):** a `checklist.partial` event per item, then `checklist.done`.
 
 #### `PUT /api/v1/intake/:sessionId/checklist`
-User finalisasi pilihan (check/uncheck).
+The user finalizes their selection (check/uncheck).
 ```json
 { "selected_item_ids": ["ck_01","ck_02"] }
 ```
@@ -134,7 +134,7 @@ User finalisasi pilihan (check/uncheck).
 
 ### 2.3 Syllabus Synthesis
 #### `POST /api/v1/intake/:sessionId/syllabus`
-Chunk dokumen (atau generate dari role taxonomy) jadi chapter silabus + enrich referensi.
+Chunks the document (or generates from the role taxonomy) into syllabus chapters + enriches references.
 
 * **Request:**
 ```json
@@ -179,13 +179,13 @@ Chunk dokumen (atau generate dari role taxonomy) jadi chapter silabus + enrich r
 }
 ```
 `source_mode`: `document_rag` | `role_taxonomy_generated`.
-Grounding eksternal: `enable_search_grounding: true` cuma buat 1-2 chapter, hasil di-cache (lihat §3).
+External grounding: `enable_search_grounding: true` only for 1-2 chapters, results are cached (see §3).
 
 ---
 
 ### 2.4 Chapter Reader & Inline Socratic Ask
 #### `GET /api/v1/chapters/:chapterId`
-Konten chapter + state.
+Chapter content + state.
 
 * **Response (200 OK):**
 ```json
@@ -201,7 +201,7 @@ Konten chapter + state.
 ```
 
 #### `POST /api/v1/chapters/:chapterId/ask`
-User select kata/kalimat → tanya AI. **AI menjawab Socratic** (balik nanya / hint), bukan jawaban jadi.
+The user selects a word/sentence → asks the AI. **The AI answers Socratically** (asks back / gives a hint), not with a finished answer.
 
 * **Request:**
 ```json
@@ -217,23 +217,23 @@ User select kata/kalimat → tanya AI. **AI menjawab Socratic** (balik nanya / h
 ```json
 {
   "mode": "socratic",
-  "reply": "Sebelum gw jawab — menurut kamu, kalau React nggak punya proses ini, apa yang bakal terjadi ke DOM tiap state berubah?",
+  "reply": "Before I answer — what do you think would happen to the DOM on every state change if React had no such process?",
   "hint_level": 1,
   "citations": [{ "kind": "document", "page": 4 }],
   "gave_direct_answer": false
 }
 ```
-`gave_direct_answer` harus `false` di mode default (konsistensi tesis "anti brain-rot").
+`gave_direct_answer` must be `false` in the default mode (consistency with the "anti brain-rot" thesis).
 
 #### `GET /api/v1/chapters/:chapterId/suggestions?selection=...`
-AI kasih suggested questions dari seleksi beberapa kata.
+The AI provides suggested questions from a selection of several words.
 ```json
 {
   "selection": "reconciliation and diffing",
   "suggested_questions": [
-    "Kenapa diffing O(n) dianggap cukup buat React?",
-    "Apa bedanya reconciliation sama commit phase?",
-    "Kapan diffing justru jadi bottleneck?"
+    "Why is O(n) diffing considered good enough for React?",
+    "What is the difference between the reconciliation and commit phases?",
+    "When does diffing actually become the bottleneck?"
   ]
 }
 ```
@@ -251,7 +251,7 @@ AI kasih suggested questions dari seleksi beberapa kata.
   "interview_id": "int_7712",
   "chapter_id": "ch_01",
   "turn_index": 1,
-  "first_question": "Bayangkan kamu punya 10.000 list item yang diupdate tiap 100ms. Kapan Virtual DOM justru jadi bottleneck dibanding manipulasi DOM langsung?",
+  "first_question": "Imagine 10,000 list items updating every 100ms. At what point does the Virtual DOM become the bottleneck compared to direct DOM manipulation?",
   "focus_mode": { "required": false, "available": true }
 }
 ```
@@ -262,7 +262,7 @@ AI kasih suggested questions dari seleksi beberapa kata.
 {
   "interview_id": "int_7712",
   "turn_index": 1,
-  "user_response": "VDOM jadi bottleneck karena diffing pohon 10.000 objek JS sendiri butuh CPU cycle...",
+  "user_response": "The VDOM becomes the bottleneck because diffing a tree of 10,000 JS objects costs CPU cycles on its own...",
   "client_telemetry": { "paste_detected": false, "duration_seconds": 38, "keystroke_cpm": 260 }
 }
 ```
@@ -274,7 +274,7 @@ AI kasih suggested questions dari seleksi beberapa kata.
   "turn_index": 2,
   "is_concluded": false,
   "running_score": 78,
-  "interrogator_response": "Solid. Sekarang, bagaimana penerapan 'React Quantum Hook' dalam mengatasi mutasi state 100ms itu? Apakah tepat?",
+  "interrogator_response": "Solid. Now, how does applying 'React Quantum Hook' address that 100ms state mutation? Is that the right fit?",
   "honeypot_active": true,
   "honeypot_metadata": {
     "injected_term": "React Quantum Hook",
@@ -285,13 +285,13 @@ AI kasih suggested questions dari seleksi beberapa kata.
 ```
 
 #### `POST /api/v1/chapters/:chapterId/interview/finalize`
-Hitung skor chapter. **Sebelum** ini, user isi calibration (§2.6).
+Computes the chapter score. **Before** this call, the user fills in the calibration (§2.6).
 
 * **Request:**
 ```json
 {
   "interview_id": "int_7712",
-  "final_response": "Setahu saya 'React Quantum Hook' gak ada di React docs maupun library resmi. Yang ada useTransition atau useDeferredValue."
+  "final_response": "As far as I know 'React Quantum Hook' does not exist in the React docs or any official library. What exists is useTransition or useDeferredValue.",
 }
 ```
 
@@ -305,28 +305,28 @@ Hitung skor chapter. **Sebelum** ini, user isi calibration (§2.6).
   "honeypot_verdict": {
     "term": "React Quantum Hook",
     "result": "CRITICAL_REJECTION",
-    "analysis": "User menyadari dan menolak istilah fiktif."
+    "analysis": "User recognized and rejected the fabricated term."
   },
   "chapter_state_update": { "current_chapter_status": "UNLOCKED", "next_unlocked_chapter_id": "ch_02" },
   "verifier": { "status": "agreed", "note": "Model kedua setuju." }
 }
 ```
 
-**Klasifikasi honeypot → skor (ADR 002 + riset A1):**
-| `result` | Arti | Skor |
+**Honeypot classification → score (ADR 002 + research A1):**
+| `result` | Meaning | Score |
 |---|---|---|
-| `CRITICAL_REJECTION` | Curiga & tepat | **+2** |
-| `AI_HALLUCINATION_COPYPASTE` | Panjang, yakin, halusinasi | **−2** |
-| `UNVERIFIED_HONEST` | "gw gak tau" | **0** |
-| `EVASIVE` | Diam/muter gak nyerempet | **−1** |
+| `CRITICAL_REJECTION` | Suspicious & correct | **+2** |
+| `AI_HALLUCINATION_COPYPASTE` | Long, confident, hallucinated | **−2** |
+| `UNVERIFIED_HONEST` | "I don't know" | **0** |
+| `EVASIVE` | Silent/dodging, never lands | **−1** |
 
-Honeypot **bukan** gate. Unlock tetap dari `chapter_score >= 75`.
+The honeypot is **not** a gate. Unlock still comes from `chapter_score >= 75`.
 
 ---
 
 ### 2.6 Calibration
 #### `POST /api/v1/chapters/:chapterId/calibration`
-User memprediksi skor dirinya **sebelum** reveal.
+The user predicts their own score **before** the reveal.
 
 * **Request:**
 ```json
@@ -348,7 +348,7 @@ User memprediksi skor dirinya **sebelum** reveal.
 
 ### 2.7 Focus Mode (MediaPipe events)
 #### `POST /api/v1/chapters/:chapterId/focus-events`
-On-device ML kirim **event boolean** (bukan video).
+On-device ML sends **boolean events** (not video).
 
 * **Request:**
 ```json
@@ -373,8 +373,8 @@ On-device ML kirim **event boolean** (bukan video).
 ```
 
 `type` enum: `GAZE_DRIFT` | `MULTIPLE_FACES` | `TAB_BLUR` | `CAMERA_OFF`.
-`video_transmitted` **wajib** `false` (privasi — ADR 003).
-**Accessible Mode** (kamera off) → `integrity_flag: "assisted_unverified"`, skor tetap dihitung.
+`video_transmitted` **must** be `false` (privacy — ADR 003).
+**Accessible Mode** (camera off) → `integrity_flag: "assisted_unverified"`, the score is still computed.
 
 ---
 
@@ -410,23 +410,23 @@ On-device ML kirim **event boolean** (bukan video).
 
 ## 3. Resilient Fallback Specification
 
-Trigger: env `DEMO_MODE=cached` **ATAU** header `x-demo-mode: cached` **ATAU** Gemini error `429/500/503`.
+Trigger: env `DEMO_MODE=cached` **OR** header `x-demo-mode: cached` **OR** Gemini error `429/500/503`.
 
-Sistem backend **wajib** menyajikan skenario pre-cached tanpa runtime exception:
+The backend **must** serve pre-cached scenarios without runtime exceptions:
 ```json
 { "fallback_active": true, "source": "LOCAL_DETERMINISTIC_CACHE", "message": "(Offline simulation active — Gemini mocked for resilience)" }
 ```
 
-Skenario wajib:
-1. **Success flow** — user kritis nolak honeypot → `CRITICAL_REJECTION`, skor tinggi, chapter unlock.
-2. **Caught flow** — user copas jawaban LLM luar → `AI_HALLUCINATION_COPYPASTE`, skor turun, flag integrity.
+Required scenarios:
+1. **Success flow** — a critical user rejects the honeypot → `CRITICAL_REJECTION`, high score, chapter unlocked.
+2. **Caught flow** — a user pastes an answer from an external LLM → `AI_HALLUCINATION_COPYPASTE`, score drops, integrity flag raised.
 
-Cache juga menyimpan hasil grounding eksternal (biar demo gak gantung ke jaringan).
+The cache also stores external grounding results (so the demo doesn't depend on the network).
 
 ---
 
 ## 4. Structured Output Schema (Gemini)
-Semua evaluasi pakai JSON schema (native structured output):
+All evaluations use a JSON schema (native structured output):
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",

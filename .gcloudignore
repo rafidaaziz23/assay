@@ -1,0 +1,46 @@
+# .gcloudignore — what Cloud Build uploads as build source.
+#
+# Without this file gcloud uploads the whole working tree: 439 MB here, of which
+# 265 MB is frontend/node_modules + backend/.venv. Those are rebuilt inside the
+# Docker build anyway, so uploading them is pure latency and eats the Cloud Build
+# source-size budget. `.dockerignore` does NOT cover this — it filters what the
+# docker daemon sees, not what gcloud uploads.
+#
+# Keep this in sync with .dockerignore: anything the image does not need should
+# not be uploaded either.
+
+# Version control
+.git
+.gitignore
+.github
+
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/.venv/
+.venv/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.tox/
+
+# Node
+**/node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Secrets — never upload. Cloud Run gets these via --set-env-vars.
+**/.env
+**/.env.*
+!**/.env.example
+
+# Repo-only material: not needed to build either image
+docs/
+eval/
+tools/
+*.log
+*.zip
+*.png
+
+# Local scratch
+.verify-neutral/

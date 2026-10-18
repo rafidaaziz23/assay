@@ -42,7 +42,10 @@ def test_dashboard_summary():
 def test_settings_get_and_post():
     get_res = client.get("/api/v1/settings")
     assert get_res.status_code == 200
-    assert get_res.json()["model"] == "gemini-2.5-flash"
+    # Default must be a live model ID: gemini-2.5-flash now returns 404
+    # NOT_FOUND ("no longer available to new users"). Assert the property, not a
+    # literal, so a future model bump does not silently re-break this test.
+    assert get_res.json()["model"].startswith("gemini-3")
 
     update_res = client.post(
         "/api/v1/settings",

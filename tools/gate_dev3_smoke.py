@@ -3,7 +3,7 @@
 
 Checks that the engine imports, unit tests pass, and the static artifacts exist.
 Live model calls are NOT exercised here (they can exceed the 300s gate ceiling);
-per-unit live evidence goes in docs/DEV3-OVERNIGHT-LOG.md instead.
+per-unit live evidence goes in docs/logs/DEV3-OVERNIGHT-LOG.md instead.
 """
 import json
 import subprocess
@@ -19,7 +19,7 @@ failures: list[str] = []
 def main() -> int:
     if not PY.exists():
         print(f"GAGAL: venv belum ada: {PY}")
-        print("       kerjakan unit H0.1 dulu (lihat docs/DEV3-OVERNIGHT-BRIEF.md)")
+        print("       kerjakan unit H0.1 dulu (lihat docs/logs/DEV3-OVERNIGHT-BRIEF.md)")
         return 1
 
     if subprocess.run([str(PY), "-c", "import ai"], cwd=str(REPO)).returncode != 0:

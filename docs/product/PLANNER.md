@@ -1,6 +1,6 @@
 # Assay - Planner & Specification Hub
 
-Dokumen ini adalah pusat perencanaan eksekusi berbasis **Spec-Driven Development (SDD)** untuk platform **Assay** (Active Socratic Learning Engine).
+This document is the execution planning hub for the **Assay** platform (Active Socratic Learning Engine), built on **Spec-Driven Development (SDD)**.
 
 ---
 
@@ -19,14 +19,14 @@ Dokumen ini adalah pusat perencanaan eksekusi berbasis **Spec-Driven Development
 ---
 
 ## 🎯 Master Goals & Deliverables
-1. **Frontend Modernization**: Slicing dan implementasi 14 frame dari Figma ke komponen React + Tailwind CSS secara presisi (1:1 visual fidelity).
-2. **Design Tokens & UI Kit**: Ekstraksi token warna, border radius, bayangan halus, dan tipografi Plus Jakarta Sans ke dalam `tailwind.config.js` dan komponen atomik.
+1. **Frontend Modernization**: Slice and implement the 14 Figma frames as React + Tailwind CSS components with precise 1:1 visual fidelity.
+2. **Design Tokens & UI Kit**: Extract color tokens, border radii, soft shadows, and Plus Jakarta Sans typography into `tailwind.config.js` and atomic components.
 3. **End-to-End User Flow**:
    - Authentication (Login/Register)
-   - Dual-mode Intake (Prompt manual & PDF upload parsing)
+   - Dual-mode Intake (manual prompt & PDF upload parsing)
    - Syllabus roadmap & module curation
-   - Socratic reader dengan text-highlight explanation popover
-   - Real-time oral defense dengan audio waveform & rubric scoring
+   - Socratic reader with a text-highlight explanation popover
+   - Real-time oral defense with audio waveform & rubric scoring
    - Competency dossier report & analytics export
    - Learner profile & personal settings
    - Guided onboarding tour & notification flyout
@@ -34,11 +34,11 @@ Dokumen ini adalah pusat perencanaan eksekusi berbasis **Spec-Driven Development
 ---
 
 ## 📋 Execution Roadmap (Sprint Backlog)
-*Detail spesifikasi agen, skill yang dibutuhkan, goals per tahap, dan tracking history akan diperbarui secara komprehensif berdasarkan prompt arsitektur dari Claude.*
+*Detailed agent specs, required skills, per-phase goals, and tracking history will be filled in comprehensively from the architecture prompt supplied to Claude.*
 
 | Phase | Milestone | Scope | Status |
 | :--- | :--- | :--- | :--- |
-| **Phase 1** | Design Tokens & Atoms | Konfigurasi Tailwind, Plus Jakarta Sans, Lucide icons, button variants, pill chips | ✅ Complete |
+| **Phase 1** | Design Tokens & Atoms | Tailwind configuration, Plus Jakarta Sans, Lucide icons, button variants, pill chips | ✅ Complete |
 | **Phase 2** | Core Learning Flow | Intake (Upload + Manual), Roadmap Curation, Deep Reader + Popover | ✅ Complete |
 | **Phase 3** | Oral Defense & Exam | Socratic live audio examiner, waveform visualizer, dynamic rubric scoring | ✅ Complete |
 | **Phase 4** | Platform Features | Dashboard, Profile, Settings, Onboarding Tour, Notification Flyout | ✅ Complete |
@@ -47,13 +47,13 @@ Dokumen ini adalah pusat perencanaan eksekusi berbasis **Spec-Driven Development
 ---
 
 ## 📜 Execution History
-- **2026-10-17**: Inisiasi `planner.md` dan verifikasi 14 frame approved dari Figma Assay.
-- **2026-10-17**: Implementasi SDD Infrastructure:
-  - Custom Workspace Skills terpasang (`assay-spec-driven-design`, `assay-audio-socratic`, `assay-visual-qa`).
-  - Runtime Subagents terdaftar (`design-system-architect`, `component-slicer`, `state-and-audio-engineer`, `qa-visual-auditor`).
-  - Ekstraksi token dari frame `1:2650` (Plus Jakarta Sans, Indigo `#4F46E5`, Periwinkle `#EEF0FF`).
-  - Slicing 14 screen approved Figma ke React 18 + TS + Tailwind CSS.
-  - Verifikasi build `npm.cmd run build` selesai 100% hijau (Exit Code 0).
+- **2026-10-17**: Initialized `planner.md` and verified the 14 approved frames from the Assay Figma.
+- **2026-10-17**: Implemented the SDD infrastructure:
+  - Custom workspace skills installed (`assay-spec-driven-design`, `assay-audio-socratic`, `assay-visual-qa`).
+  - Runtime subagents registered (`design-system-architect`, `component-slicer`, `state-and-audio-engineer`, `qa-visual-auditor`).
+  - Token extraction from frame `1:2650` (Plus Jakarta Sans, Indigo `#4F46E5`, Periwinkle `#EEF0FF`).
+  - Sliced the 14 approved Figma screens into React 18 + TS + Tailwind CSS.
+  - Build verification `npm.cmd run build` finished 100% green (Exit Code 0).
 
 ## Claude Prompt
 

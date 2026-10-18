@@ -1,8 +1,8 @@
 # ai/ — Function Fixtures
 
 Example output for every function in `ai/__init__.py`, copied from
-`docs/API-CONTRACTS.md` v2 so DEV 2 can wire routes before the engine is finished
-(DEV3-ROADMAP section 1). Shapes here are the contract — if code disagrees, the
+`docs/architecture/API-CONTRACTS.md` v2 so DEV 2 can wire routes before the engine is finished
+(DEV3-ROADMAP section 1). The shapes here are the contract — if the code disagrees, the
 contract wins.
 
 All examples assume a Frontend / React intent. In `DEMO_MODE=cached` (or with no key)
@@ -48,35 +48,35 @@ every function returns these deterministic shapes.
   ]
 }
 ```
-`source_mode` ∈ `document_rag` | `role_taxonomy_generated`. No-PDF path yields
+`source_mode` ∈ `document_rag` | `role_taxonomy_generated`. The no-PDF path yields
 `role_taxonomy_generated` with empty `source_pages`.
 
 ## socratic_ask(chapter, selected_text, question, anchor) -> dict
 ```json
 { "mode": "socratic",
-  "reply": "Sebelum gw jawab — menurut kamu, kalau React nggak punya proses ini, apa yang bakal terjadi?",
+  "reply": "Before I answer — what do you think would happen if React had no such process?",
   "hint_level": 1, "citations": [{ "kind": "document", "page": 4 }], "gave_direct_answer": false }
 ```
 `gave_direct_answer` is always `false` in default mode.
 
 ## suggest_questions(chapter, selection) -> list[str]
 ```json
-["Kenapa diffing O(n) dianggap cukup buat React?",
- "Apa bedanya reconciliation sama commit phase?",
- "Kapan diffing justru jadi bottleneck?"]
+["Why is O(n) diffing considered good enough for React?",
+ "How does reconciliation differ from the commit phase?",
+ "When does diffing actually become the bottleneck?"]
 ```
 
 ## start_interview(chapter) -> dict
 ```json
 { "interview_id": "int_7712", "chapter_id": "ch_01", "turn_index": 1,
-  "first_question": "Kapan Virtual DOM justru jadi bottleneck?",
+  "first_question": "When does the Virtual DOM actually become a bottleneck?",
   "focus_mode": { "required": false, "available": true } }
 ```
 
 ## interview_turn(interview, user_response, client_telemetry) -> dict
 ```json
 { "interview_id": "int_7712", "turn_index": 2, "is_concluded": false, "running_score": 78,
-  "interrogator_response": "Solid. Sekarang, bagaimana penerapan 'React Quantum Hook'...",
+  "interrogator_response": "Solid. Now, how would you apply the 'React Quantum Hook'...",
   "honeypot_active": true,
   "honeypot_metadata": { "injected_term": "React Quantum Hook",
                          "expected_action": "REJECT_AS_FICTITIOUS", "source": "deterministic_catalog" } }
@@ -88,7 +88,7 @@ every function returns these deterministic shapes.
   "score": { "chapter_score": 88, "reasoning_score": 92, "integrity_score": 100, "honeypot_score": 2 },
   "honeypot_verdict": { "term": "React Quantum Hook", "result": "CRITICAL_REJECTION", "analysis": "..." },
   "chapter_state_update": { "current_chapter_status": "UNLOCKED", "next_unlocked_chapter_id": "ch_02" },
-  "verifier": { "status": "agreed", "note": "Model kedua setuju." } }
+  "verifier": { "status": "agreed", "note": "Second model agreed." } }
 ```
 
 ## pick_honeypot_term(chapter_topic, used, seed=None) -> dict
@@ -121,6 +121,6 @@ Formula (ADR 002): `chapter_score = clamp(reasoning_score + honeypot_points + in
 
 ## verify_score(score, evidence) -> dict
 ```json
-{ "status": "agreed", "note": "Model kedua setuju." }
+{ "status": "agreed", "note": "Second model agreed." }
 ```
 `status` ∈ `agreed` | `uncertain`.
