@@ -280,7 +280,7 @@ def s01_team(prs):
           [("Team Details", {"size": 14, "bold": True, "color": INK, "font": FONT_MED})])
 
     rows = [
-        ("a.", "Team name", "Assay"),
+        ("a.", "Team name", "Nexatriv"),
         ("b.", "Team leader name", "Rafida Aziz"),
         ("c.", "Problem Statement",
          "AI study tools dispense answers instead of building reasoning. Assay forces the learner "
@@ -875,7 +875,7 @@ def s14_links(prs):
 
     _text(s, LEFT, Inches(4.60), WIDTH, Inches(0.7), [
         ("Team: ", {"bold": True, "color": INK}),
-        ("Assay — Rafida Aziz (lead), M. Zulfi Fahreza, Wildan Fajar Maulana.  ", {}),
+        ("Nexatriv — Rafida Aziz (lead), M. Zulfi Fahreza, Wildan Fajar Maulana.  ", {}),
         ("Stack: ", {"bold": True, "color": INK}),
         ("React 18 + Vite, FastAPI, Gemini 3 via the google-genai SDK, deployed on Google Cloud Run.", {}),
     ], size=9, spacing=1.2, color=MUTED)
