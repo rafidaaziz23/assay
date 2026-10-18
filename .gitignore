@@ -75,3 +75,7 @@ Thumbs.db
 # Local runtime data
 backend/data/uploads/*
 !backend/data/uploads/.gitkeep
+
+# Transient Cloud Build config written by tools/deploy-cloudrun.sh
+.cloudbuild-deploy.*.yaml
+.verify-neutral/

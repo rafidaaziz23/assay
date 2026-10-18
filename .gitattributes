@@ -1,0 +1,30 @@
+# Line endings.
+#
+# Git's default (core.autocrlf) varies per machine, so a .sh file can land on a
+# Linux runner with CRLF and fail with the classic `\r: command not found`.
+# Pin the endings that matter instead of trusting each contributor's config.
+
+# Shell scripts must be LF or the shebang breaks.
+*.sh        text eol=lf
+*.cmd       text eol=crlf
+
+# Containers and config are consumed by Linux processes.
+Dockerfile  text eol=lf
+*.conf      text eol=lf
+*.template  text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+
+# Code
+*.py        text eol=lf
+*.ts        text eol=lf
+*.tsx       text eol=lf
+*.json      text eol=lf
+*.md        text eol=lf
+
+# Never normalise binaries
+*.png       binary
+*.jpg       binary
+*.pptx      binary
+*.pdf       binary
+*.zip       binary

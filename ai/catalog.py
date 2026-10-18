@@ -29,6 +29,9 @@ _cache: list[dict] | None = None
 _REJECTION = (
     "does not exist", "doesn't exist", "not a real", "not a concept", "fictional",
     "no such thing", "never heard", "not in react docs", "not official", "made up",
+    # Indonesian keywords are load-bearing: the engine classifies answers written in
+    # either language. Translating them away makes Indonesian rejections fall through
+    # to the default label. Do not "clean these up".
     "hallucination", "fake", "tidak ada", "bukan konsep resmi", "bukan istilah",
     "tidak dikenal", "tidak pernah mendengar", "tidak pernah dengar", "bukan bagian",
     "salah premis", "tidak resmi", "buatan", "fiktif", "tidak valid",

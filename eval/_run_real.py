@@ -3,7 +3,7 @@
 Run: python eval/_run_real.py
 Exercises ai/ against real fixtures + one or two live calls per unit (API budget is
 deliberately small). Prints PASS/FAIL per unit; nonzero exit on any failure. Paste the
-output into docs/DEV3-OVERNIGHT-LOG.md as evidence.
+output into docs/logs/DEV3-OVERNIGHT-LOG.md as evidence.
 """
 from __future__ import annotations
 
