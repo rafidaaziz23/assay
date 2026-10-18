@@ -199,7 +199,7 @@ if [ "$DRY" = 0 ]; then
   if ! "${GQ[@]}" artifacts repositories describe "$REPO" --location="$REGION" --project="$PROJECT" >/dev/null 2>&1; then
     run "${GQ[@]}" artifacts repositories create "$REPO" \
       --repository-format=docker --location="$REGION" --project="$PROJECT" \
-      --description="Assay Cloud Run images"
+      --description="Assay-Cloud-Run-images"
   else
     info "repository $REPO already exists"
   fi
@@ -279,7 +279,7 @@ if [ "$DRY" = 0 ]; then
   # (verified: rc=22), turning a successful deploy into a false failure. Capture first.
   cache=$(curl -sf "$API_URL/health/cache" || echo "unavailable")
   printf '    /health/cache: %s\n' "$(printf '%s' "$cache" | head -c 160)"
-  curl -sf "$WEB_URL/healthz"      || die "web /healthz failed"
+  curl -sf "$WEB_URL/health"       || die "web /health failed"
   echo
   # The proxy is the whole reason the frontend is nginx and not Firebase Hosting.
   curl -sf "$WEB_URL/api/v1/roles" >/dev/null || die "web -> api proxy broken"
