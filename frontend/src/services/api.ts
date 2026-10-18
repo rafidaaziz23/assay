@@ -383,5 +383,12 @@ export const api = {
 
   getUsers: () =>
     request<UserProfile[]>('/auth/users', { method: 'GET' }),
+
+  resetDemoState: () =>
+    request<{ status: string; message: string }>(
+      '/settings/demo/reset',
+      { method: 'POST' },
+      { status: 'ok', message: 'Demo state reset to pristine initial state.' }
+    ),
 };
 

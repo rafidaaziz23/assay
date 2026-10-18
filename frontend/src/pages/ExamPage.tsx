@@ -654,10 +654,28 @@ export const ExamPage: React.FC = () => {
             <Button
               variant="outline"
               size="md"
-              onClick={() => setExamState('inquiry')}
+              onClick={async () => {
+                try {
+                  await api.resetDemoState();
+                } catch (e) {
+                  console.warn('Reset fallback:', e);
+                }
+                setTurnIndex(1);
+                setCandidateInput('');
+                const defaultCid = activeSessionId === 'sess_coding_basic' ? 'ch_algo_01' : 'ch_01';
+                setActiveChapterId(defaultCid);
+                try {
+                  const res = await api.startInterview(defaultCid, activeSessionId || 'sess_coding_basic');
+                  setInterviewData(res);
+                  setChatLog([{ sender: 'examiner', text: res.first_question || '' }]);
+                } catch {
+                  // Fallback handles gracefully
+                }
+                setExamState('inquiry');
+              }}
               leftIcon={<RotateCcw className="w-4 h-4" />}
             >
-              Re-examine Turn
+              Reset & Practice Again
             </Button>
             <Button
               variant="primary"

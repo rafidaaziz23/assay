@@ -35,3 +35,17 @@ async def update_settings(payload: SettingsPayload) -> SettingsPayload:
     global CURRENT_SETTINGS
     CURRENT_SETTINGS = payload
     return CURRENT_SETTINGS
+
+
+@router.post("/demo/reset")
+async def reset_demo_state() -> dict:
+    """Reset all sessions, chapters, and defense states back to pristine seeded demo values."""
+    from ....core.seeder import seed_store
+    from ....repositories import get_store
+
+    store = get_store()
+    store.reset()
+    seed_store(store)
+    store.save_to_disk()
+    return {"status": "ok", "message": "Demo state reset to pristine initial state."}
+
