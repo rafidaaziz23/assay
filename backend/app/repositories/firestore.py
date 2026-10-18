@@ -1,7 +1,7 @@
 """Firestore port for the repository interfaces (DEV 2 section 3 schema).
 
 Status: STUB, intentionally. The Firestore schema in the DEV 2 breakdown is still
-listed as "belum dibahas/ACC DEV 1 & DEV 3" (section 8, open questions), and the
+listed as "not yet discussed / pending DEV 1 & DEV 3 sign-off" (section 8, open questions), and the
 vector-search limits are unverified. Building on that now would burn a full day of a
 budget that has none (Hari 3 is already full).
 
