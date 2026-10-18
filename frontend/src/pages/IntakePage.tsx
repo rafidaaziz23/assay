@@ -24,7 +24,7 @@ export const IntakePage: React.FC = () => {
   const navigate = useNavigate();
   const { setActiveSessionId, setActiveChapterId } = useAppStore();
   const [activeTab, setActiveTab] = useState<'prompt' | 'upload'>('prompt');
-  const [topicPrompt, setTopicPrompt] = useState('How mRNA vaccines work');
+  const [topicPrompt, setTopicPrompt] = useState('Git Basics: Version Control & Collaboration');
   const [selectedDepth, setSelectedDepth] = useState<'foundation' | 'applied' | 'rigorous'>('applied');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFileObj, setSelectedFileObj] = useState<File | null>(null);
@@ -52,13 +52,11 @@ export const IntakePage: React.FC = () => {
     }
   };
 
-  const ALGO_MODULES = [
-    { id: 'mod-1', title: '1. Algorithmic Complexity & Big-O Notation', concepts: '4 concepts', time: '45 min', badge: 'Recommended' as const, selected: true },
-    { id: 'mod-2', title: '2. Divide and Conquer: QuickSort & MergeSort', concepts: '5 concepts', time: '1 hr 15 min', badge: null, selected: true },
-    { id: 'mod-3', title: '3. Binary Search & Logarithmic Bounds', concepts: '4 concepts', time: '40 min', badge: null, selected: true },
-    { id: 'mod-4', title: '4. Hash Tables & Collision Resolution', concepts: '5 concepts', time: '50 min', badge: null, selected: true },
-    { id: 'mod-5', title: '5. Graph Traversals: BFS, DFS & Shortest Paths', concepts: '6 concepts', time: '1 hr 20 min', badge: null, selected: true },
-    { id: 'mod-6', title: '6. Dynamic Programming & Optimal Substructure', concepts: '5 concepts', time: '1 hr 30 min', badge: 'Optional' as const, selected: false },
+  const GIT_MODULES = [
+    { id: 'mod-1', title: '1. Git Fundamentals: Working Tree, Staging Area & Commits', concepts: '4 concepts', time: '35 min', badge: 'Recommended' as const, selected: true },
+    { id: 'mod-2', title: '2. Branching & Remote Workflows: Push, Pull & Merge Conflicts', concepts: '5 concepts', time: '45 min', badge: null, selected: true },
+    { id: 'mod-3', title: '3. History Rewriting: Rebase, Amend & Interactive Squashing', concepts: '4 concepts', time: '40 min', badge: null, selected: true },
+    { id: 'mod-4', title: '4. Advanced Git Diagnostics: Bisect, Reflog & Cherry-Pick', concepts: '4 concepts', time: '35 min', badge: 'Optional' as const, selected: false },
   ];
 
   const MATH_MODULES = [
@@ -77,12 +75,12 @@ export const IntakePage: React.FC = () => {
     { id: 'mod-5', title: '5. Manufacturing Scale & Thermal Stability', concepts: '2 concepts', time: '40 min', badge: 'Optional' as const, selected: false },
   ];
 
-  const [modules, setModules] = useState(ALGO_MODULES);
+  const [modules, setModules] = useState(GIT_MODULES);
 
   React.useEffect(() => {
     const t = topicPrompt.toLowerCase();
-    if (t.includes('algo') || t.includes('cod') || t.includes('sort') || t.includes('tree') || t.includes('graph') || t.includes('data struct')) {
-      setModules(ALGO_MODULES);
+    if (t.includes('git') || t.includes('version') || t.includes('branch') || t.includes('algo') || t.includes('cod') || t.includes('commit')) {
+      setModules(GIT_MODULES);
     } else if (t.includes('math') || t.includes('stat') || t.includes('neyman') || t.includes('bayes') || t.includes('prob') || t.includes('decision')) {
       setModules(MATH_MODULES);
     } else if (t.includes('mrna') || t.includes('vaccine') || t.includes('bio') || t.includes('cell')) {
@@ -104,7 +102,7 @@ export const IntakePage: React.FC = () => {
     await new Promise((r) => setTimeout(r, 1200));
     try {
       const t = topicPrompt.toLowerCase();
-      if (t.includes('algo') || t.includes('cod') || t.includes('sort') || t.includes('data struct') || !topicPrompt) {
+      if (t.includes('git') || t.includes('version') || t.includes('algo') || t.includes('cod') || !topicPrompt) {
         setActiveSessionId('sess_coding_basic');
         setActiveChapterId('ch_algo_01');
       } else {
@@ -200,7 +198,7 @@ export const IntakePage: React.FC = () => {
                     type="text"
                     value={topicPrompt}
                     onChange={(e) => setTopicPrompt(e.target.value)}
-                    placeholder="Basic Algorithms, Complexity Analysis & Sorting"
+                    placeholder="Git Basics: Version Control & Collaboration"
                     className="w-full pl-11 pr-4 py-3 text-sm text-slate-900 bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
                   />
                 </div>
@@ -209,7 +207,7 @@ export const IntakePage: React.FC = () => {
               {/* Quick suggestion chips */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 {[
-                  'Basic Algorithms & Sorting',
+                  'Git Basics & Version Control',
                   'Statistical Decision Theory',
                   'mRNA Lipid Nanoparticles',
                 ].map((chip) => (

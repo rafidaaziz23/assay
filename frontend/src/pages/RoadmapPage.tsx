@@ -134,11 +134,11 @@ export const RoadmapPage: React.FC = () => {
     {
       id: 'ch_algo_01',
       number: '01',
-      title: 'Algorithmic Complexity & Big-O Notation',
+      title: 'Git Fundamentals: Working Tree, Staging Area & Commits',
       status: 'completed' as const,
       statusPill: 'MODULE 01 · COMPLETED',
-      time: '2.0h completed',
-      description: 'Establish foundational growth frontiers, worst-case invariants, and binary search logarithmic bounds.',
+      time: '1.5h completed',
+      description: 'Master the three-tree architecture, staging area mechanics, commit object hashes, and atomic snapshot invariants.',
       segmentsFilled: 5,
       totalSegments: 5,
       conceptsCount: '4 concepts',
@@ -148,11 +148,11 @@ export const RoadmapPage: React.FC = () => {
     {
       id: 'ch_algo_02',
       number: '02',
-      title: 'Divide and Conquer: QuickSort & MergeSort',
+      title: 'Branching & Remote Workflows: Push, Pull & Merge Conflicts',
       status: 'in_progress' as const,
       statusPill: 'MODULE 02 · UNLOCKED',
-      time: '1.5h of 2.5h',
-      description: 'Partitioning invariants, recurrence trees, Master Theorem, and median-of-three pivot defense.',
+      time: '1.0h of 2.0h',
+      description: 'Manage isolated branch pointers, HEAD navigation, remote tracking branches, and 3-way merge conflict resolution.',
       segmentsFilled: 2,
       totalSegments: 5,
       conceptsCount: '5 concepts',
@@ -163,14 +163,14 @@ export const RoadmapPage: React.FC = () => {
     {
       id: 'ch_algo_03',
       number: '03',
-      title: 'Linear Data Structures: Vectors, Ring Buffers & Cache Locality',
-      status: 'ready' as const,
+      title: 'History Rewriting: Rebase, Amend & Interactive Squashing',
+      status: 'locked' as const,
       statusPill: 'MODULE 03',
-      time: '2.5h',
-      description: 'Amortized geometric doubling, memory cache locality, and zero-copy circular ring buffer boundaries.',
+      time: '2.0h',
+      description: 'Linear history topology, git rebase onto, commit squashing, and the Golden Rule of Rebasing.',
       segmentsFilled: 0,
       totalSegments: 5,
-      conceptsCount: '6 concepts',
+      conceptsCount: '4 concepts',
       badge: 'Oral defense',
       badgeVariant: 'neutral' as const,
       actionLabel: 'Locked',
@@ -178,42 +178,14 @@ export const RoadmapPage: React.FC = () => {
     {
       id: 'ch_algo_04',
       number: '04',
-      title: 'Nonlinear Structures: Balanced BSTs, AVL & Red-Black Invariants',
+      title: 'Advanced Git Diagnostics: Bisect, Reflog & Cherry-Pick',
       status: 'locked' as const,
-      statusPill: 'MODULE 04',
-      time: '2.5h',
-      description: 'Tree rotations, strict height invariants, and logarithmic lookup guarantees under adversarial insertion.',
+      statusPill: 'MODULE 04 · CAPSTONE',
+      time: '1.5h',
+      description: 'Binary search debugging with git bisect, orphaned commit recovery via git reflog, and selective cherry-picking.',
       segmentsFilled: 0,
       totalSegments: 5,
-      conceptsCount: '5 concepts',
-      badge: 'Oral defense',
-      badgeVariant: 'neutral' as const,
-    },
-    {
-      id: 'ch_algo_05',
-      number: '05',
-      title: 'Graph Theory: Breadth-First, Depth-First & Shortest Paths',
-      status: 'locked' as const,
-      statusPill: 'MODULE 05',
-      time: '2.5h',
-      description: 'Topological sort, cycle detection, Dijkstra greedy relaxation, and Bellman-Ford negative edge bounds.',
-      segmentsFilled: 0,
-      totalSegments: 5,
-      conceptsCount: '6 concepts',
-      badge: 'Oral defense',
-      badgeVariant: 'neutral' as const,
-    },
-    {
-      id: 'ch_algo_06',
-      number: '06',
-      title: 'Dynamic Programming: Optimal Substructure & Capstone Defense',
-      status: 'locked' as const,
-      statusPill: 'MODULE 06 · CAPSTONE',
-      time: '2.0h',
-      description: 'Overlapping subproblems, state space DAG traversal, and knapsack transition function defense.',
-      segmentsFilled: 0,
-      totalSegments: 5,
-      conceptsCount: 'Synthesis',
+      conceptsCount: '4 concepts',
       badge: 'Rigorous Capstone',
       badgeVariant: 'capstone' as const,
     },
@@ -303,8 +275,8 @@ export const RoadmapPage: React.FC = () => {
   const activeChapterId = activeModule.id;
   const activeChapterNumber = activeModule.number;
 
-  const subjectTitle = syllabus?.title || (isCodingSession ? 'Algorithms & Data Structures' : 'Statistics for Decisions');
-  const breadcrumbTrack = isCodingSession ? 'COMPUTER SCIENCE' : 'STATISTICS FOR DECISIONS';
+  const subjectTitle = syllabus?.title || (isCodingSession ? 'Foundations of Git & Version Control' : 'Statistics for Decisions');
+  const breadcrumbTrack = isCodingSession ? 'VERSION CONTROL & GIT' : 'STATISTICS FOR DECISIONS';
 
   return (
     <div className="max-w-[1240px] mx-auto space-y-7 animate-in fade-in duration-200 pb-16 font-sans">

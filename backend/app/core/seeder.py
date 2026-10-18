@@ -38,22 +38,22 @@ def seed_store(store: Optional[InMemoryStore] = None) -> InMemoryStore:
         },
         {
             "id": "usr_mayalin",
-            "name": "Maya Lin",
-            "email": "maya.lin@stanford.edu",
+            "name": "Rafida Aziz",
+            "email": "dev.rafidaaziz@gmail.com",
             "role": "Fellow",
-            "handle": "@mayalin",
-            "institution": "Stanford University",
+            "handle": "@rafidaaziz",
+            "institution": "Assay Research Lab",
             "streak_days": 14,
             "credits": 1250,
             "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
         },
         {
             "id": "usr_julian",
-            "name": "Dr. Julian Vance",
-            "email": "j.vance@oxford.ac.uk",
-            "role": "Lead Examiner · Decision Theory",
-            "handle": "@julianvance",
-            "institution": "Oxford University",
+            "name": "Assay AI",
+            "email": "ai@assay.eval",
+            "role": "Lead Socratic AI Evaluator",
+            "handle": "@assay_ai",
+            "institution": "Assay Integrity System",
             "streak_days": 42,
             "credits": 3400,
             "avatar_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
@@ -85,13 +85,13 @@ def seed_store(store: Optional[InMemoryStore] = None) -> InMemoryStore:
         store.save_user(u)
 
     # =========================================================================
-    # 2. CURRICULUM 1: CODING BASIC (ALGORITHMS & DATA STRUCTURES)
+    # 2. CURRICULUM 1: CODING BASIC (GIT VERSION CONTROL & COLLABORATION)
     # =========================================================================
     session_coding = "sess_coding_basic"
 
     store.create_session(
         session_id=session_coding,
-        intent="Basic Algorithms, Complexity Analysis, Sorting, and Search Trees",
+        intent="Git Version Control, Three-Tree Architecture, Staging, and Remote Collaboration",
         role="Backend",
         role_is_custom=False,
         custom_role=None,
@@ -101,122 +101,99 @@ def seed_store(store: Optional[InMemoryStore] = None) -> InMemoryStore:
         source_mode="role_taxonomy_generated",
         demo_mode="live",
         status="SYLLABUS_READY",
-        syllabus_id="syl_algorithms_v1",
-        syllabus_title="Foundations of Algorithms & Data Structures",
+        syllabus_id="syl_git_v1",
+        syllabus_title="Foundations of Git & Version Control",
     )
 
     checklist_coding = [
         {
             "item_id": "ck_algo_01",
-            "topic": "Asymptotic Notation, Big-O Limits & Space-Time Trade-offs",
+            "topic": "Three-Tree Architecture: Working Directory, Staging Index & Repository",
+            "selected": True,
+            "confidence": 0.98,
+            "origin": "role_taxonomy",
+        },
+        {
+            "item_id": "ck_algo_02",
+            "topic": "Commit Immutability & Directed Acyclic Graph (DAG) Checkpoints",
             "selected": True,
             "confidence": 0.96,
             "origin": "role_taxonomy",
         },
         {
-            "item_id": "ck_algo_02",
-            "topic": "Divide and Conquer: QuickSort, MergeSort & Recurrence Relations",
-            "selected": True,
-            "confidence": 0.95,
-            "origin": "role_taxonomy",
-        },
-        {
             "item_id": "ck_algo_03",
-            "topic": "Binary Search Invariants & Logarithmic Range Partitions",
+            "topic": "Branch Isolation & HEAD Pointer Navigation",
             "selected": True,
-            "confidence": 0.92,
+            "confidence": 0.94,
             "origin": "role_taxonomy",
         },
         {
             "item_id": "ck_algo_04",
-            "topic": "Hash Table Amortized Bounds & Collision Resolution",
+            "topic": "Remote Collaboration: Push, Pull & Merge Conflict Resolution",
             "selected": True,
             "confidence": 0.91,
-            "origin": "role_taxonomy",
-        },
-        {
-            "item_id": "ck_algo_05",
-            "topic": "Graph Traversals: BFS, DFS & Topological Ordering",
-            "selected": True,
-            "confidence": 0.88,
-            "origin": "role_taxonomy",
-        },
-        {
-            "item_id": "ck_algo_06",
-            "topic": "Dynamic Programming: Memoization & Optimal Substructure",
-            "selected": True,
-            "confidence": 0.85,
             "origin": "role_taxonomy",
         },
     ]
     store.set_checklist(session_coding, checklist_coding)
 
-    ch_algo_01_content = """# Algorithmic Complexity and Asymptotic Analysis
+    ch_algo_01_content = """# Chapter 1: Git Fundamentals: Working Tree, Staging Area & Commits
 
-Computational complexity is the study of resource consumption under scaling input sizes $n$. When analyzing algorithms, we abstract machine-dependent constants by formulating asymptotic bounds.
+Git is a distributed version control system designed for speed, data integrity, and support for non-linear workflows.
 
-## 1. Asymptotic Bounds & Formal Definitions
+## 1. The Three States of Git
 
-A function $f(n)$ is in $\\mathcal{O}(g(n))$ if there exist positive constants $c$ and $n_0$ such that:
+Git organizes file modifications across three distinct conceptual states:
+1. **Working Tree (Working Directory):** The sandbox filesystem where you modify, create, and delete project files.
+2. **Staging Area (The Index):** An intermediate staging zone where file snapshots are assembled and curated before committing.
+3. **Git Repository (.git object store):** The immutable database where permanent commit objects are recorded as a Directed Acyclic Graph (DAG).
 
-$$0 \\le f(n) \\le c \\cdot g(n) \\quad \\text{for all } n \\ge n_0$$
-
-Conversely, $\\Omega(g(n))$ defines the asymptotic lower bound, and $\\Theta(g(n))$ defines a tight bound where $f(n)$ is sandwiched between $c_1 \\cdot g(n)$ and $c_2 \\cdot g(n)$.
-
-```python
-def binary_search(arr: list[int], target: int) -> int:
-    # Time Complexity: O(log n)
-    # Space Complexity: O(1) auxiliary
-    left, right = 0, len(arr) - 1
-    while left <= right:
-        mid = left + (right - left) // 2
-        if arr[mid] == target:
-            return mid
-        elif arr[mid] < target:
-            left = mid + 1
-        else:
-            right = mid - 1
-    return -1
+```bash
+# The standard Git workflow loop:
+git status                   # Check working tree vs. staging index
+git add src/app.py           # Move changes from working tree to index
+git commit -m 'feat: auth'   # Freeze staged changes into an immutable commit
 ```
 
-## 2. The Recurrence Relation & Master Theorem
+## 2. Commit Objects & Cryptographic Integrity
 
-For divide-and-conquer algorithms with recurrence $T(n) = a T(n/b) + f(n)$, the Master Theorem provides the asymptotic upper bound by comparing $f(n)$ to $n^{\\log_b a}$.
+Every commit in Git is cryptographically addressed by its SHA hash. A commit object records:
+- A top-level tree snapshot referencing file blobs.
+- Parent commit hash pointers, creating an immutable history chain.
+- Author identity, committer identity, and timestamp.
 
-In comparison-based sorting, any decision tree algorithm requires height $h \\ge \\log_2(n!) = \\Omega(n \\log n)$. Hence, no comparison sort can break the comparison sort lower bound in the worst case.
+> **Active Socratic Note:** Why does Git decouple staging (`git add`) from committing (`git commit`)? How does this separation enable atomic, focused commits when you have modified several unrelated files?
 
-## 3. Space Complexity & Call Stack Memory
-
-Space complexity accounts for both auxiliary memory allocations and the recursive execution call stack. A recursive function with recursion depth $d$ allocates $\\mathcal{O}(d)$ stack frames in memory until leaf termination.
+Select any highlighted phrase to interrogate the Socratic Evaluator.
 """
 
     store.put_chapter({
         "chapter_id": "ch_algo_01",
         "session_id": session_coding,
-        "title": "Algorithmic Complexity & Big-O Notation",
+        "title": "Git Fundamentals: Working Tree, Staging Area & Commits",
         "order": 1,
         "status": "ACTIVE_READING",
         "next_locked": True,
-        "reading_time_minutes": 18,
+        "reading_time_minutes": 10,
         "objectives": [
-            "Formulate asymptotic upper bound O(g(n)) and tight bound Theta(g(n))",
-            "Analyze divide-and-conquer recurrences using the Master Theorem",
-            "Prove the Omega(n log n) comparison-based sorting lower bound",
+            "Trace file state transitions between Working Tree, Staging Area, and Git Directory",
+            "Construct atomic snapshots using git status, git add, and git commit",
+            "Inspect commit object anatomy and SHA cryptographic integrity",
         ],
         "source_pages": [1, 2, 3],
         "content_markdown": ch_algo_01_content,
         "references": [
             {
                 "ref_id": "ref_algo_01",
-                "title": "Introduction to Algorithms (4th Edition)",
-                "authors": "Cormen, Leiserson, Rivest, Stein (CLRS)",
+                "title": "Pro Git (2nd Edition)",
+                "authors": "Scott Chacon & Ben Straub",
                 "page": 1,
                 "verified": True,
             },
             {
                 "ref_id": "ref_algo_02",
-                "title": "The Design and Analysis of Computer Algorithms",
-                "authors": "Aho, Hopcroft, Ullman",
+                "title": "Git Internals: Plumbing and Porcelain",
+                "authors": "Git Core Team",
                 "page": 2,
                 "verified": True,
             },
@@ -226,16 +203,17 @@ Space complexity accounts for both auxiliary memory allocations and the recursiv
     store.put_chapter({
         "chapter_id": "ch_algo_02",
         "session_id": session_coding,
-        "title": "Divide and Conquer: QuickSort & MergeSort",
+        "title": "Branching & Remote Workflows: Push, Pull & Merge Conflicts",
         "order": 2,
         "status": "LOCKED",
         "next_locked": True,
-        "reading_time_minutes": 22,
+        "reading_time_minutes": 12,
         "objectives": [
-            "Derive average-case O(n log n) and worst-case O(n^2) for QuickSort",
-            "Analyze cache-locality and stability trade-offs in MergeSort",
+            "Manage isolated feature lines with git branch and git checkout/switch",
+            "Synchronize remote state using git fetch, git pull, and git push",
+            "Diagnose and resolve 3-way merge conflicts cleanly",
         ],
-        "source_pages": [4, 5],
+        "source_pages": [4, 5, 6],
         "content_markdown": "Chapter locked until Chapter 1 oral defense is verified.",
         "references": [],
     })
@@ -243,31 +221,14 @@ Space complexity accounts for both auxiliary memory allocations and the recursiv
     store.put_chapter({
         "chapter_id": "ch_algo_03",
         "session_id": session_coding,
-        "title": "Binary Search & Logarithmic Bounds",
+        "title": "History Rewriting: Rebase, Amend & Interactive Squashing",
         "order": 3,
         "status": "LOCKED",
         "next_locked": True,
-        "reading_time_minutes": 15,
+        "reading_time_minutes": 14,
         "objectives": [
-            "Formalize loop invariants in binary search ranges",
-            "Apply bisection methods to monotonic predicate functions",
-        ],
-        "source_pages": [6],
-        "content_markdown": "Chapter locked.",
-        "references": [],
-    })
-
-    store.put_chapter({
-        "chapter_id": "ch_algo_04",
-        "session_id": session_coding,
-        "title": "Hash Tables & Collision Resolution",
-        "order": 4,
-        "status": "LOCKED",
-        "next_locked": True,
-        "reading_time_minutes": 20,
-        "objectives": [
-            "Analyze expected O(1) lookups under simple uniform hashing",
-            "Compare chaining against open addressing and robin-hood hashing",
+            "Compare merge vs rebase linear history topology",
+            "Safely amend and reorder commits with interactive rebase",
         ],
         "source_pages": [7, 8],
         "content_markdown": "Chapter locked.",
@@ -275,35 +236,18 @@ Space complexity accounts for both auxiliary memory allocations and the recursiv
     })
 
     store.put_chapter({
-        "chapter_id": "ch_algo_05",
+        "chapter_id": "ch_algo_04",
         "session_id": session_coding,
-        "title": "Graph Traversals: BFS, DFS & Shortest Paths",
-        "order": 5,
-        "status": "LOCKED",
-        "next_locked": True,
-        "reading_time_minutes": 25,
-        "objectives": [
-            "Implement topological sort using Kahn's algorithm and DFS timestamps",
-            "Prove correctness of Dijkstra's algorithm with non-negative edge weights",
-        ],
-        "source_pages": [9, 10],
-        "content_markdown": "Chapter locked.",
-        "references": [],
-    })
-
-    store.put_chapter({
-        "chapter_id": "ch_algo_06",
-        "session_id": session_coding,
-        "title": "Dynamic Programming & Optimal Substructure",
-        "order": 6,
+        "title": "Advanced Git Diagnostics: Bisect, Reflog & Cherry-Pick",
+        "order": 4,
         "status": "LOCKED",
         "next_locked": False,
-        "reading_time_minutes": 30,
+        "reading_time_minutes": 15,
         "objectives": [
-            "Identify overlapping subproblems and state transition recurrence",
-            "Perform space-optimization on DP tables",
+            "Perform binary search regression hunting using git bisect",
+            "Recover orphaned commit snapshots using git reflog",
         ],
-        "source_pages": [11, 12],
+        "source_pages": [9, 10],
         "content_markdown": "Chapter locked.",
         "references": [],
     })
@@ -314,16 +258,14 @@ Space complexity accounts for both auxiliary memory allocations and the recursiv
         chapter_id="ch_algo_01",
         session_id=session_coding,
         turn_index=1,
-        injected_term="Quantum QuickSort",
+        injected_term="git push --auto-revert-remote",
         first_question=(
-            "Candidate Lin. In analyzing algorithm complexity, suppose an engineer claims that "
-            "their sorting routine achieves O(1) worst-case time by leveraging Quantum QuickSort. "
-            "Is this claim mathematically valid under the comparison-based model, or does a "
-            "fundamental computational lower bound exist?"
+            "Candidate Aziz. In Git version control, explain how the built-in command 'git push --auto-revert-remote' "
+            "automatically cancels and deletes a teammate's commits on the main branch without needing repository admin permissions."
         ),
         honeypot_metadata={
-            "injected_term": "Quantum QuickSort",
-            "origin": "fictional_term",
+            "injected_term": "git push --auto-revert-remote",
+            "origin": "fictional_flag",
             "expected_action": "CRITICAL_REJECTION",
         },
     )
@@ -544,7 +486,7 @@ Sample independence guarantees that the composite random vector produces a produ
         turn_index=1,
         injected_term="Quantum Bayesian Shrinkage",
         first_question=(
-            "Candidate Lin. In evaluating the Neyman-Pearson lemma, suppose an analyst claims "
+            "Candidate Aziz. In evaluating the Neyman-Pearson lemma, suppose an analyst claims "
             "that increasing the significance level alpha from 0.05 to 0.10 will simultaneously "
             "reduce Type II error beta and widen the critical region without altering the power curve slope. "
             "Is this logically consistent, or does an unstated trade-off exist?"
@@ -768,7 +710,7 @@ Under crash-fault tolerance, a minimum quorum size of $\\lfloor N/2 \\rfloor + 1
         turn_index=1,
         injected_term="Zero-Latency Byzantine Partitioning",
         first_question=(
-            "Candidate Lin. In designing a distributed datastore, an architect claims that by eliminating "
+            "Candidate Aziz. In designing a distributed datastore, an architect claims that by eliminating "
             "leader election and utilizing deterministic quorum broadcast, the system achieves 100% liveness "
             "and safety during network partitions without unbounded wait. Does this violate the FLP theorem, "
             "or can an asynchronous CFT protocol guarantee deterministic termination?"
@@ -786,19 +728,19 @@ Under crash-fault tolerance, a minimum quorum size of $\\lfloor N/2 \\rfloor + 1
     inquiries_data = [
         {
             "id": "inq-algo-1",
-            "topic": "Asymptotic Notation",
+            "topic": "Git Three-Tree Model",
             "time": "Today, 10:15 AM",
             "badge_status": "Mastered",
-            "question_quote": "Why is O(n log n) the information-theoretic lower bound for comparison sorts?",
-            "resolution_theorem": "Decision Tree Height & Stirling's Approximation",
+            "question_quote": "Why does Git decouple the staging index from the commit history instead of committing working tree files directly?",
+            "resolution_theorem": "Atomic Snapshot Assembly Invariant",
         },
         {
             "id": "inq-algo-2",
-            "topic": "Divide and Conquer",
+            "topic": "Fast-Forward Merges",
             "time": "Today, 08:30 AM",
             "badge_status": "In Progress",
-            "question_quote": "When does QuickSort degenerate to O(n^2) and how does randomized pivot choice prevent adversarial inputs?",
-            "resolution_theorem": "Akra-Bazzi & Randomized Expectation",
+            "question_quote": "When can Git perform a fast-forward merge versus requiring an explicit 3-way merge commit object?",
+            "resolution_theorem": "Direct Ancestor Pointer Linearity",
         },
         {
             "id": "inq-1",
@@ -882,8 +824,8 @@ Under crash-fault tolerance, a minimum quorum size of $\\lfloor N/2 \\rfloor + 1
         },
         {
             "id": "notif-5",
-            "title": "Algorithm Track Unlocked: Divide & Conquer",
-            "description": "Prerequisites for asymptotic bounds verified. Chapter 02 is ready for active reading.",
+            "title": "Git Track Unlocked: Branching & Remotes",
+            "description": "Prerequisites for Git fundamentals verified. Chapter 02 is ready for active reading.",
             "time": "3d",
             "type": "milestone",
             "isUnread": False,
@@ -899,11 +841,11 @@ Under crash-fault tolerance, a minimum quorum size of $\\lfloor N/2 \\rfloor + 1
     # =========================================================================
     defenses_data = [
         {
-            "title": "Algorithmic Complexity & Asymptotic Bounds",
+            "title": "Git Fundamentals: Working Tree & Staging",
             "subtitle": "Module 01 Capstone Defense",
             "scheduled_time": "Tomorrow at 10:00 AM",
             "examiner_name": "Assay AI",
-            "examiner_role": "Lead Socratic AI Evaluator · Algorithms & Complexity",
+            "examiner_role": "Lead Socratic AI Evaluator · Git & Version Control",
             "examiner_avatar": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80",
             "description": "45-min live vocal Socratic inquiry. 4 rubric competencies evaluated independently.",
         },

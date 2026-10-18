@@ -106,11 +106,11 @@ export const LoginPage: React.FC = () => {
       const fallbackUser = availableUsers.find(
         (u) => u.email.toLowerCase() === loginEmail.toLowerCase()
       ) || {
-        name: 'Maya Lin',
+        name: 'Rafida Aziz',
         role: 'Learner · Fellow',
-        handle: '@mayalin',
-        streak_days: 14,
-        credits: 1250,
+        handle: '@rafidaaziz',
+        streak_days: 21,
+        credits: 2500,
         avatar_url: '/avatars/dr-sarah-k.jpg',
       };
 
@@ -135,8 +135,7 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleSocialLogin = (provider: string) => {
-    const demoEmail =
-      provider === 'google' ? 'rafida.aziz@gmail.com' : 'maya.lin@stanford.edu';
+    const demoEmail = 'dev.rafidaaziz@gmail.com';
     executeLogin(demoEmail, '123456');
   };
 
@@ -427,7 +426,7 @@ export const LoginPage: React.FC = () => {
 
               {/* Examiner Question Box */}
               <div className="p-3.5 rounded-xl bg-[#F2F3FF]/50 border border-[#E2E7FF]/50 text-xs text-[#131B2E] leading-relaxed mb-3">
-                "If array length n scales to 10^7, why does binary search maintain sub-millisecond execution while linear search causes CPU throttling?"
+                "In Git version control, why does the index stage changes prior to commit rather than snapshotting modified files directly from the working tree?"
               </div>
 
               {/* Candidate Hypothesis Box */}
@@ -439,7 +438,7 @@ export const LoginPage: React.FC = () => {
                   <CheckCircle2 className="w-3.5 h-3.5 text-[#3525CD]" />
                 </div>
                 <p className="text-[#464555] text-xs leading-relaxed">
-                  "Binary search halves the search space each step via O(log n) recurrence, whereas linear search must iterate through all n elements in O(n) worst-case time."
+                  "The staging index decouples workspace edits from repository commits, allowing atomic and curated changelists without polluting the permanent commit history."
                 </p>
               </div>
             </div>

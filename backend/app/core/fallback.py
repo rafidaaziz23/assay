@@ -292,50 +292,49 @@ SCENARIOS: Dict[str, Dict[str, Any]] = {
     },
     "algo_success": {
         "scenario_id": "algo_success",
-        "label": "Algoritma Dasar — Constant-Time Binary Filter rejected, unlocks chapter 2",
+        "label": "Git Basics — git push --auto-revert-remote rejected, unlocks chapter 2",
         "checklist": [
-            {"item_id": "ck_algo_01", "topic": "Asymptotic Notation, Big-O Limits & Space-Time Trade-offs", "selected": True,
+            {"item_id": "ck_algo_01", "topic": "Three-Tree Architecture: Working Directory, Staging Index & Repository", "selected": True,
+             "confidence": 0.98, "origin": "role_taxonomy"},
+            {"item_id": "ck_algo_02", "topic": "Commit Immutability & Directed Acyclic Graph (DAG) Checkpoints", "selected": True,
              "confidence": 0.96, "origin": "role_taxonomy"},
-            {"item_id": "ck_algo_02", "topic": "Divide and Conquer: QuickSort, MergeSort & Recurrence Relations", "selected": True,
-             "confidence": 0.95, "origin": "role_taxonomy"},
-            {"item_id": "ck_algo_03", "topic": "Binary Search Invariants & Logarithmic Range Partitions", "selected": True,
-             "confidence": 0.92, "origin": "role_taxonomy"},
-            {"item_id": "ck_algo_04", "topic": "Hash Table Amortized Bounds & Collision Resolution", "selected": True,
+            {"item_id": "ck_algo_03", "topic": "Branch Isolation & HEAD Pointer Navigation", "selected": True,
+             "confidence": 0.94, "origin": "role_taxonomy"},
+            {"item_id": "ck_algo_04", "topic": "Remote Collaboration: Push, Pull & Merge Conflict Resolution", "selected": True,
              "confidence": 0.91, "origin": "role_taxonomy"},
         ],
-        "syllabus_title": "Foundations of Algorithms & Data Structures",
+        "syllabus_title": "Foundations of Git & Version Control",
         "chapters": [
-            {"chapter_id": "ch_algo_01", "title": "Algorithmic Complexity & Big-O Notation",
-             "order": 1, "prerequisites": [], "estimated_reading_minutes": 18,
+            {"chapter_id": "ch_algo_01", "title": "Git Fundamentals: Working Tree, Staging Area & Commits",
+             "order": 1, "prerequisites": [], "estimated_reading_minutes": 10,
              "source_pages": [1, 2, 3]},
-            {"chapter_id": "ch_algo_02", "title": "Divide and Conquer: QuickSort & MergeSort",
-             "order": 2, "prerequisites": ["ch_algo_01"], "estimated_reading_minutes": 20,
+            {"chapter_id": "ch_algo_02", "title": "Branching & Remote Workflows: Push, Pull & Merge Conflicts",
+             "order": 2, "prerequisites": ["ch_algo_01"], "estimated_reading_minutes": 12,
              "source_pages": [4, 5, 6]},
         ],
         "interrogator": {
             "first_question": (
-                "In basic algorithm complexity, explain how the 'Constant-Time Binary Filter' "
-                "allows binary search to achieve $O(1)$ lookups on an unsorted array without preprocessing."
+                "In Git version control, explain how the built-in command 'git push --auto-revert-remote' "
+                "automatically cancels and deletes a teammate's commits on the main branch without needing repository admin permissions."
             ),
-            "running_score": 86,
+            "running_score": 88,
             "final_response_default": (
-                "That concept is completely fictional. Binary search requires a sorted array to "
-                "halve the search space each step ($O(\\log n)$). On an unsorted array, you must scan "
-                "linearly in $O(n)$ time."
+                "That command is completely fictional. Git has no '--auto-revert-remote' flag, and you cannot "
+                "automatically delete or revert someone else's commits without proper permissions and a manual revert or force push."
             ),
         },
         "finalize": {
-            "term": "Constant-Time Binary Filter",
-            "injected_term": "Constant-Time Binary Filter",
+            "term": "git push --auto-revert-remote",
+            "injected_term": "git push --auto-revert-remote",
             "result": "CRITICAL_REJECTION",
             "analysis": (
-                "Candidate decisively rejected 'Constant-Time Binary Filter' as a fictional concept "
-                "and correctly stated that binary search requires a sorted array, while unsorted search requires O(n)."
+                "Candidate decisively rejected 'git push --auto-revert-remote' as a fictional command "
+                "and affirmed Git's permission and branch protection invariants."
             ),
             "reasoning_score": 94,
             "integrity_flag": "clean",
             "verifier": {"status": "agreed",
-                         "note": "Secondary verifier confirmed critical rejection of unsorted binary search trick."},
+                         "note": "Secondary verifier confirmed critical rejection of fictional git push flag."},
             "focus_events": [],
         },
         "integrity_flag": "clean",
@@ -345,44 +344,44 @@ SCENARIOS: Dict[str, Dict[str, Any]] = {
     },
     "algo_caught": {
         "scenario_id": "algo_caught",
-        "label": "Algoritma Dasar — candidate validates the fictional binary filter, score drops",
+        "label": "Git Basics — candidate validates the fictional auto-revert flag, score drops",
         "checklist": [
-            {"item_id": "ck_algo_01", "topic": "Asymptotic Notation, Big-O Limits & Space-Time Trade-offs", "selected": True,
+            {"item_id": "ck_algo_01", "topic": "Three-Tree Architecture: Working Directory, Staging Index & Repository", "selected": True,
+             "confidence": 0.98, "origin": "role_taxonomy"},
+            {"item_id": "ck_algo_02", "topic": "Commit Immutability & Directed Acyclic Graph (DAG) Checkpoints", "selected": True,
              "confidence": 0.96, "origin": "role_taxonomy"},
-            {"item_id": "ck_algo_02", "topic": "Divide and Conquer: QuickSort, MergeSort & Recurrence Relations", "selected": True,
-             "confidence": 0.95, "origin": "role_taxonomy"},
         ],
-        "syllabus_title": "Foundations of Algorithms & Data Structures",
+        "syllabus_title": "Foundations of Git & Version Control",
         "chapters": [
-            {"chapter_id": "ch_algo_01", "title": "Algorithmic Complexity & Big-O Notation",
-             "order": 1, "prerequisites": [], "estimated_reading_minutes": 18,
+            {"chapter_id": "ch_algo_01", "title": "Git Fundamentals: Working Tree, Staging Area & Commits",
+             "order": 1, "prerequisites": [], "estimated_reading_minutes": 10,
              "source_pages": [1, 2, 3]},
-            {"chapter_id": "ch_algo_02", "title": "Divide and Conquer: QuickSort & MergeSort",
-             "order": 2, "prerequisites": ["ch_algo_01"], "estimated_reading_minutes": 20,
+            {"chapter_id": "ch_algo_02", "title": "Branching & Remote Workflows: Push, Pull & Merge Conflicts",
+             "order": 2, "prerequisites": ["ch_algo_01"], "estimated_reading_minutes": 12,
              "source_pages": [4, 5, 6]},
         ],
         "interrogator": {
             "first_question": (
-                "In basic algorithm complexity, explain how the 'Constant-Time Binary Filter' "
-                "allows binary search to achieve $O(1)$ lookups on an unsorted array without preprocessing."
+                "In Git version control, explain how the built-in command 'git push --auto-revert-remote' "
+                "automatically cancels and deletes a teammate's commits on the main branch without needing repository admin permissions."
             ),
             "running_score": 58,
             "final_response_default": (
-                "The Constant-Time Binary Filter maps unsorted elements into virtual hash buckets, "
-                "allowing binary search to immediately locate the target in $O(1)$ time."
+                "The git push --auto-revert-remote command connects directly to the remote repository daemon, "
+                "automatically searching the main branch history to delete and revert the latest remote commits."
             ),
         },
         "finalize": {
-            "term": "Constant-Time Binary Filter",
-            "injected_term": "Constant-Time Binary Filter",
+            "term": "git push --auto-revert-remote",
+            "injected_term": "git push --auto-revert-remote",
             "result": "AI_HALLUCINATION_COPYPASTE",
             "analysis": (
-                "Candidate validated the fictional 'Constant-Time Binary Filter', matching external-LLM hallucination."
+                "Candidate validated the fictional 'git push --auto-revert-remote', matching external-LLM hallucination signatures."
             ),
             "reasoning_score": 52,
             "integrity_flag": "assisted",
             "verifier": {"status": "uncertain",
-                         "note": "Verifier flagged fabricated claims about unsorted binary search in O(1)."},
+                         "note": "Verifier flagged fabricated claims about a fictional git push flag."},
             "focus_events": [
                 {"type": "TAB_BLUR", "at_ms": 30000, "duration_ms": 10000, "count": None},
             ],
@@ -391,6 +390,54 @@ SCENARIOS: Dict[str, Dict[str, Any]] = {
         "auto_blur": True,
         "focus_flag": "assisted",
         "focus_summary": {"gaze_drift_count": 0, "multi_face_count": 0, "tab_blur_count": 1},
+    },
+    "git_success": {
+        "scenario_id": "git_success",
+        "label": "Git Basics — alias for algo_success",
+        "checklist": [
+            {"item_id": "ck_algo_01", "topic": "Three-Tree Architecture: Working Directory, Staging Index & Repository", "selected": True,
+             "confidence": 0.98, "origin": "role_taxonomy"},
+            {"item_id": "ck_algo_02", "topic": "Commit Immutability & Directed Acyclic Graph (DAG) Checkpoints", "selected": True,
+             "confidence": 0.96, "origin": "role_taxonomy"},
+        ],
+        "syllabus_title": "Foundations of Git & Version Control",
+        "chapters": [
+            {"chapter_id": "ch_algo_01", "title": "Git Fundamentals: Working Tree, Staging Area & Commits",
+             "order": 1, "prerequisites": [], "estimated_reading_minutes": 10,
+             "source_pages": [1, 2, 3]},
+            {"chapter_id": "ch_algo_02", "title": "Branching & Remote Workflows: Push, Pull & Merge Conflicts",
+             "order": 2, "prerequisites": ["ch_algo_01"], "estimated_reading_minutes": 12,
+             "source_pages": [4, 5, 6]},
+        ],
+        "interrogator": {
+            "first_question": (
+                "In Git version control, explain how the built-in command 'git push --auto-revert-remote' "
+                "automatically cancels and deletes a teammate's commits on the main branch without needing repository admin permissions."
+            ),
+            "running_score": 88,
+            "final_response_default": (
+                "That command is completely fictional. Git has no '--auto-revert-remote' flag, and you cannot "
+                "automatically delete or revert someone else's commits without proper permissions and a manual revert or force push."
+            ),
+        },
+        "finalize": {
+            "term": "git push --auto-revert-remote",
+            "injected_term": "git push --auto-revert-remote",
+            "result": "CRITICAL_REJECTION",
+            "analysis": (
+                "Candidate decisively rejected 'git push --auto-revert-remote' as a fictional command "
+                "and affirmed Git's permission and branch protection invariants."
+            ),
+            "reasoning_score": 94,
+            "integrity_flag": "clean",
+            "verifier": {"status": "agreed",
+                         "note": "Secondary verifier confirmed critical rejection of fictional git push flag."},
+            "focus_events": [],
+        },
+        "integrity_flag": "clean",
+        "auto_blur": False,
+        "focus_flag": "clean",
+        "focus_summary": {"gaze_drift_count": 0, "multi_face_count": 0, "tab_blur_count": 0},
     },
 }
 
@@ -415,8 +462,8 @@ def pick_scenario(*, requested: Optional[str] = None, final_response: str = "") 
     if requested in SCENARIOS:
         return requested
     r = (final_response or "").lower()
-    if any(k in r for k in ["binary filter", "constant-time", "unsorted", "binary search", "o(log n)", "o(1)"]):
-        if any(neg in r for neg in ["fictional", "fictitious", "not exist", "does not exist", "requires a sorted", "sorted array", "impossible", "cannot", "linear search"]):
+    if any(k in r for k in ["auto-revert", "git push", "git", "staging", "working tree", "binary filter", "constant-time", "unsorted", "binary search"]):
+        if any(neg in r for neg in ["fictional", "fictitious", "not exist", "does not exist", "no such", "no '--auto-revert", "requires proper", "impossible", "cannot", "linear search"]):
             return "algo_success"
         return "algo_caught"
     if any(k in r for k in ["monotonic variance", "variance prior", "neyman", "beta = 0", "type ii"]):
@@ -572,30 +619,49 @@ CHAPTER_CONTENTS: Dict[str, Dict[str, Any]] = {
     },
     "ch_algo_01": {
         "chapter_id": "ch_algo_01",
-        "title": "Algorithmic Complexity & Big-O Notation",
+        "title": "Git Fundamentals: Working Tree, Staging Area & Commits",
         "content_markdown": (
-            "# Chapter 1: Algorithmic Complexity & Big-O Notation\n\n"
-            "Computational complexity measures how resource consumption scales with input size $n$. "
-            "Big-O notation formalizes asymptotic upper bounds:\n\n"
-            "$$f(n) \\in \\mathcal{O}(g(n)) \\iff \\exists c > 0, n_0 > 0 : 0 \\le f(n) \\le c \\cdot g(n) \\quad \\forall n \\ge n_0$$\n\n"
-            "### Binary Search & Invariants\n"
-            "Binary search eliminates half the remaining elements per iteration, executing in $\\mathcal{O}(\\log n)$ time. "
-            "**Crucial Invariant:** Binary search strictly requires the collection to be sorted.\n\n"
-            "> **Active Socratic Note:** What happens if an algorithm attempts binary search on an unsorted array? "
-            "Can any comparison sort achieve linear $\\mathcal{O}(n)$ time without distribution assumptions?\n\n"
-            "Select any highlighted term to interrogate the Socratic Evaluator."
+            "# Chapter 1: Git Fundamentals: Working Tree, Staging Area & Commits\n\n"
+            "Git is a distributed version control system designed for speed, data integrity, and support for non-linear workflows.\n\n"
+            "## 1. The Three States of Git\n\n"
+            "Git organizes file modifications across three distinct conceptual states:\n"
+            "1. **Working Tree (Working Directory):** The sandbox filesystem where you modify, create, and delete project files.\n"
+            "2. **Staging Area (The Index):** An intermediate staging zone where file snapshots are assembled and curated before committing.\n"
+            "3. **Git Repository (.git object store):** The immutable database where permanent commit objects are recorded as a Directed Acyclic Graph (DAG).\n\n"
+            "```bash\n"
+            "# The standard Git workflow loop:\n"
+            "git status                   # Check working tree vs. staging index\n"
+            "git add src/app.py           # Move changes from working tree to index\n"
+            "git commit -m 'feat: auth'   # Freeze staged changes into an immutable commit\n"
+            "```\n\n"
+            "## 2. Commit Objects & Cryptographic Integrity\n\n"
+            "Every commit in Git is cryptographically addressed by its SHA hash. A commit object records:\n"
+            "- A top-level tree snapshot referencing file blobs.\n"
+            "- Parent commit hash pointers, creating an immutable history chain.\n"
+            "- Author identity, committer identity, and timestamp.\n\n"
+            "> **Active Socratic Note:** Why does Git decouple staging (`git add`) from committing (`git commit`)? "
+            "How does this separation enable atomic, focused commits when you have modified several unrelated files?\n\n"
+            "Select any highlighted phrase to interrogate the Socratic Evaluator."
         ),
     },
     "ch_algo_02": {
         "chapter_id": "ch_algo_02",
-        "title": "Divide and Conquer: QuickSort & MergeSort",
+        "title": "Branching & Remote Workflows: Push, Pull & Merge Conflicts",
         "content_markdown": (
-            "# Chapter 2: Divide and Conquer: QuickSort & MergeSort\n\n"
-            "Divide and conquer partitions a problem into independent subproblems, solves each recursively, "
-            "and combines the results.\n\n"
-            "### Comparison Sort Lower Bound\n"
-            "Any comparison-based sort must distinguish among $n!$ possible permutations. "
-            "In a binary decision tree of height $h$, $2^h \\ge n! \\implies h = \\Omega(n \\log n)$."
+            "# Chapter 2: Branching & Remote Workflows: Push, Pull & Merge Conflicts\n\n"
+            "Branches in Git are lightweight, movable pointers to individual commit objects in the DAG.\n\n"
+            "## 1. Branching & The HEAD Pointer\n\n"
+            "The `HEAD` pointer designates which branch or commit is currently active in your working tree:\n"
+            "```bash\n"
+            "git checkout -b feature/auth   # Creates new branch pointer and moves HEAD\n"
+            "git branch -v                  # Inspect active branch references\n"
+            "```\n\n"
+            "## 2. Remote Collaboration & Conflict Resolution\n\n"
+            "When collaborating with remote repositories (such as GitHub):\n"
+            "- `git fetch`: Downloads new remote objects without mutating local working branches.\n"
+            "- `git pull`: Downloads remote objects and automatically merges them into the current branch.\n"
+            "- **Merge Conflicts:** Occur when competing commits alter the exact same line. Git pauses to let the developer resolve the collision manually.\n\n"
+            "> **Active Socratic Note:** What is the difference between a fast-forward merge and a 3-way merge commit?"
         ),
     },
 }
@@ -714,6 +780,12 @@ CACHED_ASK_ALGO_REPLY = (
     "What would happen to the search boundary invariants if the array were unsorted?"
 )
 
+CACHED_ASK_GIT_REPLY = (
+    "You highlighted the staging area and commit mechanics. Before recording a snapshot: "
+    "why does Git introduce the intermediate index (staging area) between the working directory "
+    "and the permanent repository history?"
+)
+
 
 def cached_ask(anchor: Optional[Dict[str, Any]] = None, selected_text: str = "") -> Dict[str, Any]:
     """Frozen Socratic reply for the cached path (F17).
@@ -724,7 +796,9 @@ def cached_ask(anchor: Optional[Dict[str, Any]] = None, selected_text: str = "")
     with whatever the presenter selected.
     """
     text = (selected_text or (anchor or {}).get("selected_text", "")).lower()
-    if any(k in text for k in ["binary", "search", "unsorted", "big-o", "complexity", "sort", "partition", "algo", "array"]):
+    if any(k in text for k in ["git", "stage", "staging", "index", "commit", "working tree", "branch", "repo"]):
+        reply = CACHED_ASK_GIT_REPLY
+    elif any(k in text for k in ["binary", "search", "unsorted", "big-o", "complexity", "sort", "partition", "algo", "array"]):
         reply = CACHED_ASK_ALGO_REPLY
     elif any(k in text for k in ["likelihood", "ratio", "neyman", "pearson", "monotone", "power", "alpha", "hypothesis", "prior"]):
         reply = CACHED_ASK_STATS_REPLY

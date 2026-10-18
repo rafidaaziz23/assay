@@ -92,7 +92,7 @@ async def start_interview(
 
     active = _scenario(x_demo_mode, scenario)
     if active:
-        if active == "success" and any(k in chapter.get("title", "").lower() for k in ["algo", "complexity", "big-o", "binary"]):
+        if active == "success" and (chapterId.startswith("ch_algo_") or any(k in chapter.get("title", "").lower() for k in ["git", "version", "algo", "complexity", "big-o", "binary", "staging", "commit"])):
             active = "algo_success"
         elif active == "success" and any(k in chapter.get("title", "").lower() for k in ["neyman", "statistics", "statistical", "causal", "likelihood"]):
             active = "stats_success"

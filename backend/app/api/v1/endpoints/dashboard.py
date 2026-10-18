@@ -144,11 +144,11 @@ async def get_dashboard_summary(
 
     remaining_modules = len([c for c in chapters if c.get("status") not in ("COMPLETED", "SCORED")]) or 2
     total_modules_count = len(chapters) or 6
-    headline = (session.get("syllabus_title") or session.get("intent") or "Algorithms & Data Structures") if session else "Algorithms & Data Structures"
+    headline = (session.get("syllabus_title") or session.get("intent") or "Foundations of Git & Version Control") if session else "Foundations of Git & Version Control"
     if len(headline) > 40:
         headline = headline[:37] + "..."
 
-    upcoming_title = "Algorithmic Complexity & Asymptotic Bounds"
+    upcoming_title = "Git Fundamentals: Working Tree, Staging Area & Commits"
     upcoming_sub = "Module 01 Capstone Defense"
     if chapters:
         active_ch = next((c for c in chapters if c.get("status") == "ACTIVE_READING"), chapters[0])
@@ -161,11 +161,11 @@ async def get_dashboard_summary(
     ] if raw_inquiries else [
         SocraticInquiryRecord(
             id="inq-algo-1",
-            topic="Asymptotic Notation",
+            topic="Git Three-Tree Model",
             time="Today, 10:15 AM",
             badge_status="Mastered",
-            question_quote="Why is O(n log n) the information-theoretic lower bound for comparison sorts?",
-            resolution_theorem="Decision Tree Height & Stirling's Approximation",
+            question_quote="Why does Git decouple the staging index from the commit history instead of committing working tree files directly?",
+            resolution_theorem="Atomic Snapshot Assembly Invariant",
         ),
         SocraticInquiryRecord(
             id="inq-1",
@@ -194,7 +194,7 @@ async def get_dashboard_summary(
             subtitle=upcoming_sub,
             scheduled_time="Tomorrow at 10:00 AM",
             examiner_name="Assay AI",
-            examiner_role="Lead Socratic AI Evaluator · Algorithms & Complexity",
+            examiner_role="Lead Socratic AI Evaluator · Git & Version Control",
             examiner_avatar="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80",
             description="45-min live vocal Socratic inquiry. 4 rubric competencies evaluated independently.",
         )

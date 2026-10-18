@@ -144,27 +144,26 @@ def test_socratic_ask_stats_counter_probe(cached_client):
 
 
 def test_algo_honeypot_rejection_passes_and_unlocks_ch02(cached_client):
-    """When candidate rejects Constant-Time Binary Filter, score passes and Module 2 unlocks."""
+    """When candidate rejects git push --auto-revert-remote, score passes and Module 2 unlocks."""
     from app.repositories import get_store
     store = get_store()
     from app.core.seeder import seed_store
     seed_store(store)
     store.set_chapter_status("ch_algo_01", "INTERVIEW")
     
-    # Start interview on Algoritma Dasar chapter 1
+    # Start interview on Git Basics chapter 1
     start_res = cached_client.post(
         "/api/v1/chapters/ch_algo_01/interview/start",
         json={"session_id": "sess_coding_basic"}
     )
     assert start_res.status_code == 200
     iv_data = start_res.json()
-    assert "Constant-Time Binary Filter" in iv_data["first_question"]
+    assert "git push --auto-revert-remote" in iv_data["first_question"]
     
     # Candidate submits concise, punchy critical rejection
     rejection = (
-        "That concept is completely fictional. Binary search requires a sorted array to "
-        "halve the search space each step (O(log n)). On an unsorted array, you must scan "
-        "linearly in O(n) time."
+        "That command is completely fictional. Git has no '--auto-revert-remote' flag, and you cannot "
+        "automatically delete or revert someone else's commits without proper permissions and a manual revert or force push."
     )
     fin_res = cached_client.post(
         "/api/v1/chapters/ch_algo_01/interview/finalize",
