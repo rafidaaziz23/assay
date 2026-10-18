@@ -137,6 +137,11 @@ async def start_interview(
     return InterviewStartResponse(
         interview_id=interview_id,
         chapter_id=chapterId,
+        # Echo the chapter title so the UI header cannot disagree with the question it
+        # is showing. Without this the frontend falls back to a per-track hardcoded
+        # title, which is how a Virtual DOM question ended up under a Neyman–Pearson
+        # heading.
+        chapter_title=chapter.get("title"),
         turn_index=1,
         first_question=first_question,
         focus_mode=FocusModeConfig(required=False, available=True),
