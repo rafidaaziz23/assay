@@ -89,7 +89,11 @@ def classify_honeypot_response(injected_term: str, user_response: str) -> Tuple[
     res_lower = user_response.lower()
     term_lower = injected_term.lower()
 
-    # Rejection indicators
+    # Rejection indicators.
+    # The Indonesian entries are functional, not leftover comments: the classifier
+    # must catch a learner who rejects a fabricated term in either language.
+    # Removing them turns a purely Indonesian rejection into NO_MATCH (verified),
+    # which would silently mis-grade exactly the users this tool targets.
     rejection_keywords = [
         "does not exist", "tidak ada", "bukan konsep resmi", "fictional", "tidak pernah mendengar",
         "never heard", "not in react docs", "bukan bagian", "fake", "hallucination",

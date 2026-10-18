@@ -6,7 +6,7 @@ Exit 0 ONLY when the whole DEV3 Days 0-2 scope is genuinely done:
   - ai/tests and eval/tests (if present) pass under pytest
   - prompts/honeypot-catalog.json has >= 10 entries
   - ai/FIXTURES.md exists
-  - every H0.x / H1.x / H2.x unit in docs/DEV3-OVERNIGHT-LOG.md is marked done (check)
+  - every H0.x / H1.x / H2.x unit in docs/logs/DEV3-OVERNIGHT-LOG.md is marked done
 
 Because the /goal loop runs gates BEFORE the judge, a RED gate makes it impossible
 for the loop to stop early. Offline only (no model calls) so it never hits the
@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-LOG = REPO / "docs" / "DEV3-OVERNIGHT-LOG.md"
+LOG = REPO / "docs" / "logs" / "DEV3-OVERNIGHT-LOG.md"
 PY = REPO / ".venv" / "Scripts" / "python.exe"
 DONE_MARK = "\u2705"  # check mark
 TODO_MARK = "\u2b1c"  # white square
@@ -65,7 +65,7 @@ def main() -> int:
     # (Ranges like "H0.1–H0.5" in prose must not count as a status, so we only look at
     # unit tokens immediately followed by a status marker.)
     if not LOG.exists():
-        failures.append("docs/DEV3-OVERNIGHT-LOG.md missing")
+        failures.append("docs/logs/DEV3-OVERNIGHT-LOG.md missing")
     else:
         text = LOG.read_text(encoding="utf-8", errors="replace")
         marked = re.findall(r"(H(\d)\.\d+)\s*(✅|⬜)", text)

@@ -51,6 +51,10 @@ wheels/
 *.key
 credentials.json
 service-account*.json
+serviceAccountKey*.json
+*firebase-adminsdk*.json
+backend/data/
+*.json.tmp
 
 # Logs
 logs/
@@ -71,3 +75,7 @@ Thumbs.db
 # Local runtime data
 backend/data/uploads/*
 !backend/data/uploads/.gitkeep
+
+# Transient Cloud Build config written by tools/deploy-cloudrun.sh
+.cloudbuild-deploy.*.yaml
+.verify-neutral/

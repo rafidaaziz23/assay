@@ -95,6 +95,8 @@ export interface ChapterDetailResponse {
   source_pages: number[];
   next_locked: boolean;
   interview_available: boolean;
+  estimated_reading_minutes?: number;
+  order?: number;
 }
 
 export interface SocraticAskRequest {
@@ -130,6 +132,7 @@ export interface InterviewStartResponse {
     required: boolean;
     available: boolean;
   };
+  chapter_title?: string;
 }
 
 export interface ClientTelemetry {
@@ -235,4 +238,99 @@ export interface FinalReportResponse {
     integrity_flags: number;
     honeypot_verdicts: Record<string, number>;
   };
+}
+
+// Auth & Profile
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  handle: string;
+  institution: string;
+  streak_days: number;
+  credits: number;
+  avatar_url: string;
+}
+
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  user: UserProfile;
+  expires_in: number;
+}
+
+// Document Upload
+export interface DocumentUploadResponse {
+  session_id: string;
+  document_name: string;
+  source_mode: string;
+  total_pages: number;
+  pages: number[];
+  char_count: number;
+  next: string;
+  engine: string;
+}
+
+// Dashboard Summary
+export interface LearningPathSummary {
+  id: string;
+  title: string;
+  level_tag: string;
+  module_label: string;
+  last_active: string;
+  concepts_defended: string;
+  progress_pct: number;
+  prerequisite_note: string;
+  action_url: string;
+}
+
+export interface SocraticInquiryRecord {
+  id: string;
+  topic: string;
+  time: string;
+  badge_status: string;
+  question_quote: string;
+  resolution_theorem: string;
+}
+
+export interface UpcomingDefenseInfo {
+  title: string;
+  subtitle: string;
+  scheduled_time: string;
+  examiner_name: string;
+  examiner_role: string;
+  examiner_avatar: string;
+  description: string;
+}
+
+export interface DayRhythm {
+  day: string;
+  height_pct: string;
+  active: boolean;
+}
+
+export interface DashboardSummaryResponse {
+  learner_name: string;
+  headline_subject: string;
+  remaining_modules: number;
+  active_subjects_count: number;
+  total_modules_count: number;
+  defenses_passed_count: number;
+  defenses_month_delta: string;
+  reasoning_depth_pct: number;
+  bloom_tier_label: string;
+  weekly_focus_hours: number;
+  learning_paths: LearningPathSummary[];
+  recent_inquiries: SocraticInquiryRecord[];
+  upcoming_defense: UpcomingDefenseInfo;
+  weekly_rhythm: DayRhythm[];
+}
+
+// Settings
+export interface SettingsPayload {
+  model: string;
+  rigor: string;
+  fallacy_sensitivity: string;
+  audio_device?: string;
 }

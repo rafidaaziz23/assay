@@ -1,0 +1,67 @@
+# Assay — local simulation of the Cloud Run topology.
+#
+# This is NOT a GCP emulator. There is no faithful open-source Cloud Run emulator:
+#   * `gcloud beta code dev` needs the `beta` component plus Minikube and Skaffold,
+#     both of which Google marks DEPRECATED (verified on this machine: neither
+#     installed, and the component update fails non-interactively).
+#   * localgcp / cloudbox / LocalCloud emulate APIs (Firestore, GCS, Pub/Sub), not
+#     Cloud Run's request-billed container runtime.
+#
+# What this file DOES reproduce — the parts that actually break deploys:
+#   * two containers, web in front, api behind, on a shared network
+#   * nginx proxying /api to the api container by *service name* (same as $BACKEND_URL)
+#   * $PORT injection, exactly like Cloud Run
+#   * the 282 MB api image carrying ai/ + prompts/
+#   * scale-to-zero is emulated by `docker compose stop`, not by the runtime
+#
+# Usage:
+#   docker compose -f tools/docker-compose.local.yml up --build
+#   open http://localhost:8080
+#   docker compose -f tools/docker-compose.local.yml down
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    image: assay-api:local
+    environment:
+      PORT: "8080"
+      DEMO_MODE: "${DEMO_MODE:-live}"
+      # Same failure the cloud would hit: no .env inside the image.
+      GEMINI_MODEL: "${GEMINI_MODEL:-gemini-3-flash-preview}"
+      GOOGLE_API_KEY: "${GOOGLE_API_KEY:-}"
+    # Cloud Run gives a fresh /tmp per instance; the app writes uploads under /app/data.
+    tmpfs:
+      - /app/data/uploads
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8080/health').status==200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    # No host port: only nginx talks to it, like the real topology.
+    expose:
+      - "8080"
+
+  web:
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_DEMO_MODE: "${DEMO_MODE:-live}"
+    image: assay-web:local
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      PORT: "8080"
+      # Cloud Run passes the *service URL*. Compose resolves the service name.
+      BACKEND_URL: "http://api:8080"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 6

@@ -14,8 +14,11 @@ class Settings(BaseSettings):
     
     # Google AI
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
-    GEMINI_MODEL: str = "gemini-2.5-flash"
-    GEMINI_PRO_MODEL: str = "gemini-2.5-pro"
+    # Never default to a retired ID: the container has no .env (see .dockerignore),
+    # so whatever is hardcoded here is what production uses unless injected.
+    # gemini-2.5-flash now returns 404 NOT_FOUND ("no longer available to new users").
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")
+    GEMINI_PRO_MODEL: str = os.getenv("GEMINI_PRO_MODEL", "gemini-3.1-pro-preview")
     
     # Demo & Resilience Mode ('live' or 'cached')
     DEMO_MODE: str = os.getenv("DEMO_MODE", "cached")

@@ -23,10 +23,23 @@ _REPO = Path(__file__).resolve().parents[1]
 _KEY_NAMES = ("GOOGLE_API_KEY", "GOOGLE_API_KEY_FALLBACK", "GOOGLE_API_KEY_FALLBACK_2")
 
 # Fallback chains (first entry is the preferred ID; see ai/MODELS.md).
-_DEFAULT_FLASH = ("gemini-3-flash-preview", "gemini-3.8-flash", "gemini-flash-latest", "gemini-3.5-flash")
+_DEFAULT_FLASH = (
+    "gemini-flash-lite-latest",
+    "gemini-3.1-flash-lite",
+    "gemini-3-flash-preview",
+    "gemini-3.8-flash",
+    "gemini-flash-latest",
+    "gemini-3.5-flash",
+)
 # Pro free tier is 0 for the current keys, so the chain ends on a flash ID: the
 # verifier then runs on Flash instead of Pro (documented in ai/MODELS.md).
-_DEFAULT_PRO = ("gemini-3.1-pro-preview", "gemini-pro-latest", "gemini-3-flash-preview")
+_DEFAULT_PRO = (
+    "gemini-3.1-flash-lite",
+    "gemini-flash-lite-latest",
+    "gemini-3.1-pro-preview",
+    "gemini-pro-latest",
+    "gemini-3-flash-preview",
+)
 
 
 def _load_dotenv() -> None:
@@ -129,7 +142,10 @@ def generate(prompt: str, *, schema: dict | None = None, role: str = "flash"):
     if not keys:
         return None
 
-    from google.genai import types
+    try:
+        from google.genai import types
+    except ImportError:
+        return None
 
     for model in models(role):
         start = _ring["i"]

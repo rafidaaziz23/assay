@@ -4,27 +4,50 @@
 
 @layer base {
   body {
-    background-color: #0B0F17;
-    color: #F3F4F6;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #F8FAFC;
+    color: #0F172A;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Accessible focus ring */
+  *:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #4F46E5;
   }
 }
 
-/* Custom scrollbar for terminal/logs */
+/* Custom subtle scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0B0F17;
+  background: #F1F5F9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1F2E47;
-  border-radius: 4px;
+  background: #CBD5E1;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2D4166;
+  background: #94A3B8;
+}
+
+/* Socratic text highlight marker */
+.socratic-highlight {
+  background-color: #EEF0FF;
+  color: #4338CA;
+  border-bottom: 2px solid #6366F1;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.socratic-highlight:hover {
+  background-color: #E0E3FF;
+  border-bottom-color: #4F46E5;
 }

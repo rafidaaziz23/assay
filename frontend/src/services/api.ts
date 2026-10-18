@@ -14,7 +14,12 @@ import {
   InterviewFinalizeResponse,
   CalibrationResponse,
   FocusEventsResponse,
-  FinalReportResponse
+  FinalReportResponse,
+  LoginResponse,
+  UserProfile,
+  DocumentUploadResponse,
+  DashboardSummaryResponse,
+  SettingsPayload
 } from '../types/api';
 
 import rolesMock from '../mocks/roles.json';
@@ -33,6 +38,14 @@ import reportMock from '../mocks/report.json';
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
+// Demo resilience switch. Only pin the request to the deterministic cache when the
+// build explicitly asks for it; otherwise the backend calls Gemini for real. The
+// per-request mock fallback in `request()` still covers 429/500/network failures,
+// so leaving this off does not make the live demo any more fragile.
+// (Merge note: development added its own `VITE_DEMO_MODE || 'live'` line here.
+// Keeping the explicit ternary — `||` would forward any stray value verbatim.)
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'cached' ? 'cached' : 'live';
+
 async function request<T>(endpoint: string, options?: RequestInit, mockFallback?: T): Promise<T> {
   if (USE_MOCK && mockFallback !== undefined) {
     return Promise.resolve(mockFallback);
@@ -43,7 +56,7 @@ async function request<T>(endpoint: string, options?: RequestInit, mockFallback?
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        'x-demo-mode': 'cached',
+        'x-demo-mode': DEMO_MODE,
         ...(options?.headers || {})
       }
     });
@@ -100,6 +113,13 @@ export const api = {
     request<SyllabusResponse>(
       `/intake/${sessionId}/syllabus`,
       { method: 'POST', body: JSON.stringify({ enable_search_grounding: false }) },
+      syllabusMock as SyllabusResponse
+    ),
+
+  getSyllabus: (sessionId: string) =>
+    request<SyllabusResponse>(
+      `/intake/${sessionId}/syllabus`,
+      { method: 'GET' },
       syllabusMock as SyllabusResponse
     ),
 
@@ -181,5 +201,194 @@ export const api = {
       `/report/${sessionId}`,
       { method: 'GET' },
       reportMock as FinalReportResponse
-    )
+    ),
+
+  login: (email: string, password: string) =>
+    request<LoginResponse>(
+      '/auth/login',
+      {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      }
+    ),
+
+  getCurrentUser: () =>
+    request<UserProfile>(
+      '/auth/me',
+      { method: 'GET' },
+      {
+        id: 'usr_rafida',
+        name: 'Rafida Aziz',
+        email: 'rafida.aziz@gmail.com',
+        role: 'Lead Fellow · Socratic Scholar',
+        handle: '@rafidaaziz',
+        institution: 'University Research Scholar',
+        streak_days: 21,
+        credits: 2500,
+        avatar_url:
+          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+      }
+    ),
+
+  getDashboardSummary: (sessionId?: string) =>
+    request<DashboardSummaryResponse>(
+      sessionId ? `/dashboard/summary?session_id=${sessionId}` : '/dashboard/summary',
+      { method: 'GET' },
+      {
+        learner_name: 'Rafida Aziz',
+        headline_subject: 'Foundations of Algorithms & Data Structures',
+        remaining_modules: 2,
+        active_subjects_count: 3,
+        total_modules_count: 18,
+        defenses_passed_count: 12,
+        defenses_month_delta: '+3 this month',
+        reasoning_depth_pct: 88,
+        bloom_tier_label: 'First-Principles (Bloom Level 5)',
+        weekly_focus_hours: 6.4,
+        learning_paths: [
+          {
+            id: 'lp-1',
+            title: 'Statistics for Decisions: Neyman–Pearson Lemma',
+            level_tag: 'Applied Level',
+            module_label: 'Module 03 · Hypothesis Testing & LRT',
+            last_active: '42 mins ago',
+            concepts_defended: '4 of 6 concepts defended',
+            progress_pct: 66,
+            prerequisite_note: 'Prerequisite: Probability Bounds met',
+            action_url: '/app/reader',
+          },
+          {
+            id: 'lp-2',
+            title: 'Causal Inference & Potential Outcomes',
+            level_tag: 'Rigorous Level',
+            module_label: 'Module 02 · Backdoor Criterion & DAGs',
+            last_active: 'Yesterday',
+            concepts_defended: '1 of 6 concepts defended',
+            progress_pct: 17,
+            prerequisite_note: '1 unresolved counter-argument',
+            action_url: '/app/reader',
+          },
+        ],
+        recent_inquiries: [
+          {
+            id: 'inq-1',
+            topic: 'Monotone Likelihood',
+            time: 'Today, 10:15 AM',
+            badge_status: 'Mastered',
+            question_quote:
+              'If density ratio stops being strictly monotonic, does Neyman-Pearson still yield a UMP critical test?',
+            resolution_theorem: 'Karlin-Rubin Theorem',
+          },
+          {
+            id: 'inq-2',
+            topic: 'Causal DAGs',
+            time: 'Oct 22, 16:40',
+            badge_status: 'In Progress',
+            question_quote:
+              'Why does unobserved confounding invalidate backdoor adjustment even when sample size n → ∞?',
+            resolution_theorem: 'Asymptotic bias vs variance distinction',
+          },
+          {
+            id: 'inq-3',
+            topic: 'LNP Formulation',
+            time: 'Oct 20, 11:20',
+            badge_status: 'Mastered',
+            question_quote:
+              'How does the mRNA lipid nanoparticle avoid early endosomal degradation?',
+            resolution_theorem:
+              'Ionizable lipids and pH-triggered endosomal escape',
+          },
+        ],
+        upcoming_defense: {
+          title: 'Algorithmic Complexity & Asymptotic Bounds',
+          subtitle: 'Module 01 Capstone Defense',
+          scheduled_time: 'Tomorrow at 10:00 AM',
+          examiner_name: 'Assay AI',
+          examiner_role: 'Lead Socratic AI Evaluator · Algorithms',
+          examiner_avatar:
+            'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80',
+          description:
+            '45-min live vocal Socratic inquiry. 4 rubric competencies evaluated independently.',
+        },
+        weekly_rhythm: [
+          { day: 'Mon', height_pct: '60%', active: false },
+          { day: 'Tue', height_pct: '45%', active: false },
+          { day: 'Wed', height_pct: '85%', active: true },
+          { day: 'Thu', height_pct: '70%', active: false },
+          { day: 'Fri', height_pct: '95%', active: false },
+          { day: 'Sat', height_pct: '30%', active: false },
+          { day: 'Sun', height_pct: '50%', active: false },
+        ],
+      }
+    ),
+
+  uploadDocument: async (sessionId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch(`${API_BASE}/intake/${sessionId}/document`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'x-demo-mode': DEMO_MODE,
+        },
+      });
+      if (!res.ok) {
+        throw new Error(`Upload failed: ${res.statusText}`);
+      }
+      return (await res.json()) as DocumentUploadResponse;
+    } catch (e) {
+      console.warn('[Assay API] Upload fallback triggered:', e);
+      return {
+        session_id: sessionId,
+        document_name: file.name,
+        source_mode: 'document_rag',
+        total_pages: 28,
+        pages: [1, 2, 3, 4, 5],
+        char_count: 14200,
+        next: `/api/v1/intake/${sessionId}/checklist`,
+        engine: 'deterministic_cache',
+      } as DocumentUploadResponse;
+    }
+  },
+
+  getSettings: () =>
+    request<SettingsPayload>(
+      '/settings',
+      { method: 'GET' },
+      {
+        model: 'gemini-2.5-flash',
+        rigor: 'academic',
+        fallacy_sensitivity: 'balanced',
+        audio_device: 'Default Microphone (High Definition Audio Device)',
+      }
+    ),
+
+  updateSettings: (data: SettingsPayload) =>
+    request<SettingsPayload>(
+      '/settings',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      },
+      data
+    ),
+
+  getNotifications: () =>
+    request<any[]>('/notifications', { method: 'GET' }),
+
+  markAllNotificationsRead: () =>
+    request<{ status: string }>('/notifications/mark-read', { method: 'POST' }),
+
+  getUsers: () =>
+    request<UserProfile[]>('/auth/users', { method: 'GET' }),
+
+  resetDemoState: () =>
+    request<{ status: string; message: string }>(
+      '/settings/demo/reset',
+      { method: 'POST' },
+      { status: 'ok', message: 'Demo state reset to pristine initial state.' }
+    ),
 };
+
