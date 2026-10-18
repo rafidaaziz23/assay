@@ -1,21 +1,21 @@
 {
   "interview_id": "int_7712",
-  "chapter_id": "ch_algo_01",
+  "chapter_id": "ch_01",
   "passed": true,
   "score": {
-    "chapter_score": 92,
-    "reasoning_score": 94,
+    "chapter_score": 88,
+    "reasoning_score": 92,
     "integrity_score": 100,
     "honeypot_score": 2
   },
   "honeypot_verdict": {
-    "term": "git push --auto-revert-remote",
+    "term": "React Quantum Hook",
     "result": "CRITICAL_REJECTION",
-    "analysis": "User recognized and critically rejected the fictitious flag, identifying that Git has no '--auto-revert-remote' and that deleting another author's commits requires explicit permissions plus a manual revert or force push."
+    "analysis": "User recognized and critically rejected the fictitious term, identifying that standard hooks like useTransition or useDeferredValue apply instead."
   },
   "chapter_state_update": {
     "current_chapter_status": "UNLOCKED",
-    "next_unlocked_chapter_id": "ch_algo_02"
+    "next_unlocked_chapter_id": "ch_02"
   },
   "verifier": {
     "status": "agreed",

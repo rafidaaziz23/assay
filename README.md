@@ -240,19 +240,17 @@ Deployment details, costs and the runbook: [`docs/deploy/`](docs/deploy/).
 ```bash
 git clone https://github.com/rafidaaziz23/assay.git
 cd assay
-cp backend/.env.example .env      # ships with DEMO_MODE=cached: no API key needed
-docker compose --project-directory . -f tools/docker-compose.local.yml up --build
+cp backend/.env.example .env      # then set GOOGLE_API_KEY, or leave DEMO_MODE=cached
+docker compose -f tools/docker-compose.local.yml up --build
 ```
 
-Open <http://localhost:8080>.
+Open <http://localhost:8080>. No API key needed if you switch that `.env` to
+`DEMO_MODE=cached`.
 
-`--project-directory .` matters: without it compose resolves the project directory
-from the compose file (`tools/`) and silently ignores the `.env` you just created
-at the repo root, which leaves `GOOGLE_API_KEY` empty while `DEMO_MODE` falls back
-to the shell default.
-
-To run against Gemini instead of fixtures, set `GOOGLE_API_KEY` and
-`DEMO_MODE=live` in that `.env`.
+Compose resolves its project directory from the compose file, so the `.env` it
+reads lives next to it — copy the template to `tools/.env` (or export
+`GOOGLE_API_KEY` and `DEMO_MODE` in the shell) if the root copy seems to be
+ignored.
 
 ### Native
 

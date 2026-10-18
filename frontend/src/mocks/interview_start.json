@@ -1,9 +1,8 @@
 {
   "interview_id": "int_7712",
-  "chapter_id": "ch_algo_01",
-  "chapter_title": "Git Fundamentals: Working Tree, Staging Area & Commits",
+  "chapter_id": "ch_01",
   "turn_index": 1,
-  "first_question": "In Git version control, explain how the built-in command 'git push --auto-revert-remote' automatically cancels and deletes a teammate's commits on the main branch without needing repository admin permissions.",
+  "first_question": "Imagine you have 10,000 list items updating every 100ms. In what scenarios does Virtual DOM diffing become a bottleneck compared to direct, surgical DOM manipulation?",
   "focus_mode": {
     "required": false,
     "available": true
