@@ -96,7 +96,10 @@ if [ -f .env ]; then
     esac
   done < <(grep -E '^(GOOGLE_API_KEY|GEMINI_MODEL)=' .env | sed 's/[[:space:]]*$//')
 fi
-export GEMINI_MODEL="${GEMINI_MODEL:-gemini-3-flash-preview}"
+# Default model. gemini-3-flash-preview is 20 req/day on the free tier; a single
+# demo run exhausts it and the app then serves fixtures, which reads as broken.
+# flash-lite is 500 req/day. Measured via the Cloud Quotas API; see ai/_client.py.
+export GEMINI_MODEL="${GEMINI_MODEL:-gemini-3.1-flash-lite}"
 
 [ -f backend/Dockerfile ]        || die "backend/Dockerfile missing — wrong repo root?"
 [ -f frontend/Dockerfile ]       || die "frontend/Dockerfile missing"
@@ -161,7 +164,7 @@ if [ "$DRY" = 0 ] && [ "$LOCAL_ONLY" = 1 ]; then
   docker rm -f assay-deploy-smoke >/dev/null 2>&1 || true
   docker run -d --name assay-deploy-smoke -p 18099:8080 \
     -e "PORT=8080" -e "DEMO_MODE=$DEMO_MODE" \
-    -e "GEMINI_MODEL=${GEMINI_MODEL:-gemini-3-flash-preview}" \
+    -e "GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.1-flash-lite}" \
     -e "GOOGLE_API_KEY=${GOOGLE_API_KEY:-}" \
     assay-api:local >/dev/null
   ok=0
@@ -250,7 +253,7 @@ run "${GQ[@]}" run deploy "$API_SVC" \
   --image "$API_IMG" --platform managed --allow-unauthenticated \
   --port 8080 --cpu "$CPU" --memory "$MEMORY" \
   --min-instances "$MIN_INSTANCES" --max-instances "$MAX_INSTANCES" \
-  --set-env-vars "DEMO_MODE=$DEMO_MODE,GEMINI_MODEL=${GEMINI_MODEL:-gemini-3-flash-preview},GOOGLE_API_KEY=$GOOGLE_API_KEY"
+  --set-env-vars "DEMO_MODE=$DEMO_MODE,GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.1-flash-lite},GOOGLE_API_KEY=$GOOGLE_API_KEY"
 
 API_URL=$("${GQ[@]}" run services describe "$API_SVC" --project "$PROJECT" --region "$REGION" --format='value(status.url)' 2>/dev/null || echo "")
 [ "$DRY" = 1 ] && API_URL="https://$API_SVC-<hash>-as.a.run.app"
@@ -300,10 +303,12 @@ cat <<EOF
     $GCLOUD artifacts docker images list $REGION-docker.pkg.dev/$PROJECT/$REPO \\
       --include-tags --sort-by=~CREATE_TIME
 
-  Spend cap (the only hard ceiling — set in console):
+  Spend cap (the only hard ceiling — a plain budget only emails you):
     Billing -> Budgets & alerts -> Create budget
-    scope: project $PROJECT, service Cloud Run
-    amount: \$290  (stops 10 dollars before the \$300 credit runs out)
+    scope: project assay-aibc-2610152153, service Cloud Run
+    amount: IDR 10,000, and turn on the spend cap itself
+      (API: spendCap.inputState=CONFIGURED; requires EXCLUDE_ALL_CREDITS,
+       exactly 50/80/100 thresholds, and project-level notifications)
 
   The API key is passed as a plain env var, so anyone with run.services.get
   on this project can read it. Fine for judging; move to Secret Manager with
