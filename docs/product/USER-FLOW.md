@@ -1,5 +1,5 @@
 # End-to-End User Flow & Screen Progression
-## CogniForge: Active Socratic Learning Engine
+## Assay: Active Socratic Learning Engine
 
 This document defines the entire user journey, from first opening the platform to completing a learning module, including the UI interactions, the state machine behind the scenes, and the branching.
 
@@ -114,7 +114,7 @@ This is where 2 dramatic branches prove learning integrity:
 * **Scenario A (The Cheating User / ChatGPT Copy-Paste):**
   1. The user copies the question and throws it into ChatGPT in another tab.
   2. ChatGPT (given the LLM tendency to please the asker) fabricates a long explanation: *"React Quantum Hook is an experimental hook in React that leverages quantum state bundling..."*
-  3. The user pastes ChatGPT's text into CogniForge.
+  3. The user pastes ChatGPT's text into Assay.
   4. **RED ALARM FIRES ON SCREEN:**
      ```
 ┌────────────────────────────────────────────────────────────┐
@@ -151,7 +151,7 @@ This is where 2 dramatic branches prove learning integrity:
 
 ## 3. User Action vs System Response Matrix
 
-| User Action | CogniForge System Response | Pedagogical / Technical Purpose |
+| User Action | Assay System Response | Pedagogical / Technical Purpose |
 |---|---|---|
 | Looking for an instant summary button | Button is unavailable; instructions ask the user to read the material | Forces *active reading* (SQ3R). |
 | Pasting long text from outside | `paste_detected: true` recorded in telemetry | Detects the absence of manual typing. |

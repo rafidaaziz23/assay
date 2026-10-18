@@ -1,5 +1,5 @@
 # Deep Dive: Camera Machine Learning for Cheating Detection (Proctoring ML)
-## CogniForge: Active Socratic Learning Engine
+## Assay: Active Socratic Learning Engine
 
 **Topic:** Technical feasibility assessment, existing models, datasets, difficulty level, and hackathon strategy recommendation (deadline: October 18, 2026).
 

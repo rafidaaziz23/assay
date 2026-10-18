@@ -1,5 +1,5 @@
 # Technical Architecture & Technology Stack Specification
-## CogniForge: Active Socratic Learning Engine
+## Assay: Active Socratic Learning Engine
 
 **Event:** AI Builder Cup 2026 (Google Cloud x Hack2skill)  
 **Target Deployment:** Google Cloud Run (Region: `asia-southeast1` Singapore)  

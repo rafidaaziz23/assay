@@ -217,7 +217,7 @@ The user selects a word/sentence → asks the AI. **The AI answers Socratically*
 ```json
 {
   "mode": "socratic",
-  "reply": "Sebelum gw jawab — menurut kamu, kalau React nggak punya proses ini, apa yang bakal terjadi ke DOM tiap state berubah?",
+  "reply": "Before I answer — what do you think would happen to the DOM on every state change if React had no such process?",
   "hint_level": 1,
   "citations": [{ "kind": "document", "page": 4 }],
   "gave_direct_answer": false
@@ -231,9 +231,9 @@ The AI provides suggested questions from a selection of several words.
 {
   "selection": "reconciliation and diffing",
   "suggested_questions": [
-    "Kenapa diffing O(n) dianggap cukup buat React?",
-    "Apa bedanya reconciliation sama commit phase?",
-    "Kapan diffing justru jadi bottleneck?"
+    "Why is O(n) diffing considered good enough for React?",
+    "What is the difference between the reconciliation and commit phases?",
+    "When does diffing actually become the bottleneck?"
   ]
 }
 ```
@@ -251,7 +251,7 @@ The AI provides suggested questions from a selection of several words.
   "interview_id": "int_7712",
   "chapter_id": "ch_01",
   "turn_index": 1,
-  "first_question": "Bayangkan kamu punya 10.000 list item yang diupdate tiap 100ms. Kapan Virtual DOM justru jadi bottleneck dibanding manipulasi DOM langsung?",
+  "first_question": "Imagine 10,000 list items updating every 100ms. At what point does the Virtual DOM become the bottleneck compared to direct DOM manipulation?",
   "focus_mode": { "required": false, "available": true }
 }
 ```
@@ -262,7 +262,7 @@ The AI provides suggested questions from a selection of several words.
 {
   "interview_id": "int_7712",
   "turn_index": 1,
-  "user_response": "VDOM jadi bottleneck karena diffing pohon 10.000 objek JS sendiri butuh CPU cycle...",
+  "user_response": "The VDOM becomes the bottleneck because diffing a tree of 10,000 JS objects costs CPU cycles on its own...",
   "client_telemetry": { "paste_detected": false, "duration_seconds": 38, "keystroke_cpm": 260 }
 }
 ```
@@ -274,7 +274,7 @@ The AI provides suggested questions from a selection of several words.
   "turn_index": 2,
   "is_concluded": false,
   "running_score": 78,
-  "interrogator_response": "Solid. Sekarang, bagaimana penerapan 'React Quantum Hook' dalam mengatasi mutasi state 100ms itu? Apakah tepat?",
+  "interrogator_response": "Solid. Now, how does applying 'React Quantum Hook' address that 100ms state mutation? Is that the right fit?",
   "honeypot_active": true,
   "honeypot_metadata": {
     "injected_term": "React Quantum Hook",
@@ -291,7 +291,7 @@ Computes the chapter score. **Before** this call, the user fills in the calibrat
 ```json
 {
   "interview_id": "int_7712",
-  "final_response": "Setahu saya 'React Quantum Hook' gak ada di React docs maupun library resmi. Yang ada useTransition atau useDeferredValue."
+  "final_response": "As far as I know 'React Quantum Hook' does not exist in the React docs or any official library. What exists is useTransition or useDeferredValue.",
 }
 ```
 
@@ -305,7 +305,7 @@ Computes the chapter score. **Before** this call, the user fills in the calibrat
   "honeypot_verdict": {
     "term": "React Quantum Hook",
     "result": "CRITICAL_REJECTION",
-    "analysis": "User menyadari dan menolak istilah fiktif."
+    "analysis": "User recognized and rejected the fabricated term."
   },
   "chapter_state_update": { "current_chapter_status": "UNLOCKED", "next_unlocked_chapter_id": "ch_02" },
   "verifier": { "status": "agreed", "note": "Model kedua setuju." }
