@@ -13,7 +13,7 @@ router = APIRouter(prefix="/settings", tags=["Settings"])
 
 
 class SettingsPayload(BaseModel):
-    model: str = "gemini-3-flash-preview"
+    model: str = "gemini-3.1-flash-lite"
     rigor: str = "academic"
     fallacy_sensitivity: str = "balanced"
     audio_device: Optional[str] = "Default Microphone (High Definition Audio Device)"

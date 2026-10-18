@@ -9,7 +9,7 @@ actually works against the current keys.
 
 | Role | Preferred ID | Env override |
 |---|---|---|
-| `flash` — latency-sensitive hot path (intake gating, PDF chunking, checklist, honeypot injection, interview follow-up) | `gemini-3-flash-preview` | `GEMINI_MODEL` |
+| `flash` — latency-sensitive hot path (intake gating, PDF chunking, checklist, honeypot injection, interview follow-up) | `gemini-3.1-flash-lite` | `GEMINI_MODEL` |
 | `pro` — off-critical-path depth (final chapter reasoning eval, async verifier pass) | `gemini-3.1-pro-preview` | `GEMINI_PRO_MODEL` |
 
 Each role also has an ordered fallback chain (`GEMINI_MODEL_FALLBACKS` /
@@ -22,7 +22,8 @@ rotates across the three keys on 429/5xx. See `ai/_client.py`.
 |---|---|---|
 | `gemini-2.5-flash` | 404 | "no longer available to new users" — retired for this project |
 | `gemini-2.5-pro` | 404 | retired for this project |
-| `gemini-3-flash-preview` | 200 | works (the flash workhorse) |
+| `gemini-3.1-flash-lite` | 200 | **500 req/day** — the default since 2026-10-18 |
+| `gemini-3-flash-preview` | 200 | works, but only **20 req/day** free tier |
 | `gemini-3.8-flash` | 503 | valid but high-demand spikes |
 | `gemini-flash-latest` | 503 | valid but high-demand spikes |
 | `gemini-3.1-pro-preview` | 429 | **free-tier quota = 0** (`generate_content_free_tier_requests: limit 0`) |
@@ -30,9 +31,17 @@ rotates across the three keys on 429/5xx. See `ai/_client.py`.
 | `gemini-4-argon` | 429 | free-tier quota = 0 |
 
 **Consequence:** the Pro tier is unusable on the free tier, so `verify_score` falls
-back to a Flash model (the pro chain ends on `gemini-3-flash-preview`). This is a
+back to a Flash model (the pro chain ends on `gemini-3.1-flash-lite`). This is a
 second-model cross-check, not a Pro-depth check; record it as a known limitation if a
 judge asks why the verifier runs on Flash.
+
+**Why the default is Lite, not Flash (2026-10-18):** measured daily free-tier limits
+on this key's project are `gemini-3-flash-preview` = 20 req/day and
+`gemini-3.1-flash-lite` = 500 req/day. 20/day is a single demo run — a judge opening
+the app twice exhausts it, and the per-request fallback then serves fixtures, which
+reads as broken rather than degraded. Lite answers Socratic counter-questions
+correctly (verified against a gradient-descent prompt, ~2.1 s), so it is the default
+until a paid tier is in play.
 
 ## Rules
 

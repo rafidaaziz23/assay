@@ -17,7 +17,9 @@ class Settings(BaseSettings):
     # Never default to a retired ID: the container has no .env (see .dockerignore),
     # so whatever is hardcoded here is what production uses unless injected.
     # gemini-2.5-flash now returns 404 NOT_FOUND ("no longer available to new users").
-    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")
+    # gemini-3-flash-preview is 20 req/day on the free tier; flash-lite is 500/day.
+    # See ai/_client.py for the measured quota table.
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
     GEMINI_PRO_MODEL: str = os.getenv("GEMINI_PRO_MODEL", "gemini-3.1-pro-preview")
     
     # Demo & Resilience Mode ('live' or 'cached')

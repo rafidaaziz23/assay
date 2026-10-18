@@ -23,10 +23,21 @@ _REPO = Path(__file__).resolve().parents[1]
 _KEY_NAMES = ("GOOGLE_API_KEY", "GOOGLE_API_KEY_FALLBACK", "GOOGLE_API_KEY_FALLBACK_2")
 
 # Fallback chains (first entry is the preferred ID; see ai/MODELS.md).
-_DEFAULT_FLASH = ("gemini-3-flash-preview", "gemini-3.8-flash", "gemini-flash-latest", "gemini-3.5-flash")
+#
+# Measured free-tier limits on this key's project (gen-lang-client-0962490923,
+# 2026-10-18, Cloud Quotas API):
+#   gemini-3-flash-preview   20 req/day     <- what this used to default to
+#   gemini-3.1-flash-lite   500 req/day     <- 25x, still a Flash-class model
+#   gemini-3.1-pro-preview    0 req/day     <- 429 on every call
+#
+# 20/day is one demo run. A judge opening the app twice exhausts it, and the
+# fallback then serves deterministic fixtures, which looks broken rather than
+# degraded. Lite is the floor: 500/day covers judging without touching quality
+# that matters for Socratic questioning.
+_DEFAULT_FLASH = ("gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemini-3-flash-preview", "gemini-3.8-flash")
 # Pro free tier is 0 for the current keys, so the chain ends on a flash ID: the
 # verifier then runs on Flash instead of Pro (documented in ai/MODELS.md).
-_DEFAULT_PRO = ("gemini-3.1-pro-preview", "gemini-pro-latest", "gemini-3-flash-preview")
+_DEFAULT_PRO = ("gemini-3.1-pro-preview", "gemini-3.1-flash-lite", "gemini-3-flash-preview")
 
 
 def _load_dotenv() -> None:
