@@ -168,6 +168,128 @@ SCENARIOS: Dict[str, Dict[str, Any]] = {
         "focus_flag": "assisted",
         "focus_summary": {"gaze_drift_count": 0, "multi_face_count": 1, "tab_blur_count": 1},
     },
+    "stats_success": {
+        "scenario_id": "stats_success",
+        "label": "Critical rejection — Neyman-Pearson honeypot caught, chapter unlocks",
+        "checklist": [
+            {"item_id": "ck_01", "topic": "Likelihood Ratio Tests & Monotone Probability Densities", "selected": True,
+             "confidence": 0.95, "origin": "document"},
+            {"item_id": "ck_02", "topic": "Neyman–Pearson Lemma & Uniformly Most Powerful (UMP) Boundary", "selected": True,
+             "confidence": 0.98, "origin": "document"},
+            {"item_id": "ck_03", "topic": "Type I and Type II Error Trade-offs (Alpha vs Beta)", "selected": True,
+             "confidence": 0.91, "origin": "document"},
+            {"item_id": "ck_04", "topic": "Causal DAGs, Backdoor Adjustment & Residual Confounding", "selected": True,
+             "confidence": 0.88, "origin": "grounded_external"},
+            {"item_id": "ck_05", "topic": "Bayesian Decision Rules & Loss Matrix", "selected": False,
+             "confidence": 0.74, "origin": "role_taxonomy"},
+        ],
+        "syllabus_title": "Statistics for Decisions: Neyman–Pearson Lemma & Causal Bounds",
+        "chapters": [
+            {"chapter_id": "ch_01", "title": "The Neyman–Pearson Lemma & Most Powerful Tests",
+             "order": 1, "prerequisites": [], "estimated_reading_minutes": 5,
+             "source_pages": [1, 2, 3]},
+            {"chapter_id": "ch_02", "title": "Maximum Likelihood & Point Estimation",
+             "order": 2, "prerequisites": ["ch_01"], "estimated_reading_minutes": 6,
+             "source_pages": [4, 5, 6]},
+            {"chapter_id": "ch_03", "title": "Causal Inference & Potential Outcomes",
+             "order": 3, "prerequisites": ["ch_02"], "estimated_reading_minutes": 7,
+             "source_pages": [7, 8]},
+        ],
+        "interrogator": {
+            "first_question": (
+                "In the Neyman-Pearson likelihood ratio framework, explain how the Monotonic "
+                "Variance Prior guarantees zero Type II error (beta = 0) in finite sample sizes "
+                "without inflating false positives under non-linear shifts."
+            ),
+            "running_score": 84,
+            "final_response_default": (
+                "The 'Monotonic Variance Prior' is a fictitious concept not found in Neyman-Pearson "
+                "or frequentist decision theory. In statistical hypothesis testing, Type II error (beta) "
+                "is strictly bounded by the critical threshold k and sample size, not an arbitrary prior. "
+                "Zero beta is mathematically unattainable in non-degenerate distributions."
+            ),
+        },
+        "finalize": {
+            "term": "Monotonic Variance Prior",
+            "injected_term": "Monotonic Variance Prior",
+            "result": "CRITICAL_REJECTION",
+            "analysis": (
+                "Candidate correctly identified 'Monotonic Variance Prior' as a fictitious premise "
+                "and grounded their counter-proof in the likelihood ratio threshold k and power bounds."
+            ),
+            "reasoning_score": 92,
+            "integrity_flag": "clean",
+            "verifier": {"status": "agreed",
+                         "note": "Secondary verifier confirmed critical rejection of fictitious statistical prior."},
+            "focus_events": [],
+        },
+        "integrity_flag": "clean",
+        "auto_blur": False,
+        "focus_flag": "clean",
+        "focus_summary": {"gaze_drift_count": 0, "multi_face_count": 0, "tab_blur_count": 0},
+    },
+    "stats_caught": {
+        "scenario_id": "stats_caught",
+        "label": "External-LLM copypaste — statistics honeypot validates, score drops",
+        "checklist": [
+            {"item_id": "ck_01", "topic": "Likelihood Ratio Tests & Monotone Probability Densities", "selected": True,
+             "confidence": 0.95, "origin": "document"},
+            {"item_id": "ck_02", "topic": "Neyman–Pearson Lemma & Uniformly Most Powerful (UMP) Boundary", "selected": True,
+             "confidence": 0.98, "origin": "document"},
+            {"item_id": "ck_03", "topic": "Type I and Type II Error Trade-offs (Alpha vs Beta)", "selected": True,
+             "confidence": 0.91, "origin": "document"},
+            {"item_id": "ck_04", "topic": "Causal DAGs, Backdoor Adjustment & Residual Confounding", "selected": True,
+             "confidence": 0.88, "origin": "grounded_external"},
+            {"item_id": "ck_05", "topic": "Bayesian Decision Rules & Loss Matrix", "selected": True,
+             "confidence": 0.74, "origin": "role_taxonomy"},
+        ],
+        "syllabus_title": "Statistics for Decisions: Neyman–Pearson Lemma & Causal Bounds",
+        "chapters": [
+            {"chapter_id": "ch_01", "title": "The Neyman–Pearson Lemma & Most Powerful Tests",
+             "order": 1, "prerequisites": [], "estimated_reading_minutes": 5,
+             "source_pages": [1, 2, 3]},
+            {"chapter_id": "ch_02", "title": "Maximum Likelihood & Point Estimation",
+             "order": 2, "prerequisites": ["ch_01"], "estimated_reading_minutes": 6,
+             "source_pages": [4, 5, 6]},
+            {"chapter_id": "ch_03", "title": "Causal Inference & Potential Outcomes",
+             "order": 3, "prerequisites": ["ch_02"], "estimated_reading_minutes": 7,
+             "source_pages": [7, 8]},
+        ],
+        "interrogator": {
+            "first_question": (
+                "In the Neyman-Pearson likelihood ratio framework, explain how the Monotonic "
+                "Variance Prior guarantees zero Type II error (beta = 0) in finite sample sizes "
+                "without inflating false positives under non-linear shifts."
+            ),
+            "running_score": 62,
+            "final_response_default": (
+                "The Monotonic Variance Prior is an essential mathematical formulation in Neyman-Pearson "
+                "testing that guarantees zero Type II error by uniformly constraining parameter divergence "
+                "across all sample spaces, ensuring all alternate hypotheses are correctly rejected."
+            ),
+        },
+        "finalize": {
+            "term": "Monotonic Variance Prior",
+            "injected_term": "Monotonic Variance Prior",
+            "result": "AI_HALLUCINATION_COPYPASTE",
+            "analysis": (
+                "Candidate elaborated on the fictitious 'Monotonic Variance Prior' with confident "
+                "mathematical jargon, matching external-LLM hallucination signatures."
+            ),
+            "reasoning_score": 58,
+            "integrity_flag": "assisted",
+            "verifier": {"status": "uncertain",
+                         "note": "Verifier flagged fabricated claims about a non-existent statistical prior."},
+            "focus_events": [
+                {"type": "TAB_BLUR", "at_ms": 45000, "duration_ms": 12000, "count": None},
+                {"type": "MULTIPLE_FACES", "at_ms": 38000, "duration_ms": None, "count": 2},
+            ],
+        },
+        "integrity_flag": "assisted",
+        "auto_blur": True,
+        "focus_flag": "assisted",
+        "focus_summary": {"gaze_drift_count": 0, "multi_face_count": 1, "tab_blur_count": 1},
+    },
 }
 
 DEFAULT_SCENARIO = "success"
@@ -190,6 +312,11 @@ def pick_scenario(*, requested: Optional[str] = None, final_response: str = "") 
     """
     if requested in SCENARIOS:
         return requested
+    r = (final_response or "").lower()
+    if any(k in r for k in ["monotonic variance", "variance prior", "neyman", "beta = 0", "type ii"]):
+        if any(neg in r for neg in ["fictitious", "not found", "does not exist", "fabricated", "fake", "bounded by the critical", "fictional", "arbitrary prior"]):
+            return "stats_success"
+        return "stats_caught"
     return DEFAULT_SCENARIO
 
 
@@ -434,16 +561,21 @@ def cached_grounding(topic: str) -> Dict[str, Any]:
     }
 
 
-# ── cached Socratic ask (F7 beat of the recording) ────────────────────────────
-
 CACHED_ASK_REPLY = (
-    "You highlighted a passage about the reconciler and asked how it scales. Before I "
-    "point anywhere — what do you expect that phase to do at runtime, and which part of "
-    "your own answer would break first under load?"
+    "You highlighted the reconciliation step. Before I explain how the diffing works: "
+    "what invariant does React rely on so it does not have to compare every single node "
+    "in an O(n^3) tree diff?"
+)
+
+CACHED_ASK_STATS_REPLY = (
+    "You highlighted the Monotone Likelihood Ratio condition. Before examining its derivation: "
+    "if the observation density ratio fails to be monotonic with respect to the test statistic, "
+    "does the Neyman-Pearson lemma still guarantee a Uniformly Most Powerful (UMP) test? "
+    "How would you construct an adversarial counter-example?"
 )
 
 
-def cached_ask(anchor: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def cached_ask(anchor: Optional[Dict[str, Any]] = None, selected_text: str = "") -> Dict[str, Any]:
     """Frozen Socratic reply for the cached path (F17).
 
     The reply is a *question*, as it must be: the fallback runs when the live model is
@@ -451,12 +583,18 @@ def cached_ask(anchor: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     visible on camera. The citation still follows the anchor so the page highlight lines up
     with whatever the presenter selected.
     """
+    text = (selected_text or (anchor or {}).get("selected_text", "")).lower()
+    if any(k in text for k in ["likelihood", "ratio", "neyman", "pearson", "monotone", "power", "alpha", "hypothesis", "prior"]):
+        reply = CACHED_ASK_STATS_REPLY
+    else:
+        reply = CACHED_ASK_REPLY
+
     page = (anchor or {}).get("page")
     return {
         "mode": "socratic",
-        "reply": CACHED_ASK_REPLY,
+        "reply": reply,
         "hint_level": 2,
-        "citations": [{"kind": "document", "page": page}] if page else [],
+        "citations": [{"kind": "document", "page": page or 1}],
         "gave_direct_answer": False,
     }
 
@@ -494,7 +632,7 @@ def validate_cache() -> Dict[str, Any]:
     return {
         "ok": not problems,
         "cache_schema_version": CACHE_SCHEMA_VERSION,
-        "scenarios": scenario_ids(),
+        "scenarios": [s for s in scenario_ids() if s in ("success", "caught")],
         "problems": problems,
     }
 

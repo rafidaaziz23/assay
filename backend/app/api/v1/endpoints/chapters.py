@@ -113,7 +113,7 @@ async def socratic_ask(
     if active:
         # Frozen reply on the cached path: the recording's reader beat must be identical
         # every take (F17). The anchor still drives the citation so the highlight matches.
-        result = fb.cached_ask(anchor)
+        result = fb.cached_ask(anchor, selected_text=req.selected_text)
 
     # Only cite a page the document actually has: a citation to a non-existent page is
     # the same class of false anchor the honeypot verdict exists to expose (F4).

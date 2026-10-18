@@ -92,6 +92,8 @@ async def start_interview(
 
     active = _scenario(x_demo_mode, scenario)
     if active:
+        if active == "success" and any(k in chapter.get("title", "").lower() for k in ["neyman", "statistics", "statistical", "causal", "likelihood"]):
+            active = "stats_success"
         block = fb.cached_interview(active)
         first_question = block["first_question"]
         running_score = int(block.get("running_score", 0))
@@ -101,11 +103,22 @@ async def start_interview(
         running_score = 0
 
     interview_id = new_id("int", 4)
-    injected = engine.engine.pick_honeypot_term(
-        f"{chapter.get('title', '')} {' '.join(chapter.get('objectives', []) or [])}",
-        set(),
-        seed=interview_id,
-    )
+    scene_data = fb.load_scenario(active) if active else None
+    frozen_term = scene_data.get("finalize", {}).get("term") if scene_data else None
+    if active and frozen_term:
+        injected = {
+            "term": frozen_term,
+            "catalog_id": f"hp_{active}",
+            "category": "Curriculum",
+            "source": "deterministic_scenario",
+            "expected_action": "REJECT_AS_FICTITIOUS",
+        }
+    else:
+        injected = engine.engine.pick_honeypot_term(
+            f"{chapter.get('title', '')} {' '.join(chapter.get('objectives', []) or [])}",
+            set(),
+            seed=interview_id,
+        )
     get_store().create_interview(
         interview_id,
         chapter_id=chapterId,
@@ -238,6 +251,7 @@ async def finalize_interview(
     paste_seen = any(t.get("paste_detected") for t in telemetry)
 
     if active:
+        active = fb.pick_scenario(requested=scenario, final_response=req.final_response)
         # Frozen outcome: the recording must be byte-identical every take.
         frozen = fb.cached_finalize(active)
         result = frozen["result"]
