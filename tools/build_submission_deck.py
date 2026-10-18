@@ -52,6 +52,19 @@ BOTTOM = Inches(5.40)
 
 # ── primitives ────────────────────────────────────────────────────────────────
 
+def _purge_generated(slide):
+    """Remove textboxes this script created on a previous run.
+
+    _text() always calls add_textbox(), so re-running the builder on an already
+    built deck stacks a second copy of every element instead of replacing it.
+    The organizer template names its own shapes "Google Shape;NNN;pNN"; ours are
+    "TextBox NNN", which makes the two populations separable.
+    """
+    for shp in list(slide.shapes):
+        if shp.has_text_frame and shp.name.startswith("TextBox "):
+            shp._element.getparent().remove(shp._element)
+
+
 def _text(slide, left, top, width, height, runs, *, size=11, color=BODY,
           font=FONT, bold=False, align=PP_ALIGN.LEFT, anchor=MSO_ANCHOR.TOP,
           spacing=1.0, space_after=2):
@@ -259,6 +272,7 @@ def slide_title(slide):
 
 def s01_team(prs):
     s = prs.slides[0]
+    _purge_generated(s)
     # TITLE layout: the black half ends at 2.97in (measured), so all content lives below it
     _clean(s)
     top = Inches(3.02)
@@ -292,6 +306,7 @@ def s01_team(prs):
 
 def s03_brief(prs):
     s = prs.slides[2]
+    _purge_generated(s)
     _clean(s)
 
     _text(s, LEFT, TOP, Inches(5.3), Inches(1.0),
@@ -338,6 +353,7 @@ def s03_brief(prs):
 
 def s04_opportunity(prs):
     s = prs.slides[3]
+    _purge_generated(s)
     _clean(s)
 
     cols = [
@@ -383,6 +399,7 @@ def s04_opportunity(prs):
 
 def s05_features(prs):
     s = prs.slides[4]
+    _purge_generated(s)
     _clean(s)
 
     feats = [
@@ -545,6 +562,7 @@ def s06_flow(prs):
 
 def s08_architecture(prs):
     s = prs.slides[7]
+    _purge_generated(s)
     _clean(s)
 
     # three tiers
@@ -588,14 +606,15 @@ def s08_architecture(prs):
     _card(s, LEFT, Inches(4.6), WIDTH, Inches(0.72), fill=INDIGO_LT, line=None)
     _text(s, LEFT + Inches(0.25), Inches(4.72), Inches(8.6), Inches(0.5), [
         ("Deployment: ", {"bold": True, "color": INDIGO}),
-        ("single container on Google Cloud Run — FastAPI serving the built Vite bundle. "
-         "No database required at runtime; the repository layer is an interface with an in-memory "
-         "implementation and a Firestore port stubbed for the multi-tenant phase.", {}),
+        ("two Cloud Run services — nginx serving the built Vite bundle, proxying /api "
+         "to the FastAPI service. FirestoreStore activates when credentials are present; otherwise "
+         "the in-memory store is used, so no database is required to run the demo.", {}),
     ], size=9, spacing=1.15)
 
 
 def s09_tech(prs):
     s = prs.slides[8]
+    _purge_generated(s)
     _clean(s)
 
     groups = [
@@ -630,6 +649,7 @@ def s09_tech(prs):
 
 def s10_cost(prs):
     s = prs.slides[9]
+    _purge_generated(s)
     _clean(s)
 
     _text(s, LEFT, TOP, WIDTH, Inches(0.3),
@@ -682,6 +702,7 @@ def s10_cost(prs):
 
 def s11_snapshots(prs):
     s = prs.slides[10]
+    _purge_generated(s)
     _clean(s)
 
     shots = [
@@ -712,6 +733,7 @@ def s11_snapshots(prs):
 
 def s12_benchmark(prs):
     s = prs.slides[11]
+    _purge_generated(s)
     _clean(s)
 
     _text(s, LEFT, TOP, WIDTH, Inches(0.3),
@@ -774,6 +796,7 @@ def s12_benchmark(prs):
 
 def s13_future(prs):
     s = prs.slides[12]
+    _purge_generated(s)
     _clean(s)
 
     phases = [
@@ -817,10 +840,14 @@ def s13_future(prs):
 
 def s14_links(prs):
     s = prs.slides[13]
+    _purge_generated(s)
+    # Repo and live product are real and verified. The video URL is left as a
+    # visible placeholder on purpose: shipping a fake link to a judge is worse
+    # than an obvious TODO, and the video is recorded separately from this repo.
     rows = [
-        "[ISI: URL repo publik]",
+        "https://github.com/rafidaaziz23/assay",
         "[ISI: URL video demo 3 menit]",
-        "[ISI: URL produk live]",
+        "https://assay-web-icejnb6gya-as.a.run.app",
     ]
     # The template keeps all three prompts inside ONE textbox as paragraphs.
     # Align each value to its own label paragraph instead of guessing offsets.
