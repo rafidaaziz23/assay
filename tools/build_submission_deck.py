@@ -562,13 +562,13 @@ def s08_architecture(prs):
 
     # modules in the middle/right
     mods = [
-        (Inches(2.25), Inches(1.55), "Pages", "14 routes\nDashboard · Intake · Reader · Exam · Report"),
+        (Inches(2.25), Inches(1.55), "Pages", "27 routes\nDashboard · Intake · Reader · Exam · Report"),
         (Inches(2.25), Inches(2.55), "Endpoints", "intake · syllabus · interview · report · calibration"),
         (Inches(2.25), Inches(3.55), "Repositories", "SessionStore · ChapterStore · InterviewStore (in-memory, Firestore port stubbed)"),
         (Inches(5.55), Inches(1.55), "State", "Zustand stores\nrouting via react-router 7"),
         (Inches(5.55), Inches(2.55), "Streaming", "SSE via sse-starlette\nintake checklist partial events"),
         (Inches(5.55), Inches(3.55), "Retrieval", "PyMuPDF page-anchored extraction\nrecall@3 = 0.909"),
-        (Inches(8.05), Inches(1.55), "Gemini", "google-genai SDK\ngemini-2.5-flash / 2.5-pro"),
+        (Inches(8.05), Inches(1.55), "Gemini", "google-genai SDK\ngemini-3-flash / 3.1-pro"),
         (Inches(8.05), Inches(2.55), "Verifier", "grounding check per turn\n6/6 caught in eval"),
         (Inches(8.05), Inches(3.55), "Fallback", "deterministic cache\nzero-crash demo mode"),
     ]
@@ -601,8 +601,8 @@ def s09_tech(prs):
     groups = [
         ("Frontend", ["React 18", "TypeScript", "Vite", "Tailwind CSS", "Zustand", "react-router 7", "Lucide icons", "KaTeX"]),
         ("Backend", ["Python 3.11", "FastAPI", "Uvicorn", "Pydantic v2", "sse-starlette", "PyMuPDF"]),
-        ("AI", ["Gemini 2.5 Flash", "Gemini 2.5 Pro", "google-genai SDK", "Deterministic honeypot catalog", "Grounded verifier"]),
-        ("Platform", ["Google Cloud Run", "Docker", "GitHub", "pytest (203 tests)"]),
+        ("AI", ["Gemini 3 Flash", "Gemini 3.1 Pro", "google-genai SDK", "Deterministic honeypot catalog", "Grounded verifier"]),
+        ("Platform", ["Google Cloud Run", "Docker", "GitHub", "pytest (219 tests)"]),
     ]
     x = LEFT
     cw = Inches(2.18)
@@ -624,7 +624,7 @@ def s09_tech(prs):
     ], size=9.5, spacing=1.2)
 
     _text(s, LEFT, Inches(4.95), WIDTH, Inches(0.4),
-          [("203 automated backend tests · 12 test modules · deterministic eval harness in eval/",
+          [("219 automated backend tests · 11 test modules · deterministic eval harness in eval/",
             {"size": 8.5, "color": MUTED})])
 
 
@@ -633,8 +633,8 @@ def s10_cost(prs):
     _clean(s)
 
     _text(s, LEFT, TOP, WIDTH, Inches(0.3),
-          [("Monthly estimate at three scales. Gemini list price: $0.30 / 1M input, $2.50 / 1M output "
-            "(gemini-2.5-flash, paid tier).", {"size": 8.5, "color": MUTED})])
+          [("Monthly estimate at three scales. Gemini list price: $0.50 / 1M input, $3.00 / 1M output "
+            "(gemini-3-flash, paid tier).", {"size": 8.5, "color": MUTED})])
 
     headers = ["", "Pilot", "Classroom", "Department"]
     rows = [
@@ -729,7 +729,7 @@ def s12_benchmark(prs):
         ("RAG recall@3", "0.909", "22"),
         ("RAG page-hit@1", "0.682", "22"),
         ("RAG refusal accuracy", "100%", "2"),
-        ("Backend test suite", "203 tests", "12 files"),
+        ("Backend test suite", "219 tests", "11 files"),
     ]
     x0, y0 = LEFT, Inches(1.85)
     cw = [Inches(2.15), Inches(1.15), Inches(0.55)]
@@ -781,7 +781,7 @@ def s13_future(prs):
             "Intake, gated syllabus, deep reader, oral defense",
             "Anti-hallucination verifier + honeypot catalog",
             "Verified dossier with Bloom profiling",
-            "203 backend tests, deterministic eval harness",
+            "219 backend tests, deterministic eval harness",
         ]),
         ("Next — 90 days", RGBColor(0x63, 0x66, 0xF1), [
             "Firestore port for multi-tenant sessions",
@@ -850,7 +850,7 @@ def s14_links(prs):
         ("Team: ", {"bold": True, "color": INK}),
         ("Assay — Rafida Aziz (lead), M. Zulfi Fahreza, Wildan Fajar Maulana.  ", {}),
         ("Stack: ", {"bold": True, "color": INK}),
-        ("React 18 + Vite, FastAPI, Gemini 2.5 via the google-genai SDK, deployed on Google Cloud Run.", {}),
+        ("React 18 + Vite, FastAPI, Gemini 3 via the google-genai SDK, deployed on Google Cloud Run.", {}),
     ], size=9, spacing=1.2, color=MUTED)
 
 
