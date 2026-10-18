@@ -2,144 +2,144 @@
 ## Assay: The Active Socratic Learning Engine
 
 **Auditor:** AI Strategic Advisor (Brutally Honest Mode)
-**Date:** 14 Oktober 2026 — revisi kedua dari audit 13 Oktober
-**Deadline:** 18 Oktober 2026, 23:59 UTC+8 — **HARD DEADLINE** (4 hari kerja tersisa)
-**Kontrak yang diaudit:** `PRD.md` v2.0.0 + `API-CONTRACTS.md` v2.0.0 (status: OPERATIONAL CONTRACT, freeze 14 Okt)
-**Status:** PRE-BUILD AUDIT — kontrak sudah beku, **belum ada kode produk**.
+**Date:** October 14, 2026 — second revision of the October 13 audit
+**Deadline:** October 18, 2026, 23:59 UTC+8 — **HARD DEADLINE** (4 working days left)
+**Contracts audited:** `PRD.md` v2.0.0 + `API-CONTRACTS.md` v2.0.0 (status: OPERATIONAL CONTRACT, frozen Oct 14)
+**Status:** PRE-BUILD AUDIT — contracts are frozen, **no product code yet**.
 
-### Changelog audit ini (v1 → v2)
+### Changelog for this audit (v1 → v2)
 
-| Area | v1 (13 Okt) | v2 (14 Okt) |
+| Area | v1 (Oct 13) | v2 (Oct 14) |
 |---|---|---|
-| Nama produk | CogniForge | **Assay** |
-| Deadline | "18 Okt, bukan 19" (temuan) | 18 Okt dikonfirmasi di PRD v2 §header — **RESOLVED** |
-| Track | "Track 4 DAN 5, pilih satu" | Track 4 saja di PRD v2 — **RESOLVED** |
-| Scope | "18 sub-fitur, scope 5 minggu" | Cut list PRD v2 §8 ada — **PARTIAL**, lihat §1 |
-| Anti-cheat | "security theater, jangan dijual" | ADR 003: on-device ML + auto-blur + Accessible Mode — **RESOLVED** |
-| Honeypot | "belum divalidasi, asumsi" | Sudah diuji empiris (n=80, 4 model) — **PARTIAL**, lihat §12 |
-| Fallback | "tidak ada, wajib ada" | `DEMO_MODE=cached` + auto-trigger 429/500/503 — **RESOLVED** |
-| Angka | — | Semua angka di dokumen ini bisa ditelusuri ke `../reza-research/parts10/HASIL-TES-EMPIRIS.md`. Tidak ada angka karangan. |
+| Product name | CogniForge | **Assay** |
+| Deadline | "Oct 18, not 19" (finding) | Oct 18 confirmed in PRD v2 §header — **RESOLVED** |
+| Track | "Track 4 AND 5, pick one" | Track 4 only in PRD v2 — **RESOLVED** |
+| Scope | "18 sub-features, 5-week scope" | PRD v2 §8 cut list exists — **PARTIAL**, see §1 |
+| Anti-cheat | "security theater, don't sell it" | ADR 003: on-device ML + auto-blur + Accessible Mode — **RESOLVED** |
+| Honeypot | "not yet validated, assumption" | Now empirically tested (n=80, 4 models) — **PARTIAL**, see §12 |
+| Fallback | "none, must exist" | `DEMO_MODE=cached` + auto-trigger 429/500/503 — **RESOLVED** |
+| Numbers | — | Every number in this document is traceable to `../reza-research/parts10/HASIL-TES-EMPIRIS.md`. No invented numbers. |
 
-> Catatan link: semua referensi di dokumen ini pakai path relatif dari `active-learning-engine/`. Link `file:///D:/Lab/nexatriv/...` di audit v1 sudah mati dan sudah dibuang.
+> Link note: all references in this document use paths relative to `active-learning-engine/`. The `file:///D:/Lab/nexatriv/...` links in audit v1 are dead and have been removed.
 
 ---
 
 ## ⚠️ PREAMBLE: REALITY CHECK
 
-Hari ini **14 Oktober**. Deadline **18 Oktober 2026, 23:59 UTC+8** (timeline panitia: `../01-event-guidelines/02-timeline-schedule.md` — `>>> DEADLINE SUBMISI: 18 OKTOBER 2026 <<<`). Sisa **4 hari kalender**, dan PRD sendiri menargetkan submit di Hari 4 sebelum 20:00.
+Today is **October 14**. The deadline is **October 18, 2026, 23:59 UTC+8** (organizer timeline: `../01-event-guidelines/02-timeline-schedule.md` — `>>> SUBMISSION DEADLINE: OCTOBER 18, 2026 <<<`). **4 calendar days** remain, and the PRD itself targets submitting on Day 4 before 20:00.
 
-Empat deliverable wajib:
+Four mandatory deliverables:
 1. Live Prototype (Cloud Run / Firebase)
-2. Video Demo ≤ 3 menit
-3. Pitch Deck PDF (10-12 slide)
-4. Repositori GitHub publik yang rapi
+2. Demo Video ≤ 3 minutes
+3. Pitch Deck PDF (10-12 slides)
+4. A tidy public GitHub repository
 
-Yang sudah ada: PRD v2, API-CONTRACTS v2 (LOCKED), ADR 001-005, DEMO-SCRIPT, PITCH-DECK-OUTLINE, COMPETITIVE-ANALYSIS, angka empiris. **Yang belum ada: kode, eval harness yang jalan, deploy, video, deck final.** Itu fakta pertama yang harus dihadapi, dan itu tetap tidak berubah dari audit v1.
+What already exists: PRD v2, API-CONTRACTS v2 (LOCKED), ADR 001-005, DEMO-SCRIPT, PITCH-DECK-OUTLINE, COMPETITIVE-ANALYSIS, empirical numbers. **What does not exist: code, a working eval harness, deploy, video, final deck.** That is the first fact to face, and it is unchanged from audit v1.
 
 ---
 
-## 1. STATUS TEMUAN AUDIT v1 — RESOLVED / PARTIAL / OPEN
+## 1. STATUS OF AUDIT v1 FINDINGS — RESOLVED / PARTIAL / OPEN
 
-Ini inti revisi ini: setiap temuan lama diberi status dan bukti, bukan dibiarkan menggantung.
+This is the core of this revision: every old finding gets a status and evidence, rather than being left hanging.
 
-| # | Temuan lama | Status | Bukti / catatan |
+| # | Old finding | Status | Evidence / notes |
 |---|---|---|---|
-| 1.1 | PRD menulis deadline 19 Okt (salah) | ✅ **RESOLVED** | PRD v2 header: `18 Oktober 2026, 23:59 UTC+8 — HARD DEADLINE`. Jadwal §6 v2 juga berakhir 18 Okt. |
-| 1.2 | Scope inflation: 5 pilar / ~18 sub-fitur / scope 5 minggu | ⚠️ **PARTIAL** | PRD v2 §8 punya cut list eksplisit (Monaco+Piston+TDL, DAG visual, dual-metric, voice/Gemini Live, auth, multi-source). Tapi §5 v2 sendiri menghitung **~14.75 dev-day vs kapasitas ~9.6 dev-day**. Cut-nya menyelesaikan *definisi* scope, belum menyelesaikan *aritmatika*-nya. Lihat N1 di §9. |
-| 1.3 | Alignment Track 4 DAN Track 5 (ambigu, 1 tim = 1 track) | ✅ **RESOLVED** | PRD v2: `Track Alignment: Track 4 … single track`. COMPETITIVE-ANALYSIS v2 baris 7 sama. |
-| 1.4 | PRD inward-looking: target user kabur, tidak ada angka, JAPAC tidak disentuh | ⚠️ **PARTIAL** | PRD v2 §2.3 menambah persona (B2C demo: pelajar/dev per role; B2B story: bootcamp & corporate L&D) + JAPAC (gap 9 juta talenta digital, World Bank; bootcamp completion <15%). **Masih OPEN:** tidak ada TAM/SAM/SOM, tidak ada klaim retensi/ROI yang bisa dipertahankan. Ada `../market-sizing-guide/` di repo tapi belum dipakai PRD. |
-| W1 | Scope kebesaran untuk waktu build | ⚠️ **PARTIAL** | Sama dengan 1.2. Lihat N1. |
-| W2 | Anti-cheat browser-side = security theater | ✅ **RESOLVED** | ADR 003 menolak CSS-only anti-cheat secara eksplisit; diganti Focus Mode on-device + framing "integrity signal". PRD §7 tidak lagi memakai kata "anti-cheat" sebagai klaim. |
-| W3 | Honeypot belum divalidasi empiris — asumsi | ⚠️ **PARTIAL (naik dari OPEN)** | Sudah diukur: **54% halusinasi (n=80, 4 model)**; per model gemini-flash-medium **75%**, deepseek-v4-pro 70%, deepseek-v4-flash 45%, deepseek-v4.1-flash 25%. Klaim "LLM luar bakal halusinasi" **terbukti arahnya, bukan 100%**. 29/80 panggilan REFUSE, 5 HEDGE, 3 ERROR. Residual risk nyata → wajib pin model di demo (§7.2, N4). |
-| W4 | LLM menilai LLM = subjektif, tidak ada guardrail deterministik | ⚠️ **PARTIAL** | ADR 002 (deterministic classification dari structured output) + verifier loop (**13/20 halusinasi tertangkap, 65%**) + appeal path + field `confidence`. Tapi verifier **meleset 35%** — jangan klaim "verified", klaim "second-pass check". |
-| W5 | Tidak ada fallback mode | ✅ **RESOLVED** | API-CONTRACTS §3: trigger `DEMO_MODE=cached` ATAU header `x-demo-mode: cached` ATAU error Gemini 429/500/503; 2 skenario wajib (success flow + caught flow). |
-| W6 | Bahasa submisi harus Inggris, PRD Bahasa Indonesia | ⚠️ **PARTIAL** | PRD v2 §7 menyatakan UI/README/deck/video = Inggris, dokumen internal = Indonesia. Aturannya beres; **artefak Inggrisnya belum ada satu pun**. Effort copywriting ini belum masuk budget Hari 4. Lihat N11. |
-| 5.1 | Belum ada ADR / arsitektur formal | ⚠️ **PARTIAL** | ADR 001-005 sudah ada di `docs/adrs/` (model selection, deterministic guardrails, client-side ML, role taxonomy, honeypot catalog). **Masih OPEN:** tidak ada diagram arsitektur (C4/container) di repo — juri rubrik "Ketepatan Arsitektur Sistem" akan mencari ini. |
-| 9.3 | Monaco + Piston + TDL = scope project tersendiri | ✅ **RESOLVED** | PRD v2 §8: cut ke roadmap. API-CONTRACTS v2 §0 menghapus state `DEBUG_CHALLENGE`. |
-| 9.4 | Anti-cheat browser-side dijual sebagai keamanan | ✅ **RESOLVED** | ADR 003 + PRD §4.5. |
-| 9.5 | 4 dev tanpa kontrak API | ✅ **RESOLVED** | `API-CONTRACTS.md` v2 LOCKED (14 Okt), 8 grup endpoint + state machine + JSON schema. Tim jadi 3 dev (PRD §5). |
-| 9.6 | Timeline mulai 14 Okt tapi dokumen ditulis 13 Okt malam | ✅ **RESOLVED** | Hari 0 = 14 Okt dipakai untuk kontrak + angka honeypot — dan **memang sudah selesai hari ini**. |
-| 9.7 | Honeypot `trigger_round: 2` hardcoded → tidak pernah kena kalau interview cuma 1 ronde | ❌ **MASIH OPEN** | API-CONTRACTS v2 §2.5 contoh masih menaruh honeypot di `turn_index: 2`. Kalau user (atau demo) `finalize` setelah 1 ronde, honeypot tidak ter-inject. Fix: paksa minimum 2 ronde sebelum `finalize`, atau inject di ronde 1 kalau interview diperkirakan pendek. |
-| 9.8 | Tidak ada Q&A defense script | ✅ **RESOLVED** | §10 dokumen ini, sudah diperbarui untuk v2. |
+| 1.1 | PRD states deadline Oct 19 (wrong) | ✅ **RESOLVED** | PRD v2 header: `October 18, 2026, 23:59 UTC+8 — HARD DEADLINE`. The §6 v2 schedule also ends Oct 18. |
+| 1.2 | Scope inflation: 5 pillars / ~18 sub-features / 5-week scope | ⚠️ **PARTIAL** | PRD v2 §8 has an explicit cut list (Monaco+Piston+TDL, visual DAG, dual-metric, voice/Gemini Live, auth, multi-source). But §5 v2 itself computes **~14.75 dev-days vs ~9.6 dev-days of capacity**. The cut resolves the *definition* of scope, not the *arithmetic*. See N1 in §9. |
+| 1.3 | Track 4 AND Track 5 alignment (ambiguous, 1 team = 1 track) | ✅ **RESOLVED** | PRD v2: `Track Alignment: Track 4 … single track`. COMPETITIVE-ANALYSIS v2 line 7 matches. |
+| 1.4 | PRD is inward-looking: target user vague, no numbers, JAPAC untouched | ⚠️ **PARTIAL** | PRD v2 §2.3 adds personas (B2C demo: student/dev by role; B2B story: bootcamp & corporate L&D) + JAPAC (9 million digital talent gap, World Bank; bootcamp completion <15%). **Still OPEN:** no TAM/SAM/SOM, no defensible retention/ROI claim. `../market-sizing-guide/` exists in the repo but the PRD does not use it. |
+| W1 | Scope too large for the build time | ⚠️ **PARTIAL** | Same as 1.2. See N1. |
+| W2 | Browser-side anti-cheat = security theater | ✅ **RESOLVED** | ADR 003 explicitly rejects CSS-only anti-cheat; replaced by on-device Focus Mode + "integrity signal" framing. PRD §7 no longer uses the word "anti-cheat" as a claim. |
+| W3 | Honeypot not empirically validated — assumption | ⚠️ **PARTIAL (up from OPEN)** | Now measured: **54% hallucination (n=80, 4 models)**; per model gemini-flash-medium **75%**, deepseek-v4-pro 70%, deepseek-v4-flash 45%, deepseek-v4.1-flash 25%. The claim "external LLMs will hallucinate" is **proven in direction, not 100%**. 29/80 calls REFUSE, 5 HEDGE, 3 ERROR. Real residual risk → model pinning in the demo is mandatory (§7.2, N4). |
+| W4 | LLM judging LLM = subjective, no deterministic guardrail | ⚠️ **PARTIAL** | ADR 002 (deterministic classification from structured output) + verifier loop (**13/20 hallucinations caught, 65%**) + appeal path + `confidence` field. But the verifier **misses 35%** — never claim "verified", claim "second-pass check". |
+| W5 | No fallback mode | ✅ **RESOLVED** | API-CONTRACTS §3: trigger on `DEMO_MODE=cached` OR header `x-demo-mode: cached` OR Gemini error 429/500/503; 2 required scenarios (success flow + caught flow). |
+| W6 | Submission language must be English, PRD is in Indonesian | ⚠️ **PARTIAL** | PRD v2 §7 states UI/README/deck/video = English, internal documents = Indonesian. The rule is settled; **not a single English artifact exists yet**. This copywriting effort is not yet in the Day 4 budget. See N11. |
+| 5.1 | No ADRs / formal architecture | ⚠️ **PARTIAL** | ADRs 001-005 now exist in `docs/adrs/` (model selection, deterministic guardrails, client-side ML, role taxonomy, honeypot catalog). **Still OPEN:** no architecture diagram (C4/container) in the repo — the "System Architecture Accuracy" rubric line will look for this. |
+| 9.3 | Monaco + Piston + TDL = a project of its own | ✅ **RESOLVED** | PRD v2 §8: cut to roadmap. API-CONTRACTS v2 §0 removes the `DEBUG_CHALLENGE` state. |
+| 9.4 | Browser-side anti-cheat sold as security | ✅ **RESOLVED** | ADR 003 + PRD §4.5. |
+| 9.5 | 4 devs with no API contract | ✅ **RESOLVED** | `API-CONTRACTS.md` v2 LOCKED (Oct 14), 8 endpoint groups + state machine + JSON schema. Team is now 3 devs (PRD §5). |
+| 9.6 | Timeline starts Oct 14 but the document was written the night of Oct 13 | ✅ **RESOLVED** | Day 0 = Oct 14 spent on contracts + honeypot numbers — and it **was actually finished today**. |
+| 9.7 | Honeypot `trigger_round: 2` hardcoded → never fires if the interview is only 1 round | ❌ **STILL OPEN** | API-CONTRACTS v2 §2.5 example still places the honeypot at `turn_index: 2`. If the user (or the demo) calls `finalize` after 1 round, the honeypot is never injected. Fix: force a minimum of 2 rounds before `finalize`, or inject in round 1 when the interview is expected to be short. |
+| 9.8 | No Q&A defense script | ✅ **RESOLVED** | §10 of this document, already updated for v2. |
 
-**Skor jujur: 8 RESOLVED, 8 PARTIAL, 1 OPEN.** Tim bergerak cepat dan arah perbaikannya benar. Tapi "PARTIAL" yang tersisa semuanya menumpuk di tempat yang sama: **kapasitas 4 hari**.
+**Honest score: 8 RESOLVED, 8 PARTIAL, 1 OPEN.** The team is moving fast and the direction of the fixes is right. But the remaining "PARTIAL" items all pile up in the same place: **4-day capacity**.
 
 ---
 
-## 2. SWOT ANALYSIS (HONEST) — diperbarui
+## 2. SWOT ANALYSIS (HONEST) — updated
 
 ### 2.1 STRENGTHS
 
-| # | Strength | Justifikasi |
+| # | Strength | Justification |
 |---|----------|-------------|
-| S1 | **Narasi "Anti-AI-Brain-Rot" masih zeitgeist** | 95% mahasiswa pakai AI (HEPI 2026); 67% murid bilang AI merusak cara berpikir mereka (RAND, Mar 2026); PISA 2025 terendah sepanjang sejarah. Juri Google Cloud sadar produk mereka sendiri (NotebookLM) dianggap bagian dari masalah. Mengangkat ini = keberanian + awareness. |
-| S2 | **Honeypot kini punya angka, bukan opini** | 54% halusinasi (n=80, 4 model). Tidak ada satu pun platform belajar yang menyuntik konsep fiktif untuk mendeteksi outsourcing pemikiran. Novel, demo-friendly, dan **terukur**. |
-| S3 | **AI sebagai "Enforcer", bukan "Assistant"** | 99% project hackathon bikin AI helper. Membalik peran jadi adversarial tutor memisahkan Assay dari ratusan pesaing. |
-| S4 | **Alignment kuat ke Track 4** | Track 4 = Media, Content & Digital Experiences, sub-tema adaptive learning untuk retensi. Ini praktis ditulis untuk Assay. |
-| S5 | **Kontrak & ADR sudah beku di Hari 0** | Ini yang biasanya bikin tim hackathon mati di Hari 2. Sudah selesai. |
+| S1 | **The "Anti-AI-Brain-Rot" narrative is still zeitgeist** | 95% of university students use AI (HEPI 2026); 67% of students say AI damages their thinking (RAND, Mar 2026); PISA 2025 is the lowest in history. Google Cloud judges are aware that their own product (NotebookLM) is seen as part of the problem. Raising this = courage + awareness. |
+| S2 | **The honeypot now has numbers, not opinions** | 54% hallucination (n=80, 4 models). No learning platform injects fictional concepts to detect thought outsourcing. Novel, demo-friendly, and **measurable**. |
+| S3 | **AI as "Enforcer", not "Assistant"** | 99% of hackathon projects build an AI helper. Reversing the role into an adversarial tutor separates Assay from hundreds of competitors. |
+| S4 | **Strong alignment with Track 4** | Track 4 = Media, Content & Digital Experiences, sub-theme adaptive learning for retention. It is practically written for Assay. |
+| S5 | **Contracts & ADRs already frozen on Day 0** | This is what usually kills hackathon teams on Day 2. Already done. |
 
 ### 2.2 WEAKNESSES
 
-| # | Weakness | Dampak & Realitas |
+| # | Weakness | Impact & Reality |
 |---|----------|-------------------|
-| W1 | **Aritmatika kapasitas masih defisit ~5 dev-day** | PRD v2 §5: 14.75 dev-day vs ~9.6 efektif. Cut list §8 membuang roadmap item, bukan item yang sudah dihitung. Ini risiko #1 dan masih hidup. |
-| W2 | ~~Anti-cheat browser-side = theater~~ | **Ditutup.** ADR 003. Tapi jangan pernah slide balik ke klaim "anti-cheat" — itu pintu masuk satu pertanyaan juri yang mematikan. |
-| W3 | **Honeypot 54%, bukan 100%** | Angka ini kuat untuk deck dan jujur untuk Q&A, tapi **bukan jaminan demo**. 29 dari 80 panggilan justru REFUSE. Demo harus pakai term `fictional_term` (efektivitas 100% di n=12 valid, tertinggi dari 4 trap) di model yang paling mudah terpancing. |
-| W4 | **Penilaian reasoning tetap LLM-mediated** | Deterministic classification (ADR 002) menurunkan subjektivitas, verifier menangkap 65%. Sisanya tetap judgment call — akui di deck, jangan disembunyikan. |
-| W5 | ~~Tidak ada fallback~~ | **Ditutup.** API-CONTRACTS §3. |
-| W6 | **Semua artefak submisi masih Indonesia / belum ada** | UI, README, deck, video wajib Inggris (`../01-event-guidelines/04-rules-eligibility.md` §2). Lihat N11 — contoh respons AI di API-CONTRACTS masih Bahasa Indonesia. |
-| W7 | **Tidak ada kode.** | Empat hari untuk 12 must-ship item (§6). Tidak ada jalan untuk menambah fitur baru setelah dokumen ini. |
+| W1 | **Capacity arithmetic still shows a ~5 dev-day deficit** | PRD v2 §5: 14.75 dev-days vs ~9.6 effective. The §8 cut list drops roadmap items, not items already counted in that 14.75. This is risk #1 and it is still live. |
+| W2 | ~~Browser-side anti-cheat = theater~~ | **Closed.** ADR 003. But never slide back into the "anti-cheat" claim — that is the entry point for one fatal judge question. |
+| W3 | **Honeypot at 54%, not 100%** | That number is strong for the deck and honest for Q&A, but **not a demo guarantee**. 29 of 80 calls actually REFUSE. The demo must use a `fictional_term` (100% effective at n=12 valid, highest of the 4 traps) on the model that is easiest to bait. |
+| W4 | **Reasoning assessment is still LLM-mediated** | Deterministic classification (ADR 002) reduces subjectivity and the verifier catches 65%. The rest remains a judgment call — admit it in the deck, do not hide it. |
+| W5 | ~~No fallback~~ | **Closed.** API-CONTRACTS §3. |
+| W6 | **All submission artifacts are still Indonesian / do not exist yet** | UI, README, deck, video must be English (`../01-event-guidelines/04-rules-eligibility.md` §2). See N11 — the AI response examples in API-CONTRACTS are still in Indonesian. |
+| W7 | **No code.** | Four days for 12 must-ship items (§6). There is no path to adding new features after this document. |
 
 ### 2.3 OPPORTUNITIES
 
-| # | Opportunity | Cara mengeksploitasi |
+| # | Opportunity | How to exploit it |
 |---|-------------|---------------------|
-| O1 | **Tidak ada pesaing yang ambil posisi "anti-AI" di kompetisi AI** | Paradoks yang memorable. Deck slide 1: *"Setiap AI study tool menjawab pertanyaan. Assay yang mempertanyakan jawabanmu."* |
-| O2 | **Juri suka guardrail deterministik** | Honeypot = jebakan deterministik dengan klasifikasi terstruktur; hasilnya auditable (`honeypot_verdict` + `evidence_quotes` di report), bukan "AI bilang begitu". |
-| O3 | **On-device ML sebagai bukti Google-stack di luar Gemini** | MediaPipe = produk Google, nol token, nol biaya inferensi, dan secara visual sangat meyakinkan di demo. Sudah diputuskan (ADR 003), bukan lagi usulan. |
-| O4 | **Sudut B2B / verifikasi kompetensi** | Bootcamp dengan completion <15% dan sertifikat yang tidak bisa dipercaya = pain yang bisa dibayar. Juri venture/enterprise akan menanyakan ini (§10 Q10). |
-| O5 | **Angka empiris sendiri sebagai bukti Technical Merit** | Sangat jarang tim hackathon punya hasil uji sendiri dengan n, model list, dan log mentah. Pakai ini di slide "Evidence" — 3 baris tabel, bukan 10 slide. |
+| O1 | **No competitor takes an "anti-AI" position at an AI competition** | A memorable paradox. Deck slide 1: *"Every AI study tool answers questions. Assay questions your answers."* |
+| O2 | **Judges like deterministic guardrails** | The honeypot is a deterministic trap with structured classification; the result is auditable (`honeypot_verdict` + `evidence_quotes` in the report), not "the AI said so". |
+| O3 | **On-device ML as proof of the Google stack beyond Gemini** | MediaPipe is a Google product, zero tokens, zero inference cost, and visually very convincing in a demo. Already decided (ADR 003), no longer a proposal. |
+| O4 | **B2B / competence verification angle** | Bootcamps with completion <15% and untrustworthy certificates = pain someone will pay for. Venture/enterprise judges will ask this (§10 Q10). |
+| O5 | **Your own empirical numbers as Technical Merit evidence** | It is very rare for a hackathon team to have its own test results with n, model list, and raw logs. Use this on the "Evidence" slide — a 3-row table, not 10 slides. |
 
 ### 2.4 THREATS
 
 | # | Threat | Severity | Mitigation |
 |---|--------|----------|------------|
-| T1 | User pakai device kedua (HP) untuk browsing jawaban | 🔴 CRITICAL | Browser-side tidak berguna di sini. Satu-satunya layer yang benar-benar bekerja: honeypot (§7.1 Layer 4). |
-| T2 | LLM terbaru menolak menjawab konsep fiktif | 🟠 HIGH | **Sudah diukur**: 25%-75% per model. Pin model, rotasi term dari katalog (ADR 005), siapkan cached scenario. |
-| T3 | Juri menganggap "focus mode" terlalu mengekang / tidak aksesibel | 🟠 HIGH | Accessible Mode + framing integrity signal + skor ditandai `assisted_unverified` (§4). |
-| T4 | Pesaing lain juga bikin adaptive learning platform | 🟡 MEDIUM | Moat = honeypot + calibration gap + adversarial positioning. "Adaptive quiz" saja tidak cukup. |
-| T5 | Gemini rate limit / down saat demo | 🟠 HIGH | `DEMO_MODE=cached` dengan 2 skenario (sukses + copas-tertangkap). Non-negotiable. |
-| T6 | **Focus Mode menelan Hari 3 dan demo jadi setengah jadi** | 🟠 HIGH | Baru di v2 (MediaPipe naik ke must-ship). Mitigasi: camera opsional, cached scenario tidak butuh kamera, blur = overlay 30 baris JS. Lihat N2. |
-| T7 | **Scope berhenti di dokumen, bukan di kode** | 🔴 CRITICAL | Satu-satunya mitigasi: Hari 4 tidak boleh ada fitur baru. Titik. |
+| T1 | User uses a second device (phone) to browse answers | 🔴 CRITICAL | Browser-side is useless here. The only layer that truly works: the honeypot (§7.1 Layer 4). |
+| T2 | Latest LLMs refuse to answer fictional concepts | 🟠 HIGH | **Already measured**: 25%-75% per model. Pin the model, rotate terms from the catalog (ADR 005), prepare a cached scenario. |
+| T3 | Judges see "focus mode" as too restrictive / not accessible | 🟠 HIGH | Accessible Mode + integrity-signal framing + score marked `assisted_unverified` (§4). |
+| T4 | Another competitor also builds an adaptive learning platform | 🟡 MEDIUM | Moat = honeypot + calibration gap + adversarial positioning. "Adaptive quiz" alone is not enough. |
+| T5 | Gemini rate limit / down during the demo | 🟠 HIGH | `DEMO_MODE=cached` with 2 scenarios (success + copy-paste-caught). Non-negotiable. |
+| T6 | **Focus Mode eats Day 3 and the demo ends up half-finished** | 🟠 HIGH | New in v2 (MediaPipe promoted to must-ship). Mitigation: camera optional, cached scenarios need no camera, blur = a 30-line JS overlay. See N2. |
+| T7 | **Scope stops at the document, not in the code** | 🔴 CRITICAL | The only mitigation: no new features on Day 4. Period. |
 
 ---
 
 ## 3. COMPETITOR DEEP-DIVE
 
-### 3.1 Direct Competitors (platform belajar aktif yang sudah ada)
+### 3.1 Direct Competitors (existing active learning platforms)
 
-| Platform | Apa yang sudah mereka lakukan | Keunggulan Assay |
+| Platform | What they already do | Assay's edge |
 |----------|-------------------------------|------------------|
-| **Khan Academy Khanmigo** | AI tutor berbasis Socratic method, 2+ tahun operasi, didanai Bill & Melinda Gates Foundation | **Kompetitor terberat.** Tapi: tidak ada gatekeeping, tidak ada deteksi integritas, tidak bisa upload PDF sendiri, tidak ada enforcement. |
-| **Google Learn About** | Interactive AI tutor dari Google, pendekatan Socratic | Tanpa enforcement, tanpa gatekeeping. User bisa langsung minta jawaban — dan akan dapat. |
-| **Quizlet AI** | Flashcard otomatis + practice test | Surface-level recall. Tidak ada interrogasi reasoning, tidak ada jejak penalaran. |
-| **Coursera / Udemy AI** | Adaptive quiz setelah video | Pasif. User bisa nonton sambil scroll HP. Tidak ada friksi. |
-| **Duolingo** | Gamifikasi + spaced repetition | Hanya bahasa. Model gamifikasinya (streak/XP) bisa dipinjam untuk engagement, bukan positioning. |
-| **NotebookLM** | Summarize doc, generate podcast | Ini "the villain" dalam narasi Assay: enabler brain rot. Sebut namanya di deck — berani, dan juri tahu itu produk mereka. |
-| **Foreman** (peserta AI Builder Cup 2026, Track 5) | "Honesty Canary": uji kejujuran **agen AI** dengan soal yang jawabannya sengaja tidak ada | DNA mekanisme sama dengan honeypot Assay. Bedanya satu kalimat: Foreman menguji kejujuran **agen**; Assay menguji kejujuran **manusia yang menyontek agen lain**. Sebut eksplisit — juri akan mengenali polanya dan menilai Assay sebagai cermin sisi-manusia. |
-| **Chopdesk** (Track 1) | Heuristic offline fallback saat Gemini 429 | Bukan lawan (beda track), tapi patokan: Assay wajib punya kelas fallback yang sama. Sudah punya (API-CONTRACTS §3). |
+| **Khan Academy Khanmigo** | Socratic-method AI tutor, 2+ years in operation, funded by the Bill & Melinda Gates Foundation | **The toughest competitor.** But: no gatekeeping, no integrity detection, no self-service PDF upload, no enforcement. |
+| **Google Learn About** | Google's interactive AI tutor, Socratic approach | No enforcement, no gatekeeping. Users can just ask for the answer — and they will get it. |
+| **Quizlet AI** | Automatic flashcards + practice tests | Surface-level recall. No reasoning interrogation, no trace of reasoning. |
+| **Coursera / Udemy AI** | Adaptive quiz after video | Passive. Users can watch while scrolling their phone. No friction. |
+| **Duolingo** | Gamification + spaced repetition | Language only. Its gamification model (streak/XP) can be borrowed for engagement, not positioning. |
+| **NotebookLM** | Summarize doc, generate podcast | This is "the villain" in Assay's narrative: the brain-rot enabler. Name it in the deck — it is bold, and the judges know it is their product. |
+| **Foreman** (AI Builder Cup 2026 participant, Track 5) | "Honesty Canary": tests the honesty of **AI agents** with questions whose answers deliberately do not exist | Same mechanism DNA as Assay's honeypot. The difference is one sentence: Foreman tests the honesty of **agents**; Assay tests the honesty of **humans cheating with other agents**. Say it explicitly — judges will recognize the pattern and score Assay as the human-side mirror. |
+| **Chopdesk** (Track 1) | Heuristic offline fallback when Gemini returns 429 | Not an opponent (different track), but a benchmark: Assay must have the same class of fallback. It already does (API-CONTRACTS §3). |
 
 ### 3.2 Khanmigo Risk Assessment
 
-Juri **pasti** bertanya: *"Apa bedanya dengan Khanmigo?"*
+Judges **will** ask: *"How is this different from Khanmigo?"*
 
-**Diferensiasi kritis (pakai urutan ini):**
-1. Khanmigo **suggestive**, bukan **enforcement**. User bisa skip sesi Socratic kapan saja; Assay mengunci chapter sampai skor ≥ 75.
-2. Khanmigo **tidak mendeteksi integritas**. Tidak ada honeypot, tidak ada sinyal fokus.
-3. Khanmigo **tidak menerima dokumen user**. Tidak bisa "ujilah saya atas modul kuliah saya sendiri".
-4. Khanmigo **tidak punya calibration gap** — jarak antara "merasa paham" dan "benar-benar paham" tidak pernah muncul.
+**Critical differentiation (use this order):**
+1. Khanmigo is **suggestive**, not **enforcement**. Users can skip a Socratic session at any time; Assay locks the chapter until the score ≥ 75.
+2. Khanmigo **does not detect integrity**. No honeypot, no focus signal.
+3. Khanmigo **does not accept user documents**. You cannot "test me on my own course module".
+4. Khanmigo **has no calibration gap** — the distance between "feeling you understand" and "actually understanding" never surfaces.
 
-**Yang wajib diakui di depan juri:** Khanmigo sudah berjalan 2+ tahun dengan riset efektivitas, didanai lembaga besar. Assay berumur 4 hari. Jangan klaim superioritas total — klaim ini: *"We build on a proven Socratic method and add the enforcement and integrity layer that nobody ships."* Mengakui batas justru menaikkan kredibilitas.
+**What must be admitted in front of judges:** Khanmigo has been running 2+ years with effectiveness research, funded by a major institution. Assay is 4 days old. Do not claim total superiority — claim this: *"We build on a proven Socratic method and add the enforcement and integrity layer that nobody ships."* Admitting limits actually raises credibility.
 
 ---
 
@@ -147,165 +147,166 @@ Juri **pasti** bertanya: *"Apa bedanya dengan Khanmigo?"*
 
 ### 4.1 Problem Statement
 
-Anti-cheat browser-side (`onblur`, `oncopy`, `user-select: none`) tidak berguna kalau:
-- User membuka ChatGPT di HP sambil belajar di laptop
-- User pakai second monitor / virtual desktop
-- User mengetik ulang pertanyaan secara manual
-- User memakai screen reader atau alat bantu aksesibilitas
+Browser-side anti-cheat (`onblur`, `oncopy`, `user-select: none`) is useless when:
+- The user opens ChatGPT on a phone while studying on a laptop
+- The user uses a second monitor / virtual desktop
+- The user retypes the question manually
+- The user uses a screen reader or accessibility tools
 
-### 4.2 Keputusan final (ADR 003 — Accepted, bukan lagi rekomendasi)
+### 4.2 Final decision (ADR 003 — Accepted, no longer a recommendation)
 
 ```
-+-----------------------------------------------------------------+
-|              FOCUS MODE — ON-DEVICE, NO VIDEO OUT               |
++------------------------------------------------------------------+
+|               FOCUS MODE — ON-DEVICE, NO VIDEO OUT               |
 |                                                                  |
 |  MediaPipe in-browser (client-side inference)                    |
 |  --------------------------------------------------------------  |
-|  Sinyal yang dideteksi:                                          |
-|   - GAZE_DRIFT       head-pose/gaze menyimpang > ambang          |
-|   - MULTIPLE_FACES   jumlah wajah > 1                            |
-|   - TAB_BLUR         pindah tab / window kehilangan fokus        |
-|   - CAMERA_OFF       kamera mati / tidak diizinkan               |
+|  Signals detected:                                               |
+|   - GAZE_DRIFT       head-pose/gaze deviates > threshold         |
+|   - MULTIPLE_FACES   face count > 1                              |
+|   - TAB_BLUR         tab switch / window loses focus             |
+|   - CAMERA_OFF       camera off / not permitted                  |
 |                                                                  |
-|  Yang dikirim ke server: HANYA event boolean + timestamp +       |
-|  durasi. `video_transmitted: false` adalah field WAJIB.          |
-|  Video/gambar/embedding TIDAK PERNAH meninggalkan device.        |
+|  Sent to the server: ONLY boolean events + timestamp +           |
+|  duration. `video_transmitted: false` is a REQUIRED field.       |
+|  Video/images/embeddings NEVER leave the device.                 |
 |                                                                  |
-|  Saat sinyal menyala -> halaman AUTO-BLUR + flag `assisted`.     |
-|  Blur = pencegah + penanda, BUKAN hukuman: skor tetap dihitung.  |
-+-----------------------------------------------------------------+
+|  When a signal fires -> page AUTO-BLURS + `assisted` flag.       |
+|  Blur = prevention + marker, NOT punishment: score still counts. |
++------------------------------------------------------------------+
 ```
 
-**Konsekuensi yang harus diucapkan sendiri sebelum juri mengucapkannya:**
-1. **Accessible Mode** mematikan kamera sepenuhnya (copy boleh, blur mati, waktu longgar). Skor tetap dihitung dan ditandai **`assisted_unverified`** — supaya sesi tanpa verifikasi tidak diam-diam dibaca sebagai "clean".
-2. **Deteksi terikat device.** Akurasi MediaPipe turun di hardware murah, cahaya buruk, posisi kamera aneh. Sinyalnya **advisory, bukan authoritative**.
-3. **False positive terkandung.** Melirik ke bawah untuk menulis catatan ≠ menyontek. Karena itu flag turun skor integritas + masuk laporan + bisa di-appeal, bukan auto-fail.
-4. **Bukan klaim anti-cheat.** Tidak ada sistem yang cheat-proof. Yang Assay jual: biaya menyontek jadi lebih mahal dari belajar.
+**Consequences you must state yourself before the judges say them:**
+1. **Accessible Mode** turns the camera off entirely (copying allowed, blur off, relaxed timing). The score is still computed and marked **`assisted_unverified`** — so an unverified session is never silently read as "clean".
+2. **Detection is device-bound.** MediaPipe accuracy drops on cheap hardware, in poor light, with odd camera positions. The signal is **advisory, not authoritative**.
+3. **False positives are contained.** Glancing down to write notes ≠ cheating. That is why the flag lowers the integrity score + goes into the report + can be appealed, rather than auto-failing.
+4. **Not an anti-cheat claim.** No system is cheat-proof. What Assay sells: cheating costs more than learning.
 
-### 4.3 Kenapa ini menang di rubrik (bukan cuma fitur)
+### 4.3 Why this wins on the rubric (not just a feature)
 
-| Alasan | Rubrik yang kena |
+| Reason | Rubric it hits |
 |---|---|
-| MediaPipe = Google stack di luar Gemini | Technical Merit (40%) |
-| Nol token LLM, nol biaya inferensi per frame | Technical Merit / Skalabilitas |
-| Live face tracking yang menangkap user melirik HP = demo visual paling memorable | Innovation (25%) |
-| On-device + `video_transmitted: false` = privacy claim yang dibacking kontrak, bukan janji | UX & Solution Design (10%) + Q&A Q4 |
-| Accessible Mode + `assisted_unverified` = tidak mengorbankan pengguna disabilitas | UX & Solution Design (10%) |
+| MediaPipe = Google stack beyond Gemini | Technical Merit (40%) |
+| Zero LLM tokens, zero inference cost per frame | Technical Merit / Scalability |
+| Live face tracking catching a user glancing at a phone = the most memorable visual demo | Innovation (25%) |
+| On-device + `video_transmitted: false` = a privacy claim backed by the contract, not a promise | UX & Solution Design (10%) + Q&A Q4 |
+| Accessible Mode + `assisted_unverified` = users with disabilities are not sacrificed | UX & Solution Design (10%) |
 
-### 4.4 Penghematan token dengan ML & telemetry client-side
+### 4.4 Token savings with client-side ML & telemetry
 
-| Task | Tanpa ML | Dengan ML/telemetry client-side | Hemat |
+| Task | Without ML | With client-side ML/telemetry | Savings |
 |------|----------|--------------------------------|-------|
-| Deteksi user membaca vs skip | Gemini mengevaluasi waktu baca vs panjang teks (1 call/chapter) | Scroll + dwell telemetry di frontend | ~500 token/chapter |
-| Deteksi copy-paste | Gemini membandingkan gaya tulisan (1 call) | `paste_detected` + `keystroke_cpm` yang **sudah ada di kontrak** (API-CONTRACTS §2.5) | ~800 token/eval |
-| Kecurangan device kedua | Tidak mungkin tanpa kamera | MediaPipe gaze/head-pose | N/A (mustahil tanpa ML) |
-| Pre-filter sebelum deep eval | Semua jawaban dikirim ke Gemini | Rule-based filter (panjang, keyword, durasi) → hanya yang suspicious dikirim untuk deep eval | ~60% |
+| Detecting whether the user reads vs skips | Gemini evaluates read time vs text length (1 call/chapter) | Scroll + dwell telemetry in the frontend | ~500 tokens/chapter |
+| Copy-paste detection | Gemini compares writing style (1 call) | `paste_detected` + `keystroke_cpm` that are **already in the contract** (API-CONTRACTS §2.5) | ~800 tokens/eval |
+| Second-device cheating | Impossible without a camera | MediaPipe gaze/head-pose | N/A (impossible without ML) |
+| Pre-filter before deep eval | Every answer is sent to Gemini | Rule-based filter (length, keywords, duration) → only suspicious ones go to deep eval | ~60% |
 
+---
 ---
 
 ## 5. JUDGING CRITERIA OPTIMIZATION
 
-Rubrik resmi (`../01-event-guidelines/05-judging-criteria.md`): Technical Merit & Gen AI 40% · Problem Alignment & Impact 25% · Innovation & Creativity 25% · UX & Solution Design 10%.
+Official rubric (`../01-event-guidelines/05-judging-criteria.md`): Technical Merit & Gen AI 40% · Problem Alignment & Impact 25% · Innovation & Creativity 25% · UX & Solution Design 10%.
 
 ### 5.1 Technical Merit & Gen AI Implementation (40%) — THE KING MAKER
 
-| Sub-kriteria | Yang juri cari | Yang harus ditunjukkan | Gap sekarang |
+| Sub-criterion | What judges look for | What must be shown | Current gap |
 |---|---|---|---|
-| Meaningful Use of Gen AI | AI = mesin inti, bukan gimmick | Socratic interrogator + honeypot classifier + syllabus synthesis = AI menggerakkan seluruh produk | ✅ Kuat |
-| Ketepatan Arsitektur Sistem | Modular, deterministik, aman | ADR 001-005 **sudah ada**; state machine per chapter; JSON schema terkunci | ⚠️ ADR beres, **diagram arsitektur belum ada** |
-| Skalabilitas & Ketahanan | Error handling, fallback, latency | `DEMO_MODE=cached` + auto-trigger 429/500/503 (API-CONTRACTS §3) | ✅ Ditutup di v2 |
-| Advanced AI Techniques | Bukan wrapper prompt | Structured output (4/4 valid JSON), model routing Flash/Pro, verifier loop, MediaPipe, PDF-RAG | ✅ Kuat **kalau dieksekusi** |
-| Eval harness + angka | Benchmarks folder, bukan klaim | Sudah punya angka (n=80, n=48, 13/20, 4/4) — tinggal dibungkus jadi `benchmarks/` + `eval/` yang bisa dijalankan ulang | ⚠️ Angka ada, harness belum |
+| Meaningful Use of Gen AI | AI = core engine, not a gimmick | Socratic interrogator + honeypot classifier + syllabus synthesis = AI drives the entire product | ✅ Strong |
+| System Architecture Accuracy | Modular, deterministic, secure | ADRs 001-005 **already exist**; per-chapter state machine; locked JSON schema | ⚠️ ADRs done, **no architecture diagram yet** |
+| Scalability & Resilience | Error handling, fallback, latency | `DEMO_MODE=cached` + auto-trigger 429/500/503 (API-CONTRACTS §3) | ✅ Closed in v2 |
+| Advanced AI Techniques | Not a prompt wrapper | Structured output (4/4 valid JSON), Flash/Pro model routing, verifier loop, MediaPipe, PDF-RAG | ✅ Strong **if executed** |
+| Eval harness + numbers | Benchmarks folder, not claims | Numbers already exist (n=80, n=48, 13/20, 4/4) — they just need wrapping into a re-runnable `benchmarks/` + `eval/` | ⚠️ Numbers exist, harness does not |
 
-**Action items untuk 40%:**
-1. `benchmarks/` + `eval/` yang bisa dijalankan ulang, dengan README singkat dan output tersimpan. Angka tanpa harness = klaim.
-2. Diagram arsitektur container (frontend / API / Gemini / Firestore / MediaPipe on-device) — satu PNG, jangan tiga.
-3. Tabel ADR 001-005 di README dengan satu baris "apa yang ditolak dan kenapa".
+**Action items for the 40%:**
+1. A re-runnable `benchmarks/` + `eval/`, with a short README and stored output. Numbers without a harness = claims.
+2. A container architecture diagram (frontend / API / Gemini / Firestore / MediaPipe on-device) — one PNG, not three.
+3. An ADR 001-005 table in the README with one line each on "what was rejected and why".
 
 ### 5.2 Problem Alignment & Impact (25%)
 
-| Sub-kriteria | Gap | Fix |
+| Sub-criterion | Gap | Fix |
 |---|---|---|
-| Friksi spesifik Track 4 | ✅ Kuat — brain rot / konsumsi pasif | Pakai bahasa problem statement panitia di slide 2. |
-| Quantifiable impact | ⚠️ Angka masalah ada (95%, 67%, PISA, 9 juta gap); **angka produk belum** (belum ada klaim retensi yang bisa dibuktikan) | Jangan mengarang klaim retensi. Pakai yang bisa dipertahankan: *kalibrasi* (calibration gap) dan *integritas* (54% honeypot) sebagai metrik yang memang diukur Assay. |
-| Relevansi JAPAC | ✅ Ditutup di v2 §2.3 (World Bank 9 juta talenta digital; bootcamp completion <15%) | Tambahkan satu baris "kenapa Indonesia/SEA dulu" di deck. |
-| Target user spesifik | ⚠️ Masih dua arah (B2C demo + B2B story) | Untuk deck: **demo B2C, uangnya B2B**. Satu kalimat, jangan dua pitch. |
+| Track 4 specific friction | ✅ Strong — brain rot / passive consumption | Use the organizers' problem statement language on slide 2. |
+| Quantifiable impact | ⚠️ Problem numbers exist (95%, 67%, PISA, 9 million gap); **product numbers do not** (no provable retention claim yet) | Do not invent retention claims. Use what is defensible: *calibration* (calibration gap) and *integrity* (54% honeypot) as metrics Assay actually measures. |
+| JAPAC relevance | ✅ Closed in v2 §2.3 (World Bank 9 million digital talent; bootcamp completion <15%) | Add one line on "why Indonesia/SEA first" in the deck. |
+| Specific target user | ⚠️ Still two directions (B2C demo + B2B story) | For the deck: **B2C demo, B2B money**. One sentence, not two pitches. |
 
 ### 5.3 Innovation & Creativity (25%)
 
-| Sub-kriteria | Status | Aksi |
+| Sub-criterion | Status | Action |
 |---|---|---|
-| Diferensiasi & orisinalitas | ✅ Honeypot pedagogis + AI-as-enforcer + calibration gap. Tiga hal yang tidak ada di produk existing. | Sebut Foreman sebagai cermin filosofis (§3.1). |
-| Beyond superficial | ✅ Structured output + deterministic classification + RAG hybrid + on-device multimodal | Tunjukkan PDF-RAG page-anchor sebagai bagian dari mekanisme honeypot, bukan sebagai fitur tambahan. |
-| Multimodal | ✅ MediaPipe (diputuskan) | Demo harus memperlihatkan event-nya hidup, bukan hanya slide. |
+| Differentiation & originality | ✅ Pedagogical honeypot + AI-as-enforcer + calibration gap. Three things that do not exist in current products. | Cite Foreman as the philosophical mirror (§3.1). |
+| Beyond superficial | ✅ Structured output + deterministic classification + hybrid RAG + on-device multimodal | Show the PDF-RAG page-anchor as part of the honeypot mechanism, not as an extra feature. |
+| Multimodal | ✅ MediaPipe (decided) | The demo must show the events live, not just a slide. |
 
 ### 5.4 User Experience & Solution Design (10%)
 
-**Tension yang harus di-frame, bukan disembunyikan:** Assay sengaja penuh friksi (gate, blur, timer), sementara juri menilai kemudahan.
+**The tension must be framed, not hidden:** Assay is deliberately full of friction (gates, blur, timers), while judges reward ease of use.
 
 > *"Friction is the feature, not the bug. We gate chapters the way a gym gates results — the resistance is the point."*
 
-Dua hal yang menutup kritik UX:
-1. **Accessible Mode** yang benar-benar berfungsi (kamera off, copy boleh, waktu longgar) — bukan toggle kosmetik.
-2. **Calibration slider** — satu momen 10 detik yang membuat user merasa diukur, bukan dihakimi. Ini juga fitur termurah dengan dampak terbesar.
+Two things that defuse the UX critique:
+1. **Accessible Mode** that actually works (camera off, copying allowed, relaxed timing) — not a cosmetic toggle.
+2. **The calibration slider** — one 10-second moment that makes the user feel measured, not judged. It is also the cheapest feature with the largest impact.
 
-Wajib ada: 1 slide "Guided Tour" atau onboarding 3 langkah supaya juri tidak tersesat saat mencoba live.
+Mandatory: a "Guided Tour" slide or 3-step onboarding so judges do not get lost when they try the live build.
 
 ---
 
-## 6. SCOPE FINAL — MUST SHIP vs CUT (selaras PRD v2)
+## 6. FINAL SCOPE — MUST SHIP vs CUT (aligned with PRD v2)
 
-### 6.1 🟢 MUST SHIP (non-negotiable, semuanya ada di PRD v2 §3)
+### 6.1 🟢 MUST SHIP (non-negotiable, all in PRD v2 §3)
 
-| # | Fitur | Justifikasi | Effort |
+| # | Feature | Justification | Effort |
 |---|-------|-------------|--------|
-| 1 | **Intake screen** (intent + role selector + PDF opsional) | Entry point. Tanpa ini tidak ada produk. | Medium |
-| 2 | **Realtime checklist generation** (+ user edit check/uncheck) | Momen personalisasi pertama; item tercentang = bahan silabus. | Medium |
-| 3 | **Syllabus synthesis** (chunk → chapter berstruktur + reference enrichment, PDF-RAG page-anchor) | PDF-RAG yang bikin klaim honeypot bisa diverifikasi ("istilah ini tidak ada di halaman mana pun"). | High |
-| 4 | **Gated chapter reader** (chapter linear, `next` LOCKED sampai skor ≥ 75) | Core differentiator. Tidak ada tombol ringkasan. | Low-Medium |
-| 5 | **Select-word Socratic ask** (+ suggested questions multi-kata, `gave_direct_answer: false`) | Fitur baru yang membuktikan tesis: AI balik nanya. | Medium |
-| 6 | **Interview quiz multi-turn 2-3 ronde** (pertanyaan inferensial, adaptive follow-up) | Jantung produk. | Medium |
-| 7 | **Honeypot injection + klasifikasi 4 nilai** (`CRITICAL_REJECTION +2` / `AI_HALLUCINATION_COPYPASTE −2` / `UNVERIFIED_HONEST 0` / `EVASIVE −1`) — **dimensi skor, bukan gate** | "Wow moment" demo. Harus jalan sempurna. | Medium |
-| 8 | **Calibration** (prediksi sebelum reveal) + `calibration_gap` | Fitur termurah, dampak terbesar, tidak ada di kompetitor. | Low |
-| 9 | **Single score per chapter + final report** (skor lintas chapter, tren calibration gap, integrity log, honeypot verdict) | Bukti bahwa penilaian benar-benar terjadi. | Low |
-| 10 | **DEMO_MODE=cached** (2 skenario wajib: success flow + caught flow) | Kalau API mati saat demo = game over. | Low |
-| 11 | **Focus Mode camera** (MediaPipe on-device, 4 event boolean, auto-blur, Accessible Mode) | Technical Merit + Innovation + demo visual. | Medium |
-| 12 | **Eval harness + angka + ADR + diagram arsitektur** | Ini yang mengubah "klaim" jadi "bukti" di rubrik 40%. | Medium |
+| 1 | **Intake screen** (intent + role selector + optional PDF) | Entry point. Without it there is no product. | Medium |
+| 2 | **Realtime checklist generation** (+ user edit check/uncheck) | The first personalization moment; checked items = syllabus input. | Medium |
+| 3 | **Syllabus synthesis** (chunk → structured chapters + reference enrichment, PDF-RAG page-anchor) | PDF-RAG is what makes honeypot claims verifiable ("this term is on no page"). | High |
+| 4 | **Gated chapter reader** (linear chapters, `next` LOCKED until score ≥ 75) | Core differentiator. No summary button. | Low-Medium |
+| 5 | **Select-word Socratic ask** (+ multi-word suggested questions, `gave_direct_answer: false`) | The new feature that proves the thesis: the AI asks back. | Medium |
+| 6 | **Multi-turn interview quiz, 2-3 rounds** (inferential questions, adaptive follow-up) | The heart of the product. | Medium |
+| 7 | **Honeypot injection + 4-value classification** (`CRITICAL_REJECTION +2` / `AI_HALLUCINATION_COPYPASTE −2` / `UNVERIFIED_HONEST 0` / `EVASIVE −1`) — **a score dimension, not a gate** | The demo "wow moment". Must run perfectly. | Medium |
+| 8 | **Calibration** (prediction before reveal) + `calibration_gap` | Cheapest feature, largest impact, absent from competitors. | Low |
+| 9 | **Single score per chapter + final report** (cross-chapter score, calibration gap trend, integrity log, honeypot verdict) | Proof that assessment actually happened. | Low |
+| 10 | **DEMO_MODE=cached** (2 required scenarios: success flow + caught flow) | If the API dies during the demo = game over. | Low |
+| 11 | **Focus Mode camera** (MediaPipe on-device, 4 boolean events, auto-blur, Accessible Mode) | Technical Merit + Innovation + visual demo. | Medium |
+| 12 | **Eval harness + numbers + ADRs + architecture diagram** | This is what turns "claims" into "evidence" on the 40% rubric. | Medium |
 
-**Catatan:** verifier loop + appeal path masuk must-ship meski murah (endpoint + satu UI). PRD §8 menyebut verifier sebagai wajib; appeal sudah ada di kontrak §2.8 dan di PRD §4.6.
+**Note:** the verifier loop + appeal path are must-ship even though they are cheap (one endpoint + one UI). PRD §8 lists the verifier as mandatory; appeal already exists in contract §2.8 and PRD §4.6.
 
-### 6.2 🟡 SHOULD HAVE (kalau waktu masih ada — jangan dipaksa)
+### 6.2 🟡 SHOULD HAVE (only if time remains — do not force it)
 
-| # | Fitur | Justifikasi | Effort |
+| # | Feature | Justification | Effort |
 |---|-------|-------------|--------|
-| 13 | **`paste_detected` + `keystroke_cpm` telemetry** | **Sudah ada di API-CONTRACTS §2.5.** Tinggal dikirim dari frontend. Sinyal integritas termurah yang tersedia. | Low |
-| 14 | **Response pressure timer** (sinyal, bukan auto-fail) | PRD §4.5. Ngukur waktu mikir user, bukan waktu tunggu model. | Low |
-| 15 | **Google Search grounding 1-2 chapter** (hasil di-cache) | Menambah kredibilitas "reference enrichment". | Medium |
-| 16 | **No-PDF path** (`source: role_taxonomy_generated`) | Menyelamatkan demo kalau PDF gagal parse. Jangan dipakai sebagai alur utama demo. | Medium |
-| 17 | **SSE streaming checklist** | Kalau polling sudah cukup untuk demo, polling lebih murah dan tidak ada risiko. | Medium |
+| 13 | **`paste_detected` + `keystroke_cpm` telemetry** | **Already in API-CONTRACTS §2.5.** Just needs to be sent from the frontend. The cheapest integrity signal available. | Low |
+| 14 | **Response pressure timer** (a signal, not auto-fail) | PRD §4.5. Measures the user's thinking time, not the model's wait time. | Low |
+| 15 | **Google Search grounding for 1-2 chapters** (results cached) | Adds credibility to "reference enrichment". | Medium |
+| 16 | **No-PDF path** (`source: role_taxonomy_generated`) | Saves the demo if the PDF fails to parse. Do not use it as the main demo flow. | Medium |
+| 17 | **SSE streaming checklist** | If polling is enough for the demo, polling is cheaper and risk-free. | Medium |
 
-### 6.3 🔴 CUT (roadmap slide saja — jangan disentuh Hari 4)
+### 6.3 🔴 CUT (roadmap slide only — do not touch on Day 4)
 
-| # | Fitur | Alasan |
+| # | Feature | Reason |
 |---|-------|--------|
-| 18 | Monaco + Piston + TDL (coding arena) | Tidak muat 4 hari; bukan wedge. |
-| 19 | DAG Skill Tree visual (ReactFlow) | Tidak pembeda; chapter stepper linear gratis dan lebih jelas. |
-| 20 | Dual-metric (2 skor terpisah) | Digantikan single score + calibration gap (lebih murah, lebih kuat). |
-| 21 | Voice / Gemini Live | Latency + biaya berisiko di live. |
-| 22 | Auth kompleks / multi-user | 1 sesi demo cukup. |
-| 23 | Multi-source input (video/audio) | PDF cukup. |
-| 24 | Excalidraw / evaluasi diagram | Scope creep. |
-| 25 | Keystroke dynamics engine penuh | `paste_detected` saja sudah cukup (#13). |
+| 18 | Monaco + Piston + TDL (coding arena) | Does not fit in 4 days; not the wedge. |
+| 19 | Visual DAG Skill Tree (ReactFlow) | Not a differentiator; the linear chapter stepper is free and clearer. |
+| 20 | Dual-metric (2 separate scores) | Replaced by single score + calibration gap (cheaper, stronger). |
+| 21 | Voice / Gemini Live | Latency + cost are risky live. |
+| 22 | Complex auth / multi-user | 1 demo session is enough. |
+| 23 | Multi-source input (video/audio) | PDF is enough. |
+| 24 | Excalidraw / diagram evaluation | Scope creep. |
+| 25 | Full keystroke dynamics engine | `paste_detected` alone is enough (#13). |
 
-### 6.4 Feature → Rubrik
+### 6.4 Feature → Rubric
 
 ```
 JUDGING RUBRIC (100%)
 |
 +-- Technical Merit 40% ....... Socratic interview + verifier, structured output,
 |                              MediaPipe, eval/ + benchmarks, cached fallback
-+-- Problem & Impact 25% ...... angka masalah (HEPI/RAND/PISA), JAPAC 9 juta gap,
-|                              satu B2B story (bukan dua pitch)
++-- Problem & Impact 25% ...... problem numbers (HEPI/RAND/PISA), JAPAC 9M gap,
+|                              one B2B story (not two pitches)
 +-- Innovation 25% ............ honeypot + 54% evidence, calibration gap,
 |                              select-word Socratic, AI-as-enforcer
 +-- UX & Solution Design 10% .. Accessible Mode + assisted_unverified, calibration
@@ -313,27 +314,26 @@ JUDGING RUBRIC (100%)
 ```
 
 ---
-
 ## 7. THREAT MITIGATION PLAYBOOK
 
-### 7.1 Threat: User menyontek dengan device kedua
+### 7.1 Threat: user cheats with a second device
 
-| Layer | Taktik | Efektivitas |
+| Layer | Tactic | Effectiveness |
 |-------|--------|-------------|
-| **Layer 1 — Paste/telemetry** (client) | `paste_detected` + `keystroke_cpm` + durasi (sudah di kontrak). Jawaban panjang muncul <2 detik = flag. | 🟢 Tinggi untuk deteksi paste |
-| **Layer 2 — Response time analysis** (backend) | Pertanyaan inferensial dijawab <15 detik dengan paragraf panjang = suspicious. | 🟡 Medium — false positive untuk fast typist |
-| **Layer 3 — MediaPipe focus signals** (client ML) | `GAZE_DRIFT` / `MULTIPLE_FACES` / `TAB_BLUR` → auto-blur + flag `assisted`. | 🟡 Medium — banyak false positive, advisory |
-| **Layer 4 — Honeypot** (AI-level) | Satu-satunya defense yang benar-benar bekerja terhadap LLM eksternal, apa pun device-nya. **54% halusinasi terukur; `fictional_term` 100% efektif (n=12 valid).** | 🟢 Tinggi (bukan 100% di populasi) |
-| **Layer 5 — Consistency cross-check** (AI-level) | Ronde berikutnya menanyakan konsep yang sama dengan framing berbeda. Jawaban kontradiktif = "inconsistent understanding". | 🟢 Tinggi |
-| **Layer 6 — PDF-RAG anchor** (AI-level) | Klaim user diverifikasi ke halaman dokumen. Istilah/kutipan yang tidak ada di halaman mana pun = sinyal. | 🟢 Tinggi (kalau demo pakai PDF) |
+| **Layer 1 — Paste/telemetry** (client) | `paste_detected` + `keystroke_cpm` + duration (already in the contract). A long answer appearing in <2 seconds = flag. | 🟢 High for paste detection |
+| **Layer 2 — Response time analysis** (backend) | An inferential question answered in <15 seconds with a long paragraph = suspicious. | 🟡 Medium — false positives for fast typists |
+| **Layer 3 — MediaPipe focus signals** (client ML) | `GAZE_DRIFT` / `MULTIPLE_FACES` / `TAB_BLUR` → auto-blur + `assisted` flag. | 🟡 Medium — many false positives, advisory |
+| **Layer 4 — Honeypot** (AI-level) | The only defense that truly works against an external LLM, whatever the device. **54% hallucination measured; `fictional_term` 100% effective (n=12 valid).** | 🟢 High (not 100% across the population) |
+| **Layer 5 — Consistency cross-check** (AI-level) | The next round asks about the same concept with different framing. Contradictory answers = "inconsistent understanding". | 🟢 High |
+| **Layer 6 — PDF-RAG anchor** (AI-level) | The user's claim is verified against document pages. A term/quote that appears on no page = signal. | 🟢 High (if the demo uses a PDF) |
 
-**Verdict:** jangan bergantung pada satu layer. Dan jujur ke juri: **no system is cheat-proof** — yang Assay lakukan adalah membuat biaya menyontek lebih tinggi daripada biaya belajar. Kalimat yang dipakai di deck dan Q&A: *"We don't prevent cheating. We make it more effort than learning."*
+**Verdict:** never rely on a single layer. And be honest with judges: **no system is cheat-proof** — what Assay does is make cheating cost more than learning. The line used in the deck and Q&A: *"We don't prevent cheating. We make it more effort than learning."*
 
-### 7.2 Threat: Honeypot gagal (LLM modern menolak halusinasi)
+### 7.2 Threat: honeypot fails (modern LLMs refuse to hallucinate)
 
-**Status: sudah diukur, bukan lagi asumsi.** n=80 panggilan, 4 model:
+**Status: measured, no longer an assumption.** n=80 calls, 4 models:
 
-| Model | Halusinasi | Refuse | Hedge | Error | Latensi avg |
+| Model | Hallucination | Refuse | Hedge | Error | Avg latency |
 |---|---|---|---|---|---|
 | ag/gemini-3.8-flash-medium | **75%** | 3 | 2 | 0 | 13s |
 | z/deepseek-v4-pro | 70% | 4 | 2 | 0 | 30s |
@@ -341,161 +341,160 @@ JUDGING RUBRIC (100%)
 | z/deepseek-v4.1-flash | **25%** | 12 | 1 | 2 | 34s |
 | **TOTAL** | **54%** | 29 | 5 | 3 | 25s |
 
-Efektivitas per jenis trap (n=48): `fictional_term` **100%** (10 comply / 0 pushback / 2 error, n=12 valid) · `trap_number` 58% · `false_premise` 25% · `over_claim` 25%.
+Effectiveness by trap type (n=48): `fictional_term` **100%** (10 comply / 0 pushback / 2 error, n=12 valid) · `trap_number` 58% · `false_premise` 25% · `over_claim` 25%.
 
-**Mitigasi yang harus dieksekusi:**
-1. **Pin model di demo.** Jangan pernah demo di deepseek-v4.1-flash (25%). Model yang paling mudah terpancing sudah teridentifikasi.
-2. **Pakai `fictional_term`, bukan `false_premise`/`over_claim`.** 25% terlalu lemah untuk momen yang harus jalan sempurna.
-3. **Rotasi term dari katalog (ADR 005).** Sediakan 20-30 term per domain supaya demo tidak bergantung pada satu istilah.
-4. **Jangan pernah tulis "100%" atau "terbukti selalu" di deck.** Tulis 54% (n=80) — angka jujur lebih kuat daripada superlatif, dan juri teknis akan menghargai n-nya.
-5. **Cached scenario sebagai jaring pengaman.** Kalau LLM live-nya menolak, caught flow tetap ada di `DEMO_MODE=cached`.
+**Mitigations that must be executed:**
+1. **Pin the model in the demo.** Never demo on deepseek-v4.1-flash (25%). The models that are easiest to bait are already identified.
+2. **Use `fictional_term`, not `false_premise`/`over_claim`.** 25% is too weak for a moment that must run perfectly.
+3. **Rotate terms from the catalog (ADR 005).** Provide 20-30 terms per domain so the demo does not depend on a single term.
+4. **Never write "100%" or "always proven" in the deck.** Write 54% (n=80) — an honest number is stronger than a superlative, and technical judges will respect the n.
+5. **A cached scenario as a safety net.** If the live LLM refuses, the caught flow still exists in `DEMO_MODE=cached`.
 
-### 7.3 Threat: Juri merasa UX terlalu mengekang
+### 7.3 Threat: judges feel the UX is too restrictive
 
-1. Tampilkan **Accessible Mode** secara eksplisit di UI (kamera off, copy boleh, waktu longgar) dan jelaskan konsekuensinya: skor ditandai `assisted_unverified`.
-2. Frame friksi sebagai **pedagogical design pattern**: *"Desirable Difficulties"* (Bjork) — kesulitan yang disengaja meningkatkan retensi jangka panjang.
-3. Buka dengan disclaimer: *"This product is intentionally hard. That's the point."*
-4. Jangan pernah menyebut kata "anti-cheat" sebagai klaim keamanan. Sebut **focus & integrity signal**.
+1. Show **Accessible Mode** explicitly in the UI (camera off, copying allowed, relaxed timing) and explain the consequence: the score is marked `assisted_unverified`.
+2. Frame the friction as a **pedagogical design pattern**: *"Desirable Difficulties"* (Bjork) — deliberate difficulty improves long-term retention.
+3. Open with the disclaimer: *"This product is intentionally hard. That's the point."*
+4. Never use the word "anti-cheat" as a security claim. Say **focus & integrity signal**.
 
-### 7.4 Threat: Gemini down / rate limited saat demo
+### 7.4 Threat: Gemini down / rate limited during the demo
 
-1. Trigger: `DEMO_MODE=cached` ATAU header `x-demo-mode: cached` ATAU error 429/500/503 (API-CONTRACTS §3).
-2. **Dua skenario wajib:**
-   - **Success flow** — user kritis menolak honeypot → `CRITICAL_REJECTION`, skor tinggi, chapter unlock.
-   - **Caught flow** — user copas jawaban LLM luar → `AI_HALLUCINATION_COPYPASTE`, skor turun, integrity flag.
-3. Banner `LOCAL_DETERMINISTIC_CACHE` **boleh tampil di depan kamera** — itu fitur ketahanan, bukan glitch. Kalimatnya: *"Gemini mocked for resilience."*
-4. Cache juga menyimpan hasil grounding eksternal supaya demo tidak bergantung jaringan.
+1. Trigger: `DEMO_MODE=cached` OR the header `x-demo-mode: cached` OR error 429/500/503 (API-CONTRACTS §3).
+2. **Two required scenarios:**
+   - **Success flow** — a critical user rejects the honeypot → `CRITICAL_REJECTION`, high score, chapter unlock.
+   - **Caught flow** — the user copy-pastes an external LLM answer → `AI_HALLUCINATION_COPYPASTE`, score drops, integrity flag.
+3. The `LOCAL_DETERMINISTIC_CACHE` banner **may appear on camera** — it is a resilience feature, not a glitch. The line: *"Gemini mocked for resilience."*
+4. The cache also stores external grounding results so the demo does not depend on the network.
 
 ---
 
-## 8. FEATURE PRIORITY & BOBOT INTERNAL
+## 8. FEATURE PRIORITY & INTERNAL WEIGHTING
 
-### 8.1 Kontribusi per fitur ke rubrik juri
+### 8.1 Contribution of each feature to the judge rubric
 
-| Fitur | Tech Merit (40%) | Problem Impact (25%) | Innovation (25%) | UX (10%) | Total | Priority |
+| Feature | Tech Merit (40%) | Problem Impact (25%) | Innovation (25%) | UX (10%) | Total | Priority |
 |-------|:---:|:---:|:---:|:---:|:---:|:---:|
 | Socratic interview multi-turn + verifier | ★★★★★ | ★★★ | ★★★ | ★★ | **30%** | P0 |
-| Honeypot trap + klasifikasi deterministik | ★★★★ | ★★ | ★★★★★ | ★ | **25%** | P0 |
+| Honeypot trap + deterministic classification | ★★★★ | ★★ | ★★★★★ | ★ | **25%** | P0 |
 | Syllabus + PDF-RAG + gated reader | ★★★★ | ★★★★ | ★★★ | ★★★ | **18%** | P0 |
 | Focus Mode MediaPipe (on-device) | ★★★★ | ★★ | ★★★★ | ★★ | **10%** | P0 |
-| Eval harness + benchmarks + ADR/diagram | ★★★★★ | ★ | ★ | ★ | **8%** | P0 |
+| Eval harness + benchmarks + ADRs/diagram | ★★★★★ | ★ | ★ | ★ | **8%** | P0 |
 | Cached fallback mode | ★★★★★ | ★ | ★ | ★★★★ | **5%** | P0 |
 | Calibration + report | ★★ | ★★★ | ★★★★ | ★★★★ | **4%** | P0 |
 | Paste/telemetry + response timer | ★★★ | ★ | ★★ | ★★ | **—** | P1 |
 
-### 8.2 Effort vs Impact (dibaca sebagai jadwal)
+### 8.2 Effort vs Impact (read as a schedule)
 
-Semua P0 di kuadran **kiri** (Socratic+verifier, honeypot, syllabus+PDF-RAG+gate, cached fallback, calibration+report) harus selesai sebelum Hari 4. Focus Mode dan eval harness ada di kanan-bawah-impact-tinggi — keduanya punya jaring pengaman (camera opsional; angka sudah ada), jadi keduanya boleh turun ke bentuk minimal kalau Hari 3 habis. Monaco/Piston dan DAG visual ada di kanan-atas-effort: **cut**, tidak dibangun dalam bentuk apa pun.
-
----
-
-## 9. WHAT THE PRD GETS WRONG (v2 — diperbarui)
-
-Baris yang **sudah diperbaiki di v2** tetap dicantumkan supaya tidak ada yang menghidupkan lagi masalahnya.
-
-| Bagian | Masalah | Status | Fix |
-|---|---|---|---|
-| §1.2 v1 — buzzword "High-Friction, High-Reward" tanpa definisi operasional | Slogan, bukan spesifikasi | ⚠️ **PARTIAL** | PRD v2 §3 mendefinisikannya lewat flow (chapter terkunci, tidak ada tombol ringkasan, gate skor ≥75), tapi frasenya masih muncul di §1.2 tanpa satu kalimat operasional. Tambahkan definisi eksplisit di deck notes. |
-| §3.3 v1 — Monaco + Piston + TDL | Scope project tersendiri | ✅ **RESOLVED** | Cut ke roadmap (PRD v2 §8); state `DEBUG_CHALLENGE` dihapus dari kontrak. |
-| §3.4 v1 — anti-cheat browser-side dijual sebagai keamanan | Security theater | ✅ **RESOLVED** | ADR 003 menolaknya secara eksplisit; diganti Focus Mode + framing integrity signal. |
-| §4 v1 — 4 developer tanpa kontrak API | Integrasi mustahil | ✅ **RESOLVED** | `API-CONTRACTS.md` v2 LOCKED; tim jadi 3 dev dengan pembagian per-pilar. |
-| §5 v1 — timeline mulai 14 Okt, dokumen ditulis 13 Okt malam | Hari 1 hilang untuk planning | ✅ **RESOLVED** | Hari 0 (14 Okt) dipakai untuk kontrak + angka; **sudah selesai hari ini**. |
-| §6 v1 — honeypot `trigger_round: 2` hardcoded | Honeypot tidak pernah kena kalau interview 1 ronde | ❌ **OPEN** | API-CONTRACTS §2.5 masih menaruh honeypot di `turn_index: 2`. Paksa minimum 2 ronde sebelum `finalize`, atau inject di ronde 1 untuk interview pendek. **Uji jalur ini sebelum merekam video.** |
-| §7 v1 — winning playbook tanpa Q&A defense | Juri akan menantang, tim gelagapan | ✅ **RESOLVED** | §10 dokumen ini. |
-
-### Temuan BARU di v2 (yang belum ada di audit v1)
-
-| # | Temuan | Severity | Fix |
-|---|---|---|---|
-| N1 | **Aritmatika §5 tidak menutup.** PRD v2 sendiri menulis ~14.75 dev-day vs ~9.6 kapasitas. Cut list §8 berisi item roadmap (Monaco/DAG/voice), bukan item yang sudah dihitung di 14.75. | 🔴 CRITICAL | Pilih satu: (a) potong lagi 5 dev-day dari flow (kandidat: SSE → polling, no-PDF path, appeal UI, Google Search grounding), atau (b) turunkan target demo ke 2 chapter, bukan 3, atau (c) terima 12 jam kerja/hari dan tulis itu di jadwal. Yang tidak boleh: berpura-pura defisitnya tidak ada. |
-| N2 | **Focus Mode naik ke must-ship tapi jadwalnya Hari 3**, bareng scoring + calibration + report + cached fallback. Itu empat hal berat di satu hari. | 🟠 HIGH | Bangun Focus Mode sebagai komponen mandiri lebih dulu (kamera → event → blur), integrasikan terakhir. Skenario cached tidak memerlukan kamera sama sekali. |
-| N3 | **Empat "fitur wajib riset" (eval harness, verifier, calibration, cached fallback) = 3.5 dev-day** menurut PRD sendiri, dan semuanya jatuh di Hari 3-4, saat tim paling lelah. | 🟠 HIGH | Pindahkan eval harness ke Hari 1-2 (dia tidak butuh UI, cuma butuh endpoint yang sudah jadi). Kalau ditunda ke Hari 4, dia akan hilang. |
-| N4 | **Honeypot bukan jaminan demo.** 54% agregat; 25% di salah satu model. | 🟠 HIGH | Pin model (gemini-flash-medium 75%), pakai `fictional_term` (100% di n=12), rotasi term (ADR 005), siapkan cached caught-flow. |
-| N5 | **Kata "anti-cheat" masih muncul di PRD v2** (§3 Step 5 baris "Anti-cheat feature", §5 diagram "anti-cheat"). ADR 003 sudah menolak framing itu. | 🟡 MEDIUM | Ganti jadi "Focus Mode / integrity signal" di seluruh dokumen. Inkonsistensi kecil, tapi juri membaca dokumen. |
-| N6 | **UI wajib Inggris, tapi contoh respons AI di API-CONTRACTS masih Bahasa Indonesia** (§2.4 `"Sebelum gw jawab — menurut kamu…"`, §2.5 pertanyaan interview Bahasa Indonesia). | 🟡 MEDIUM | Kalau demo merekam UI berbahasa Inggris dengan balasan AI berbahasa Indonesia, itu terlihat belum matang. Tentukan bahasa runtime (rekomendasi: Inggris, karena submisi wajib Inggris) dan perbarui contoh di kontrak + prompt. |
-| N7 | **Tidak ada diagram arsitektur.** ADR sudah bagus, tapi rubrik menyebut "Ketepatan Arsitektur Sistem". | 🟡 MEDIUM | Satu diagram container, taruh di README + slide 6. Setengah hari kerja, dampak besar ke rubrik 40%. |
-| N8 | **`assisted` vs `assisted_unverified` belum dipakai konsisten.** PRD §4.5 menyebut flag `assisted` untuk dua situasi berbeda (deteksi curang vs Accessible Mode). | 🟡 MEDIUM | Pakai pembagian dari ADR 003: deteksi → `assisted`; kamera off → `assisted_unverified`. Kontrak §2.7 sudah benar; samakan PRD dan UI. |
-| N9 | **Disiplin angka — RESOLVED.** Deck v1 menulis "91.3% / 640ms" tanpa sumber (sudah dibuang). Selisih `fictional_term` (log lama 67%/90% vs kanonik 100%) sudah ditelusuri: angka 67% salah karena menghitung ERROR sebagai PUSHBACK. Angka kanonik = 10 comply / 0 pushback / 2 error (n=12 valid). | 🟢 RESOLVED | Semua dokumen sudah pakai 100% (n=12) + sebutkan n-nya. Jangan pakai 67%/90% lagi. |
-| N10 | **Posisi kompetitor bisa salah dibaca.** FOREMAN dan CHOPDESK beda track — mereka patokan kualitas, bukan lawan head-to-head. | 🟡 MEDIUM | Di deck, sajikan mereka sebagai "patokan kualitas" dan ambil pelajarannya (honesty canary, fallback), bukan sebagai lawan yang dikalahkan. |
-| N11 | **Semua artefak submisi (UI copy, README, deck, video) masih nol.** Wajib Inggris. | 🟠 HIGH | Masukkan copywriting Inggris ke budget Hari 4 secara eksplisit, bukan sebagai "sisa waktu". |
-| N12 | **Default state Focus Mode belum ditentukan.** Kalau default kamera mati, momen demo paling visual hilang; kalau default nyala, kritik aksesibilitas datang. | 🟡 MEDIUM | Default: kamera **nyala** saat interview quiz, dengan toggle Accessible Mode yang terlihat jelas di layar. Jelaskan konsekuensi skor di UI saat toggle ditekan. |
+Every P0 in the **left** quadrant (Socratic+verifier, honeypot, syllabus+PDF-RAG+gate, cached fallback, calibration+report) must be finished before Day 4. Focus Mode and the eval harness sit in the low-effort/high-impact corner — both have safety nets (camera optional; numbers already exist), so either may drop to a minimal form if Day 3 runs out. Monaco/Piston and the visual DAG sit in the high-effort corner: **cut**, do not build them in any form.
 
 ---
 
-## 10. JURI Q&A DEFENSE SCRIPT
+## 9. WHAT THE PRD GETS WRONG (v2 — updated)
 
-Pertanyaan yang hampir pasti ditanyakan, dengan jawaban yang harus dihafal.
+Lines **already fixed in v2** are still listed so that nobody revives the problem.
 
-### Q1: "Apa bedanya ini dengan Khanmigo / Google Learn About?"
-> **A:** "Khanmigo dan Learn About adalah *suggestive tutors* — mereka bertanya secara Socratic, tapi menerima jawaban apa pun dan lanjut. Assay adalah *enforcement engine*: chapter berikutnya terkunci sampai reasoning kamu lolos evaluasi, skor ≥ 75. Selain itu, Assay menyuntik konsep fiktif untuk menangkap user yang meng-outsource pemikirannya ke LLM eksternal — dan kami mengukurnya: **54% halusinasi dari 80 panggilan ke 4 model frontier**. Kami tidak mengklaim mengalahkan Khanmigo; kami membangun di atas metode Socratic yang sudah terbukti dan menambahkan lapisan enforcement dan integritas yang belum ada yang mengirimkannya."
+| Section | Problem | Status | Fix |
+|---|---|---|---|
+| §1.2 v1 — buzzword "High-Friction, High-Reward" with no operational definition | A slogan, not a specification | ⚠️ **PARTIAL** | PRD v2 §3 defines it through flow (locked chapters, no summary button, score gate ≥75), but the phrase still appears in §1.2 without a single operational sentence. Add an explicit definition in the deck notes. |
+| §3.3 v1 — Monaco + Piston + TDL | A project of its own | ✅ **RESOLVED** | Cut to roadmap (PRD v2 §8); the `DEBUG_CHALLENGE` state is removed from the contract. |
+| §3.4 v1 — browser-side anti-cheat sold as security | Security theater | ✅ **RESOLVED** | ADR 003 explicitly rejects it; replaced by Focus Mode + integrity-signal framing. |
+| §4 v1 — 4 developers without an API contract | Integration impossible | ✅ **RESOLVED** | `API-CONTRACTS.md` v2 LOCKED; the team is now 3 devs with per-pillar ownership. |
+| §5 v1 — timeline starts Oct 14, document written the night of Oct 13 | Day 1 lost to planning | ✅ **RESOLVED** | Day 0 (Oct 14) spent on contracts + numbers; **finished today**. |
+| §6 v1 — honeypot `trigger_round: 2` hardcoded | The honeypot never fires if the interview is 1 round | ❌ **OPEN** | API-CONTRACTS §2.5 still places the honeypot at `turn_index: 2`. Force a minimum of 2 rounds before `finalize`, or inject in round 1 for short interviews. **Test this path before recording the video.** |
+| §7 v1 — winning playbook without Q&A defense | Judges will challenge, the team will stumble | ✅ **RESOLVED** | §10 of this document. |
 
-### Q2: "Anti-cheat browser-side itu sepele di-bypass. Apa yang sebenarnya mencegah kecurangan?"
-> **A:** "Betul, dan karena itu kami tidak memakainya. ADR 003 menolak `user-select: none` dan blur paksa sebagai security theater. Lapisan yang benar-benar bekerja ada di level AI: (1) honeypot — 54% terukur, dan jenis trap terkuat kami (fictional_term) memancing jawaban yakin di 100% panggilan valid (n=12); (2) cross-check konsistensi antar ronde; (3) verifikasi klaim ke halaman dokumen lewat PDF-RAG. Focus Mode MediaPipe kami sebut *integrity signal*, bukan keamanan — sinyalnya advisory. Tidak ada sistem yang cheat-proof; kami membuat menyontek lebih mahal daripada belajar."
+### NEW findings in v2 (not present in audit v1)
 
-### Q3: "Bagaimana kalau AI salah menilai jawaban yang sebenarnya benar?"
-> **A:** "Tiga lapis. Satu, penilaian berjalan di atas JSON schema dengan klasifikasi deterministik (ADR 002) — bukan free-text judge, dan setiap penilaian membawa `evidence_quotes` plus nilai `confidence`. Dua, ada verifier model kedua: pada pengujian kami, dia menangkap **13 dari 20 halusinasi (65%)** — kami jujur bahwa 35% lolos. Tiga, ada appeal path: user bisa membantah skor, sistem menandai `revised` atau `uncertain`. Semua jejak penalaran tersimpan untuk audit."
+| # | Finding | Severity | Fix |
+|---|---|---|---|
+| N1 | **The §5 arithmetic does not close.** PRD v2 itself writes ~14.75 dev-days vs ~9.6 capacity. The §8 cut list contains roadmap items (Monaco/DAG/voice), not items already counted in the 14.75. | 🔴 CRITICAL | Pick one: (a) cut another 5 dev-days from the flow (candidates: SSE → polling, no-PDF path, appeal UI, Google Search grounding), or (b) drop the demo target to 2 chapters instead of 3, or (c) accept 12 working hours/day and write that into the schedule. What is not allowed: pretending the deficit is not there. |
+| N2 | **Focus Mode was promoted to must-ship but scheduled for Day 3**, together with scoring + calibration + report + cached fallback. That is four heavy items in one day. | 🟠 HIGH | Build Focus Mode as a standalone component first (camera → event → blur), integrate it last. The cached scenarios need no camera at all. |
+| N3 | **The four "research-mandatory features" (eval harness, verifier, calibration, cached fallback) = 3.5 dev-days** by the PRD's own count, and all of them land on Days 3-4, when the team is most tired. | 🟠 HIGH | Move the eval harness to Days 1-2 (it needs no UI, only finished endpoints). If it slips to Day 4, it will be lost. |
+| N4 | **The honeypot is not a demo guarantee.** 54% aggregate; 25% on one model. | 🟠 HIGH | Pin the model (gemini-flash-medium 75%), use `fictional_term` (100% at n=12), rotate terms (ADR 005), prepare a cached caught-flow. |
+| N5 | **The word "anti-cheat" still appears in PRD v2** (§3 Step 5 line "Anti-cheat feature", §5 diagram "anti-cheat"). ADR 003 already rejects that framing. | 🟡 MEDIUM | Replace with "Focus Mode / integrity signal" throughout. A small inconsistency, but judges do read the documents. |
+| N6 | **The UI must be English, but the AI response examples in API-CONTRACTS are still in Indonesian** (§2.4 `"Sebelum gw jawab — menurut kamu…"`, §2.5 Indonesian interview questions). | 🟡 MEDIUM | If the demo records an English UI with Indonesian AI replies, it looks unfinished. Decide the runtime language (recommendation: English, since submissions must be English) and update the contract examples + prompts. |
+| N7 | **No architecture diagram.** The ADRs are good, but the rubric says "System Architecture Accuracy". | 🟡 MEDIUM | One container diagram, in the README + slide 6. Half a day of work, large impact on the 40% rubric. |
+| N8 | **`assisted` vs `assisted_unverified` are not used consistently.** PRD §4.5 uses the `assisted` flag for two different situations (cheating detection vs Accessible Mode). | 🟡 MEDIUM | Use the split from ADR 003: detection → `assisted`; camera off → `assisted_unverified`. Contract §2.7 is already correct; align the PRD and the UI. |
+| N9 | **Number discipline — RESOLVED.** Deck v1 wrote "91.3% / 640ms" with no source (already removed). The `fictional_term` discrepancy (old logs 67%/90% vs canonical 100%) has been traced: the 67% figure was wrong because it counted ERROR as PUSHBACK. Canonical = 10 comply / 0 pushback / 2 error (n=12 valid). | 🟢 RESOLVED | All documents now use 100% (n=12) + state the n. Do not use 67%/90% again. |
+| N10 | **Competitor positions can be misread.** FOREMAN and CHOPDESK are in different tracks — they are quality benchmarks, not head-to-head opponents. | 🟡 MEDIUM | In the deck, present them as "quality benchmarks" and take the lessons (honesty canary, fallback), not as opponents that were beaten. |
+| N11 | **All submission artifacts (UI copy, README, deck, video) are still at zero.** English is mandatory. | 🟠 HIGH | Put English copywriting into the Day 4 budget explicitly, not as "leftover time". |
+| N12 | **The default state of Focus Mode is undecided.** If the camera defaults to off, the most visual demo moment disappears; if it defaults to on, the accessibility critique arrives. | 🟡 MEDIUM | Default: camera **on** during the interview quiz, with a clearly visible Accessible Mode toggle on screen. Explain the score consequence in the UI when the toggle is pressed. |
 
-### Q4: "Bagaimana privasi user? Anda menyalakan kamera."
-> **A:** "Video tidak pernah meninggalkan device. Inferensi MediaPipe jalan di browser; yang dikirim ke backend hanya event boolean — `GAZE_DRIFT`, `MULTIPLE_FACES`, `TAB_BLUR`, `CAMERA_OFF` — dengan timestamp dan durasi. Payload-nya wajib membawa `video_transmitted: false`, dan itu tertulis di kontrak API kami, bukan sekadar janji di slide. Kami tidak punya pipeline video, jadi tidak ada retensi biometrik, tidak ada consent flow video, dan tidak ada klasifikasi high-risk AI Act untuk remote proctoring. Accessible Mode mematikan kamera sepenuhnya; skornya tetap dihitung dan ditandai `assisted_unverified` supaya laporannya jujur."
+---
+## 10. JUDGE Q&A DEFENSE SCRIPT
 
-### Q5: "Ini terlalu mengekang. User akan frustrasi dan berhenti."
-> **A:** "Friksinya sengaja — kami mengacu ke riset 'Desirable Difficulties' (Bjork): kesulitan yang disengaja meningkatkan retensi jangka panjang. Yang penting, friksi kami terbatas dan transparan: satu gate per chapter, ambang 75, dan ada Accessible Mode yang mematikan kamera, mengizinkan copy, dan melonggarkan waktu. Kami tidak menjual kenyamanan; kami menjual bukti pemahaman. Kalau user mau ringkasan instan, NotebookLM sudah ada."
+The questions that will almost certainly be asked, with the answers to memorize.
 
-### Q6: "54% itu bukan 100%. Bagaimana kalau LLM-nya menolak menjawab istilah fiktif Anda?"
-> **A:** "Betul, dan itu sebabnya kami mengukurnya sebelum membangun. Dari 80 panggilan ke 4 model: 43 berhalusinasi, 29 menolak, 5 ragu, 3 error. Kami juga tahu model mana yang paling mudah terpancing — 75% di satu model, 25% di model lain — jadi kami memilih model dan jenis trap berdasarkan data, bukan harapan. Kami punya katalog term deterministik dengan variasi (ADR 005) supaya tidak bisa dihafal, dan ada cached scenario kalau live-nya gagal. Di deck kami menulis 54%, bukan 100%. Angka yang bisa ditelusuri lebih berguna daripada superlatif."
+### Q1: "How is this different from Khanmigo / Google Learn About?"
+> **A:** "Khanmigo and Learn About are *suggestive tutors* — they ask Socratic questions, but accept any answer and move on. Assay is an *enforcement engine*: the next chapter stays locked until your reasoning passes evaluation, score ≥ 75. Beyond that, Assay injects fictional concepts to catch users who outsource their thinking to an external LLM — and we measured it: **54% hallucination across 80 calls to 4 frontier models**. We do not claim to beat Khanmigo; we build on a proven Socratic method and add the enforcement and integrity layer that nobody ships."
 
-### Q7: "Bukankah ini cuma proctoring / pengawasan?"
-> **A:** "Bukan. Proctoring mengirim video ke server dan membangun pipeline biometrik; kami menolak itu karena biaya privasinya permanen dan keuntungan deteksinya marginal di skala kami. Kami memantau fokus, bukan orang: sinyalnya boolean, inferensinya on-device, dan konsekuensinya adalah flag plus auto-blur — bukan larangan, bukan laporan ke institusi. Dan kami tidak pernah menyebut ini anti-cheat."
+### Q2: "Browser-side anti-cheat is trivial to bypass. What actually prevents cheating?"
+> **A:** "Correct, and that is why we do not use it. ADR 003 rejects `user-select: none` and forced blur as security theater. The layers that actually work sit at the AI level: (1) the honeypot — 54% measured, and our strongest trap type (fictional_term) baits a confident answer in 100% of valid calls (n=12); (2) cross-round consistency checks; (3) verification of claims against document pages via PDF-RAG. We call MediaPipe Focus Mode an *integrity signal*, not security — the signal is advisory. No system is cheat-proof; we make cheating cost more than learning."
 
-### Q8: "Kalau tidak ada PDF yang di-upload, produk ini masih jalan?"
-> **A:** "Jalan. Chapter di-generate dari role taxonomy plus grounding, dan ditandai `source: role_taxonomy_generated` supaya jelas asalnya. Tapi kami jujur: jalur PDF adalah yang paling kuat, karena PDF-RAG memberi page-anchor — dan page-anchor itulah yang membuat klaim honeypot bisa diverifikasi ('istilah ini tidak ada di halaman mana pun modul kamu')."
+### Q3: "What if the AI misjudges an answer that is actually correct?"
+> **A:** "Three layers. One, assessment runs on a JSON schema with deterministic classification (ADR 002) — not a free-text judge, and every assessment carries `evidence_quotes` plus a `confidence` value. Two, there is a second-model verifier: in our tests it caught **13 of 20 hallucinations (65%)** — we are honest that 35% slip through. Three, there is an appeal path: the user can contest the score, and the system marks it `revised` or `uncertain`. Every trace of reasoning is stored for audit."
 
-### Q9: "Ini kan cuma belajar. Model bisnisnya apa?"
-> **A:** "Demo-nya B2C, tapi yang membayar adalah institusi. Bootcamp dengan completion rate di bawah 15% dan sertifikat yang tidak lagi dipercaya butuh bukti kompetensi, bukan nilai. Assay memberi mereka skor reasoning per chapter, tren calibration gap, dan integrity log yang bisa diaudit. Relevansi JAPAC-nya konkret: gap 9 juta talenta digital (World Bank), dan lulusan yang tidak terverifikasi adalah masalah yang dibayar oleh industri."
+### Q4: "What about user privacy? You turn on the camera."
+> **A:** "Video never leaves the device. MediaPipe inference runs in the browser; only boolean events reach the backend — `GAZE_DRIFT`, `MULTIPLE_FACES`, `TAB_BLUR`, `CAMERA_OFF` — with a timestamp and duration. The payload is required to carry `video_transmitted: false`, and that is written into our API contract, not just promised on a slide. We have no video pipeline, so there is no biometric retention, no video consent flow, and no high-risk AI Act classification for remote proctoring. Accessible Mode turns the camera off entirely; the score is still computed and marked `assisted_unverified` so the report stays honest."
 
-### Q10: "Kenapa pakai MediaPipe, bukan Gemini Vision?"
-> **A:** "Tiga alasan. Satu, privasi: tidak ada video yang dikirim, jadi tidak ada pipeline biometrik. Dua, biaya: nol token untuk deteksi fokus, dan deteksi berjalan tiap frame tanpa biaya API. Tiga, latency: tidak ada round-trip jaringan untuk sinyal yang harus instan. Trade-off-nya kami akui: akurasi terikat kualitas device dan cahaya, jadi sinyalnya advisory — dan itu sebabnya flag-nya memengaruhi skor integritas plus bisa di-appeal, bukan menggagalkan sesi."
+### Q5: "This is too restrictive. Users will get frustrated and quit."
+> **A:** "The friction is deliberate — we point to the 'Desirable Difficulties' research (Bjork): deliberate difficulty improves long-term retention. What matters is that our friction is bounded and transparent: one gate per chapter, a threshold of 75, and an Accessible Mode that turns off the camera, allows copying, and relaxes timing. We do not sell comfort; we sell proof of understanding. If a user wants instant summaries, NotebookLM already exists."
+
+### Q6: "54% is not 100%. What if the LLM refuses to answer your fictional term?"
+> **A:** "Correct, and that is why we measured before building. Across 80 calls to 4 models: 43 hallucinated, 29 refused, 5 hedged, 3 errored. We also know which model is easiest to bait — 75% on one model, 25% on another — so we pick the model and the trap type from data, not hope. We have a deterministic term catalog with variation (ADR 005) so it cannot be memorized, and a cached scenario if the live call fails. In the deck we write 54%, not 100%. A traceable number is more useful than a superlative."
+
+### Q7: "Isn't this just proctoring / surveillance?"
+> **A:** "No. Proctoring sends video to a server and builds a biometric pipeline; we reject that because the privacy cost is permanent and the detection gain is marginal at our scale. We monitor focus, not people: the signals are boolean, inference is on-device, and the consequence is a flag plus auto-blur — not a ban, not a report to an institution. And we never call this anti-cheat."
+
+### Q8: "If no PDF is uploaded, does the product still work?"
+> **A:** "It works. Chapters are generated from the role taxonomy plus grounding, and tagged `source: role_taxonomy_generated` so the origin is clear. But we are honest: the PDF path is the strongest, because PDF-RAG provides page-anchors — and those page-anchors are what make honeypot claims verifiable ('this term is on no page of your module')."
+
+### Q9: "This is just studying. What's the business model?"
+> **A:** "The demo is B2C, but institutions pay. Bootcamps with completion rates below 15% and certificates nobody trusts any more need proof of competence, not grades. Assay gives them a per-chapter reasoning score, a calibration gap trend, and an auditable integrity log. The JAPAC relevance is concrete: a 9 million digital talent gap (World Bank), and unverified graduates are a problem industry pays for."
+
+### Q10: "Why MediaPipe and not Gemini Vision?"
+> **A:** "Three reasons. One, privacy: no video is sent, so there is no biometric pipeline. Two, cost: zero tokens for focus detection, and detection runs every frame at no API cost. Three, latency: no network round-trip for a signal that must be instant. We acknowledge the trade-off: accuracy is bound to device quality and lighting, so the signal is advisory — which is why the flag affects the integrity score and can be appealed, rather than failing the session."
 
 ---
 
 ## 11. FINAL RECOMMENDATIONS
 
-1. **TUTUP ARITMATIKA HARI INI, BUKAN BESOK.** PRD v2 §5 sendiri menunjukkan defisit ~5 dev-day (14.75 vs 9.6). Pilih satu jalan: potong lagi, turunkan target jadi 2 chapter, atau tambah jam kerja dan tulis di jadwal. Setiap fitur baru setelah dokumen ini = fitur yang mengorbankan gate, scoring, atau fallback.
-2. **PIN MODEL DAN TERM HONEYPOT SEKARANG.** `fictional_term` (100% di n=12), model paling mudah terpancing (75%), rotasi dari katalog (ADR 005). Jangan pernah demo di model 25%.
-3. **FOKUS MODE: BANGUN SEBAGAI KOMPONEN MANDIRI.** Kamera → event → auto-blur → flag, tanpa menunggu integrasi penuh. Skenario cached tidak butuh kamera, jadi demo punya jaring pengaman ganda.
-4. **EVAL HARNESS PINDAH KE HARI 1-2.** Angka sudah ada (54%, 100%, 65%, 4/4); harness-nya hanya perlu membungkus dan menjalankannya ulang. Ini rubrik 40% dan paling sering hilang di Hari 4.
-5. **CACHED FALLBACK DARI HARI 1.** Dua skenario (success + caught). Ini asuransi hidup-mati demo.
-6. **JANGAN PERNAH BILANG "ANTI-CHEAT".** Bilang "Focus Mode / integrity signal". Perbaiki juga kata itu di PRD §3/§5 (N5) supaya dokumen dan presentasi konsisten.
-7. **SAMAKAN BAHASA SEBELUM MEREKAM VIDEO.** UI, AI reply, README, deck, video = Inggris. Contoh respons Bahasa Indonesia di API-CONTRACTS §2.4/§2.5 harus diganti, kalau tidak demo akan terlihat campur-campur (N6).
-8. **TAMBAHKAN SATU DIAGRAM ARSITEKTUR.** Setengah hari kerja, langsung terasa di rubrik "Ketepatan Arsitektur Sistem" (N7).
-9. **UJI JALUR HONEYPOT 1 RONDE.** Temuan v1 yang masih OPEN: kalau user `finalize` setelah satu ronde, honeypot tidak pernah ter-inject. Paksa minimum 2 ronde.
-10. **SIAPKAN Q&A.** Kalau tim gelagapan saat ditanya "apa bedanya dengan Khanmigo?" atau "54% itu bukan 100%", keunggulan teknis tidak akan menyelamatkan. Hafalkan §10, terutama Q2, Q4, Q6.
-11. **HARI 4 = FREEZE.** Tidak ada fitur baru, tidak ada refactor besar. Hanya deploy, rekam, tulis deck, submit sebelum 20:00 UTC+8.
-12. **AUDIT DIRI TERAKHIR, 1 JAM.** Buka PRD §3 flow dan cek satu per satu: apakah tiap langkah bisa ditunjukkan hidup di depan kamera? Yang tidak bisa, pindahkan ke slide roadmap — jangan dipaksakan.
+1. **CLOSE THE ARITHMETIC TODAY, NOT TOMORROW.** PRD v2 §5 itself shows a ~5 dev-day deficit (14.75 vs 9.6). Pick one path: cut more, drop the target to 2 chapters, or add working hours and write them into the schedule. Every new feature after this document = a feature that sacrifices the gate, scoring, or fallback.
+2. **PIN THE MODEL AND THE HONEYPOT TERMS NOW.** `fictional_term` (100% at n=12), the most easily baited model (75%), rotation from the catalog (ADR 005). Never demo on the 25% model.
+3. **FOCUS MODE: BUILD IT AS A STANDALONE COMPONENT.** Camera → event → auto-blur → flag, without waiting for full integration. The cached scenarios need no camera, so the demo has a double safety net.
+4. **MOVE THE EVAL HARNESS TO DAYS 1-2.** The numbers already exist (54%, 100%, 65%, 4/4); the harness only needs to wrap them and re-run them. This is the 40% rubric and it is the thing most often lost on Day 4.
+5. **CACHED FALLBACK FROM DAY 1.** Two scenarios (success + caught). This is life-or-death insurance for the demo.
+6. **NEVER SAY "ANTI-CHEAT".** Say "Focus Mode / integrity signal". Also fix that wording in PRD §3/§5 (N5) so the document and the presentation stay consistent.
+7. **ALIGN THE LANGUAGE BEFORE RECORDING THE VIDEO.** UI, AI replies, README, deck, video = English. The Indonesian response examples in API-CONTRACTS §2.4/§2.5 must be replaced, otherwise the demo will look mixed (N6).
+8. **ADD ONE ARCHITECTURE DIAGRAM.** Half a day of work, immediately felt on the "System Architecture Accuracy" rubric line (N7).
+9. **TEST THE 1-ROUND HONEYPOT PATH.** The v1 finding that is still OPEN: if the user calls `finalize` after one round, the honeypot is never injected. Force a minimum of 2 rounds.
+10. **PREPARE THE Q&A.** If the team stumbles when asked "how is this different from Khanmigo?" or "54% is not 100%", technical superiority will not save it. Memorize §10, especially Q2, Q4, Q6.
+11. **DAY 4 = FREEZE.** No new features, no big refactors. Only deploy, record, write the deck, and submit before 20:00 UTC+8.
+12. **FINAL SELF-AUDIT, 1 HOUR.** Open PRD §3 flow and check one by one: can each step be shown live on camera? What cannot, move to the roadmap slide — do not force it.
 
 ---
 
-## 12. EVIDENCE BASE (angka kanonik — jangan dikarang)
+## 12. EVIDENCE BASE (canonical numbers — do not invent)
 
-Sumber tunggal: `../reza-research/parts10/HASIL-TES-EMPIRIS.md` (gateway lokal, 14 Okt 2026 20:18, workers=5). Log mentah per-panggilan ada di `../reza-research/parts10/results/*.jsonl`.
+Single source: `../reza-research/parts10/HASIL-TES-EMPIRIS.md` (local gateway, Oct 14, 2026 20:18, workers=5). Per-call raw logs are in `../reza-research/parts10/results/*.jsonl`.
 
-| Metrik | Angka | n | Catatan |
+| Metric | Number | n | Note |
 |---|---|---|---|
-| Honeypot hallucination rate (agregat) | **54%** | 80 panggilan, 4 model | 29 REFUSE, 5 HEDGE, 3 ERROR |
-| — ag/gemini-3.8-flash-medium | 75% | 20 | **Model paling mudah terpancing — pin untuk demo** |
-| — z/deepseek-v4-pro | 70% | 20 | Latensi 30s |
+| Honeypot hallucination rate (aggregate) | **54%** | 80 calls, 4 models | 29 REFUSE, 5 HEDGE, 3 ERROR |
+| — ag/gemini-3.8-flash-medium | 75% | 20 | **Easiest model to bait — pin it for the demo** |
+| — z/deepseek-v4-pro | 70% | 20 | Latency 30s |
 | — z/deepseek-v4-flash | 45% | 20 | 1 error |
-| — z/deepseek-v4.1-flash | 25% | 20 | **Jangan dipakai di demo** |
-| Trap efektivitas: fictional_term | **100%** (10 comply / 0 pushback / 2 error) | 12 valid | Trap terkuat — pakai ini (n kecil, baca sebagai "jalan", bukan angka presisi) |
-| Trap efektivitas: trap_number | 58% | 48 | |
-| Trap efektivitas: false_premise | 25% | 48 | Terlalu lemah untuk demo |
-| Trap efektivitas: over_claim | 25% | 48 | Terlalu lemah untuk demo |
-| Verifier loop menangkap halusinasi | **13/20 (65%)** | 20 | 4 lolos, 3 tidak jelas → residual risk nyata |
-| Structured output valid JSON | **4/4 (100%)** | 4 | Klaim kuat, tapi n kecil — jangan dilebihkan |
+| — z/deepseek-v4.1-flash | 25% | 20 | **Do not use in the demo** |
+| Trap effectiveness: fictional_term | **100%** (10 comply / 0 pushback / 2 error) | 12 valid | Strongest trap — use this one (small n, read it as "it works", not as a precise figure) |
+| Trap effectiveness: trap_number | 58% | 48 | |
+| Trap effectiveness: false_premise | 25% | 48 | Too weak for the demo |
+| Trap effectiveness: over_claim | 25% | 48 | Too weak for the demo |
+| Verifier loop catches hallucinations | **13/20 (65%)** | 20 | 4 passed, 3 unclear → real residual risk |
+| Structured output valid JSON | **4/4 (100%)** | 4 | Strong claim, but small n — do not oversell it |
 
-**Aturan angka:**
-1. Semua angka di deck, README, dan video harus bisa ditelusuri ke tabel di atas atau ke `eval/` yang bisa dijalankan ulang.
-2. **Jangan pakai superlatif** ("selalu", "100%", "terbukti"). Pakai angka + n.
-3. Deck v1 pernah memuat "91.3% / 640ms" tanpa sumber — PRD §9 sudah memperingatkan. Jangan terulang.
-4. `fictional_term` = **100% (10 comply / 0 pushback / 2 error, n=12 valid)**. Angka 67% di log lama salah: ERROR dihitung sebagai PUSHBACK. Jangan pakai 67%/90%.
-5. Klasifikasi memakai regex heuristik yang transparan, bukan LLM judge — itu disengaja supaya pengukurannya tidak sirkular. Sebut ini kalau juri menanyakan metodologi.
+**Number rules:**
+1. Every number in the deck, README, and video must be traceable to the table above or to a re-runnable `eval/`.
+2. **Do not use superlatives** ("always", "100%", "proven"). Use the number + n.
+3. Deck v1 once carried "91.3% / 640ms" with no source — PRD §9 already warns about this. Do not repeat it.
+4. `fictional_term` = **100% (10 comply / 0 pushback / 2 error, n=12 valid)**. The 67% figure in the old logs is wrong: ERROR was counted as PUSHBACK. Do not use 67%/90%.
+5. Classification uses transparent heuristic regex, not an LLM judge — that is deliberate so the measurement is not circular. Mention this if judges ask about methodology.

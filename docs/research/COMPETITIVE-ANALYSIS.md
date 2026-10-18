@@ -1,280 +1,282 @@
-# Intel & Deep Research: Lanskap Kompetitor AI Builder Cup 2026
+# Intel & Deep Research: AI Builder Cup 2026 Competitor Landscape
 
-**Dokumen Intelijen Kompetisi — v2.0.0**
-**Produk:** **Assay** — The Active Socratic Learning Engine
-*(codename repo: Active Learning Engine — `active-learning-engine/`)*
+**Competitive Intelligence Document — v2.0.0**
+**Product:** **Assay** — The Active Socratic Learning Engine
+*(repo codename: Active Learning Engine — `active-learning-engine/`)*
 **Event:** Google Cloud x Hack2skill — AI Builder Cup 2026 (JAPAC Regional)
-**Track:** **Track 4 — Media, Content & Digital Experiences (Adaptive Learning) — SATU TRACK SAJA**
-**Target Submission:** **18 Oktober 2026, 23:59 UTC+8** (HARD DEADLINE)
-**Fokus Riset:** Kompetitor aktif 2026, profil pemenang terdahulu (Gen AI Exchange), dan vulnerability assessment
+**Track:** **Track 4 — Media, Content & Digital Experiences (Adaptive Learning) — ONE TRACK ONLY**
+**Submission Target:** **October 18, 2026, 23:59 UTC+8** (HARD DEADLINE)
+**Research Focus:** Active competitors in 2026, profiles of past winners (Gen AI Exchange), and vulnerability assessment
 
-> **Changelog dari v1 dokumen ini:** nama produk CogniForge → **Assay**; Track 4 **dan** Track 5 → **Track 4 saja** (aturan: 1 tim = 1 track); deadline 19 → **18 Oktober 2026**; flow lama (upload PDF wajib → chunk 300-600 kata → concept node) → **flow v2** (intent + role + PDF opsional → checklist realtime → silabus chapter); dual-metric → **single score + calibration gap**; DAG Skill Tree → **chapter stepper linear**; coding arena Monaco/Piston → **CUT ke roadmap**; honeypot dari gate keras → **dimensi skor**.
-> Semua angka di dokumen ini berasal dari `reza-research/parts10/HASIL-TES-EMPIRIS.md` atau studi eksternal bernama. Tidak ada angka karangan.
+> **Changelog from v1 of this document:** product name CogniForge → **Assay**; Track 4 **and** Track 5 → **Track 4 only** (rule: 1 team = 1 track); deadline 19 → **October 18, 2026**; old flow (mandatory PDF upload → 300-600 word chunks → concept node) → **flow v2** (intent + role + optional PDF → realtime checklist → chapter syllabus); dual-metric → **single score + calibration gap**; DAG Skill Tree → **linear chapter stepper**; Monaco/Piston coding arena → **CUT to roadmap**; honeypot from hard gate → **score dimension**.
+> Every number in this document comes from `reza-research/parts10/HASIL-TES-EMPIRIS.md` or a named external study. No invented numbers.
 
 ---
 
-## 1. Peta Kompetitor Langsung AI Builder Cup 2026 (Live Reconnaissance)
+## 1. Direct Competitor Map for AI Builder Cup 2026 (Live Reconnaissance)
 
-Dari penelusuran repositori publik peserta AI Builder Cup 2026, ada **dua kompetitor berbobot tinggi** yang sudah membangun agresif dan menetapkan standar tinggi. Keduanya di track berbeda dari Assay — jadi mereka bukan lawan head-to-head, tapi mereka adalah **patokan kualitas** yang akan dibandingkan juri.
+From a survey of public AI Builder Cup 2026 participant repositories, there are **two high-caliber competitors** that have already built aggressively and set a high bar. Both are in tracks different from Assay — so they are not head-to-head opponents, but they are the **quality benchmark** against which judges will compare.
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   LANSKAP KOMPETITOR AKTIF 2026                                 │
-├───────────────────────────────┬─────────────────────────────────┬───────────────────────────────┤
+┌───────────────────────────────┬─────────────────────────────────┬───────────────────────────────┐
+│                                 ACTIVE COMPETITOR LANDSCAPE 2026                                │
+├───────────────────────────────┼─────────────────────────────────┼───────────────────────────────┤
 │ PARAMETER                     │ FOREMAN (@arnavbee)             │ CHOP / CHOPDESK (@CrimsonS)   │
 ├───────────────────────────────┼─────────────────────────────────┼───────────────────────────────┤
 │ Track                         │ Track 5: Future of Work         │ Track 1: BFSI                 │
-│ Tagline / Masalah             │ "Agent that hires & vets agents"│ "Don't pay until it's chopped"│
-│                               │ Tata kelola agen enterprise     │ Fraud invoice & vendor-swap   │
+│ Tagline / Problem             │ "Agent that hires & vets agents"│ "Don't pay until it's chopped"│
+│                               │ Enterprise agent governance     │ Invoice fraud & vendor-swap   │
 │ Tech Stack                    │ Python, ADK 2.x, A2A Protocol,  │ Next.js 15, TypeScript,       │
 │                               │ Gemini 2.5 Pro/Flash, Cloud Run │ Gemini 2.5 Flash, Cloud Run SG│
-│ Ukuran Repo                   │ 43 files                        │ 63 files                      │
-│ Keunggulan Fatal              │ • Honesty canary & test probes  │ • Masalah lokal JAPAC nyata   │
-│                               │ • Demo punya "villain" ditolak  │ • Heuristic offline fallback  │
-│                               │ • Video script per-detik rapi   │ • Route /brief auto-generate  │
-│ Titik Lemah                   │ Masalah terlalu abstrak/futuristik, Tidak ada kode execution sandbox,│
-│                               │ value ekonomi saat ini belum riil segmen sangat sempit B2B AP │
+│ Repo Size                     │ 43 files                        │ 63 files                      │
+│ Fatal Strength                │ • Honesty canary & test probes  │ • Real JAPAC local problem    │
+│                               │ • Demo has a rejected "villain" │ • Heuristic offline fallback  │
+│                               │ • Per-second video script, tight│ • /brief route auto-generate  │
+│ Weak Point                    │ Problem too abstract/futuristic,│ No execution sandbox code,    │
+│                               │ current economic value not real │ very narrow B2B APAC segment  │
 └───────────────────────────────┴─────────────────────────────────┴───────────────────────────────┘
 ```
 
-### Deep Dive 1: FOREMAN (The Apex Threat in Enterprise Track)
+### Deep Dive 1: FOREMAN (The Apex Threat in the Enterprise Track)
 
-- **Arsitektur:** protokol *Agent-to-Agent (A2A)* dengan siklus:
+- **Architecture:** *Agent-to-Agent (A2A)* protocol with the cycle:
   `Plan → Discover → Vet → Delegate → Verify → Deliver (+ hash-chained audit ledger)`
-- **Trik Demo yang Memikat Juri:** mereka membuat **"Villain Agents"** di dalam registry demo:
-  1. `quickfix` — agen pemalas yang menjawab *"Done"* untuk semua tugas tanpa eksekusi.
-  2. `oracle` — agen yang selalu menjawab sangat meyakinkan tapi 100% berhalusinasi.
-  *Di depan kamera, Foreman menangkap basah dan menolak kedua agen ini menggunakan **"Honesty Canary"** — soal yang jawabannya sengaja tidak ada.*
-- **Reliability:** `FOREMAN_FAKE_LLM=1` untuk dev tanpa API key. Demo tidak pernah mati.
-- **Pelajaran untuk Assay:**
-  Mekanisme **honeypot** Assay punya DNA yang sama dengan **Honesty Canary** milik Foreman. Bedanya satu kalimat: **Foreman menguji kejujuran agen AI; Assay menguji kejujuran manusia yang menyontek AI lain.** Ini posisi filosofis yang kuat — sebut eksplisit di deck dan di Q&A. Kalau juri sudah melihat Foreman, mereka akan langsung mengenali polanya dan menilai Assay sebagai cermin sisi-manusia dari mekanisme yang sama.
+- **Demo Trick That Captivates Judges:** they built **"Villain Agents"** inside the demo registry:
+  1. `quickfix` — a lazy agent that answers *"Done"* to every task without executing.
+  2. `oracle` — an agent that always answers very convincingly but is 100% hallucinating.
+  *On camera, Foreman catches and rejects both agents using an **"Honesty Canary"** — a question whose answer deliberately does not exist.*
+- **Reliability:** `FOREMAN_FAKE_LLM=1` for development without an API key. The demo never dies.
+- **Lesson for Assay:**
+  Assay's **honeypot** mechanism shares the same DNA as Foreman's **Honesty Canary**. The difference is one sentence: **Foreman tests the honesty of AI agents; Assay tests the honesty of humans cheating with another AI.** This is a strong philosophical position — state it explicitly in the deck and in Q&A. If judges have already seen Foreman, they will immediately recognize the pattern and score Assay as the human-side mirror of the same mechanism.
 
 ### Deep Dive 2: CHOPDESK (The Localization Master in BFSI)
 
-- **Masalah Nyata:** staf purchasing di UKM importir Asia Tenggara (Singapura, Penang, dsb) masih membayar faktur ratusan juta via WhatsApp dan email PDF, di mana rekening vendor rawan dipalsukan.
-- **Trik Engineering:** **heuristic fallback.** Kalau Gemini API kena rate limit HTTP 429 atau koneksi mati, aplikasi otomatis beralih ke analisis graf vendor lokal dengan pesan: *"(Gemini unreachable — local vendor graph used.)"*. **Demo mereka 0% risiko blank.**
-- **Pelajaran untuk Assay:**
-  Assay **wajib** punya kelas fallback yang sama: `DEMO_MODE=cached` (env) **atau** header `x-demo-mode: cached`, plus trigger otomatis saat Gemini balikin 429/500/503. Dua skenario pre-cached yang harus ada: **success flow** (`CRITICAL_REJECTION`, skor tinggi, chapter unlock) dan **caught flow** (`AI_HALLUCINATION_COPYPASTE`, skor turun, integrity flag). Banner `LOCAL_DETERMINISTIC_CACHE` boleh ditampilkan di depan kamera — itu fitur, bukan glitch.
+- **Real Problem:** purchasing staff at Southeast Asian importer SMEs (Singapore, Penang, etc.) still pay invoices worth hundreds of millions via WhatsApp and PDF email, where vendor bank accounts are prone to forgery.
+- **Engineering Trick:** **heuristic fallback.** If the Gemini API hits an HTTP 429 rate limit or the connection drops, the app automatically switches to local vendor graph analysis with the message: *"(Gemini unreachable — local vendor graph used.)"*. **Their demo has 0% blank risk.**
+- **Lesson for Assay:**
+  Assay **must** have the same class of fallback: `DEMO_MODE=cached` (env) **or** the header `x-demo-mode: cached`, plus an automatic trigger when Gemini returns 429/500/503. Two pre-cached scenarios are required: **success flow** (`CRITICAL_REJECTION`, high score, chapter unlock) and **caught flow** (`AI_HALLUCINATION_COPYPASTE`, score drops, integrity flag). The `LOCAL_DETERMINISTIC_CACHE` banner can be shown on camera — it is a feature, not a glitch.
 
 ---
 
-## 2. Bedah DNA Pemenang Hackathon Google Cloud Terdahulu (Historical Champions)
+## 2. DNA Teardown of Past Google Cloud Hackathon Winners (Historical Champions)
 
-Menganalisis pemenang resmi *Google Cloud Gen AI Exchange* dan pemenang regional APAC memberi cetak biru apa yang **sebenarnya dinilai juri Google Cloud**:
+Analyzing the official *Google Cloud Gen AI Exchange* winners and APAC regional winners yields a blueprint of what **Google Cloud judges actually score**:
 
-| Pemenang & Tahun | Kategori / Track | Tech Stack Kunci | Rahasia Menang (*The Winning Factor*) |
+| Winner & Year | Category / Track | Key Tech Stack | The Winning Factor |
 |---|---|---|---|
-| **Padayon Ko**<br>*(Juara 1 APAC 2024)* | EdTech / Social Impact (Filipina) | Gemini API, Google Chirp STT, Synthesize TTS, Flask, Cloud Run | **Folder `benchmarks/`:** laporan pengujian latensi 100 request (mean 2850 ms, SD 436 ms). Dilengkapi notebook TAM/SAM/SOM dan adopsi nyata 500 siswa di Lapu-Lapu City. |
-| **Savour AI**<br>*(Juara 2 APAC 2024)* | FoodTech (Australia) | Gemini 2.0 Flash/Pro, LangGraph, MongoDB Atlas, Streamlit | **ADR formal:** 4 dokumen keputusan, berani menolak Google Agent Builder ("terlalu kaku") dan memilih LangGraph. Hanya menampilkan 3 fitur MVP, sisanya roadmap. |
-| **Team Skippers**<br>*(Juara 1 Pro 2025)* | Future of Work (Enterprise QA) | Gemini Pro, Automated Test Framework | Menghubungkan spesifikasi regulasi medis ke eksekusi unit test otomatis. Menyelesaikan masalah compliance yang bernilai miliaran rupiah. |
-| **May The Agents Be With You**<br>*(Juara 1 Pro 2025)* | Manufacturing Operations | Multi-Agent Orchestration, Industrial IoT | Bekerja sama langsung dengan JK Cement untuk optimasi konsumsi energi pabrik semen secara otonom. |
-| **KalaSarthi**<br>*(Finalis Unggulan 2025)* | Retail / Artisans (India) | Next.js 15, Gemini 2.0 Flash + Nano, Firebase, Redis | **3-Tier Offline-First Architecture:** `Gemini Flash (Online)` → `Gemini Nano (On-Device)` → `SimpleOfflineAI (Fallback)`. Tahan banting tanpa koneksi internet. |
-| **YouthMind**<br>*(Juara 1 Student 2025)* | Mental Health | Vanilla HTML/JS, 12 audio mp3 (18 file, TANPA README) | **Storytelling & Empathy:** jumlah baris kode kalah penting dibanding kekuatan delivery pitch 3 menit. |
+| **Padayon Ko**<br>*(APAC 1st Place 2024)* | EdTech / Social Impact (Philippines) | Gemini API, Google Chirp STT, Synthesize TTS, Flask, Cloud Run | **`benchmarks/` folder:** a 100-request latency test report (mean 2850 ms, SD 436 ms). Backed by TAM/SAM/SOM notebooks and real adoption by 500 students in Lapu-Lapu City. |
+| **Savour AI**<br>*(APAC 2nd Place 2024)* | FoodTech (Australia) | Gemini 2.0 Flash/Pro, LangGraph, MongoDB Atlas, Streamlit | **Formal ADRs:** 4 decision documents, with the courage to reject Google Agent Builder ("too rigid") and choose LangGraph. Shipped only 3 MVP features, the rest as roadmap. |
+| **Team Skippers**<br>*(Pro 1st Place 2025)* | Future of Work (Enterprise QA) | Gemini Pro, Automated Test Framework | Linked medical regulatory specifications to automated unit test execution. Solved a compliance problem worth billions of rupiah. |
+| **May The Agents Be With You**<br>*(Pro 1st Place 2025)* | Manufacturing Operations | Multi-Agent Orchestration, Industrial IoT | Worked directly with JK Cement to autonomously optimize energy consumption at a cement plant. |
+| **KalaSarthi**<br>*(Featured Finalist 2025)* | Retail / Artisans (India) | Next.js 15, Gemini 2.0 Flash + Nano, Firebase, Redis | **3-Tier Offline-First Architecture:** `Gemini Flash (Online)` → `Gemini Nano (On-Device)` → `SimpleOfflineAI (Fallback)`. Resilient without an internet connection. |
+| **YouthMind**<br>*(Student 1st Place 2025)* | Mental Health | Vanilla HTML/JS, 12 audio mp3s (18 files, NO README) | **Storytelling & Empathy:** lines of code mattered less than the strength of the 3-minute pitch delivery. |
 
-**Pola yang relevan untuk Assay:**
+**Patterns relevant to Assay:**
 
-- Padayon Ko menang dengan **folder `benchmarks/`** — Assay punya `eval/` + `benchmarks/` dengan angka honeypot empiris (n=80). Ini persis jenis bukti yang sama.
-- Savour menang dengan **ADR + disiplin scope** — Assay punya ADR 001-005 dan daftar cut yang eksplisit (§8 PRD). Jangan sembunyikan cut list; tampilkan sebagai bukti disiplin.
-- KalaSarthi menang dengan **fallback berlapis** — Assay punya `DEMO_MODE=cached` + grounding cache + deterministic catalog honeypot.
-- YouthMind menang dengan **delivery** — video 3 menit Assay sudah ditulis per-detik. Script ditulis sebelum rekaman, bukan sesudah.
+- Padayon Ko won with a **`benchmarks/` folder** — Assay has `eval/` + `benchmarks/` with empirical honeypot numbers (n=80). This is exactly the same kind of evidence.
+- Savour won with **ADRs + scope discipline** — Assay has ADRs 001-005 and an explicit cut list (§8 PRD). Do not hide the cut list; present it as proof of discipline.
+- KalaSarthi won with **layered fallbacks** — Assay has `DEMO_MODE=cached` + grounding cache + deterministic honeypot catalog.
+- YouthMind won with **delivery** — Assay's 3-minute video is already scripted per second. The script is written before recording, not after.
 
 ---
 
-## 3. Mitos vs Fakta Hackathon Google Cloud
+## 3. Google Cloud Hackathon Myths vs Facts
 
 ```
 ┌──────────────────────────────────────────────┬──────────────────────────────────────────────┐
-│ MITOS UMUM PESERTA                           │ FAKTA EMPIRIS DI MEJA JURI                   │
+│ COMMON PARTICIPANT MYTH                      │ EMPIRICAL FACT AT THE JUDGES' TABLE          │
 ├──────────────────────────────────────────────┼──────────────────────────────────────────────┤
-│ "Harus bikin UI Next.js + shadcn mewah."     │ Savour juara 2 pakai Streamlit biasa.        │
-│                                              │ YouthMind juara pakai HTML kosongan.         │
-│ "Harus fine-tune model sendiri."             │ 100% pemenang pakai Gemini pre-trained.      │
-│ "Harus bikin 10-15 fitur komprehensif."      │ Menampilkan 10 fitur setengah matang = drop. │
-│                                              │ 3 fitur bekerja sempurna = juara.            │
-│ "Harus pakai semua produk AI Google."        │ Savour tolak Agent Builder via ADR & menang. │
-│                                              │ Yang penting: Gemini + Cloud Run wajib jalan.│
-│ "Repo rapi pasti menang."                    │ YouthMind tanpa README juara 1; yang penting │
-│                                              │ video pitch 3 menit & live demo jalan.       │
-│ "Track banyak = peluang menang lebih besar." │ 1 tim = 1 track. Assay ambil Track 4 saja.   │
+│ "You must build a lavish Next.js UI."        │ Savour placed 2nd using plain Streamlit.     │
+│                                              │ YouthMind won using bare HTML.               │
+│ "You must fine-tune your own model."         │ 100% of winners used pre-trained Gemini.     │
+│ "You must build 10-15 comprehensive          │ Shipping 10 half-baked features = drop. 3    │
+│ features."                                   │ features working perfectly = winner.         │
+│ "You must use every Google AI product."      │ Savour rejected Agent Builder via ADR and    │
+│                                              │ still won. What matters: Gemini + Cloud Run  │
+│                                              │ must run.                                    │
+│ "A tidy repo is a guaranteed win."           │ YouthMind won 1st with no README; what       │
+│                                              │ mattered was the 3-minute pitch video &      │
+│                                              │ working live demo.                           │
+│ "More tracks = better odds of winning."      │ 1 team = 1 track. Assay takes Track 4 only.  │
 └──────────────────────────────────────────────┴──────────────────────────────────────────────┘
 ```
 
 ---
 
-## 4. Analisis Titik Lemah Kompetitor (Vulnerability Assessment)
+## 4. Competitor Weak Point Analysis (Vulnerability Assessment)
 
-Bagaimana Assay bisa menang atas kompetitor di track lain maupun peserta sejenis?
+How can Assay beat competitors in other tracks and similar participants?
 
-### 1. Mayoritas Peserta Terjebak dalam "AI Helper Bias"
+### 1. Most Participants Fall into the "AI Helper Bias"
 
-- **Kelemahan Lawan:** mayoritas peserta membangun bot serba membantu (*"Tanya saya apa saja, saya rangkumkan, saya buatkan kodenya"*).
-- **Serangan Assay:** Assay satu-satunya yang mengambil posisi **AI Adversarial / Enforcer**. Yang diserang adalah fenomena nyata: *"Generative AI membuat generasi baru engineer malas berpikir kritis."* Kontrasnya ekstrem dan langsung diingat juri.
+- **Opponent Weakness:** most participants build an all-helpful bot (*"Ask me anything, I'll summarize it, I'll write the code for you"*).
+- **Assay's Attack:** Assay is the only one taking the **AI Adversarial / Enforcer** position. What it attacks is a real phenomenon: *"Generative AI is making a new generation of engineers lazy about critical thinking."* The contrast is extreme and immediately memorable to judges.
 
-### 2. Kompetitor Track 5 (Foreman) Terlalu Konseptual
+### 2. Track 5 Competitor (Foreman) Is Too Conceptual
 
-- **Kelemahan Foreman:** *"Agents hiring agents with Ed25519 signatures"* adalah solusi untuk dunia 5 tahun ke depan, saat perusahaan sudah punya ribuan agen otonom. Belum ada perusahaan JAPAC yang butuh itu hari ini.
-- **Keunggulan Assay (Track 4):** degradasi pemahaman siswa/developer akibat AI terjadi **hari ini, jam ini**, di seluruh bootcamp dan universitas di Asia Tenggara. Relevansi pasarnya instan.
-- **Catatan penting:** karena Assay sekarang **Track 4 saja**, Foreman tidak lagi lawan langsung — dia jadi **referensi kualitas dan sumber narasi** ("mekanisme yang sama, sisi manusia").
+- **Foreman's Weakness:** *"Agents hiring agents with Ed25519 signatures"* is a solution for the world 5 years from now, when companies already have thousands of autonomous agents. No JAPAC company needs that today.
+- **Assay's Advantage (Track 4):** the degradation of student/developer understanding caused by AI is happening **today, this hour**, across every bootcamp and university in Southeast Asia. Immediate market relevance.
+- **Important note:** because Assay is now **Track 4 only**, Foreman is no longer a direct opponent — it becomes a **quality reference and narrative source** ("the same mechanism, the human side").
 
-### 3. Kompetitor Terdekat di Track 4: Incumbent Komersial, Bukan Peserta
+### 3. Closest Competitor in Track 4: Commercial Incumbents, Not Participants
 
-- **Khanmigo / Google Learn About:** Socratic tapi *suggestive*. User bisa minta jawaban langsung, tidak ada gatekeeping, tidak ada deteksi integritas, tidak bisa upload PDF sendiri. Assay = *enforcement engine*, bukan tutor sugestif.
-- **NotebookLM / ChatGPT:** perpustakaan dan dispenser jawaban. NotebookLM menelan dokumen tapi tidak pernah menginterogasi pemiliknya. Assay membalik arah pertanyaan.
-- **Coursera / Udemy:** progres berbasis penyelesaian konten, bisa di-skip bebas, nol verifikasi penalaran.
+- **Khanmigo / Google Learn About:** Socratic but *suggestive*. Users can ask for the answer directly, there is no gatekeeping, no integrity detection, and no self-service PDF upload. Assay = an *enforcement engine*, not a suggestive tutor.
+- **NotebookLM / ChatGPT:** a library and an answer dispenser. NotebookLM swallows documents but never interrogates their owner. Assay reverses the direction of the question.
+- **Coursera / Udemy:** progress based on content completion, freely skippable, zero verification of reasoning.
 
-### 4. Jebakan Dependensi Terlarang (The Disqualification Trap)
+### 4. The Forbidden Dependency Trap (The Disqualification Trap)
 
-- Riset menemukan peserta seperti *Artifind* tidak lolos karena menulis *"[OI]/Claude for text generation"* di README.
-- Repositori *Padayon Ko* pernah membocorkan token Facebook aktif di `.env.example`.
-- Peserta lain ke-commit `.env`, menaruh build output `dist/` (90 dari 157 file), dan tidak konsisten menyebut nama produk sendiri (README "LegalEase AI" vs dokumen "LegalMind AI").
-- **Prosedur Keamanan Assay:**
-  - `package.json` / `requirements.txt` bersih 100% dari package `openai`, `anthropic`, `cohere`.
-  - Hanya `@google/genai` atau `@google/generative-ai`; model Google saja (Gemini/Gemma).
-  - Deploy **wajib** di Cloud Run (atau Firebase).
-  - `.env.example` pakai dummy credential, `.env` tidak pernah masuk repo.
-  - **Satu nama produk di semua artefak: Assay.** Codename repo `active-learning-engine/` boleh tetap, tapi UI, README, deck, video semua bilang **Assay**.
+- Research found that a participant such as *Artifind* did not pass because they wrote *"[OI]/Claude for text generation"* in the README.
+- The *Padayon Ko* repository once leaked an active Facebook token in `.env.example`.
+- Another participant committed `.env`, placed build output `dist/` (90 of 157 files), and was inconsistent about their own product name (README "LegalEase AI" vs document "LegalMind AI").
+- **Assay Security Procedure:**
+  - `package.json` / `requirements.txt` 100% clean of the `openai`, `anthropic`, `cohere` packages.
+  - Only `@google/genai` or `@google/generative-ai`; Google models only (Gemini/Gemma).
+  - Deployment **must** be on Cloud Run (or Firebase).
+  - `.env.example` uses dummy credentials; `.env` never enters the repo.
+  - **One product name across all artifacts: Assay.** The repo codename `active-learning-engine/` may stay, but the UI, README, deck, and video all say **Assay**.
 
 ---
 
-## 5. Matriks Perbandingan: Assay vs Kompetitor Kunci
+## 5. Comparison Matrix: Assay vs Key Competitors
 
-| Dimensi Evaluasi | Foreman (`arnavbee`) | Chopdesk (`CrimsonSithria`) | Khanmigo / NotebookLM | **Assay (Proyek Kita)** |
+| Evaluation Dimension | Foreman (`arnavbee`) | Chopdesk (`CrimsonSithria`) | Khanmigo / NotebookLM | **Assay (Our Project)** |
 |---|---|---|---|---|
-| **Track** | Track 5 (Future of Work) | Track 1 (BFSI) | Pasar edukasi komersial | **Track 4 (Media, Content & Digital Experiences) — satu-satunya track** |
-| **Peran AI** | Auditor agen | Verifikator pembayaran | Tutor sugestif / perpustakaan | **Interrogator — mempertanyakan jawaban user** |
+| **Track** | Track 5 (Future of Work) | Track 1 (BFSI) | Commercial education market | **Track 4 (Media, Content & Digital Experiences) — the only track** |
+| **AI Role** | Agent auditor | Payment verifier | Suggestive tutor / library | **Interrogator — questions the user's answers** |
 | **Core Moat** | A2A Protocol & Ed25519 | Vendor Lookalike Graph | Knowledge base + Socratic chat | **Honeypot injection + gated chapter + calibration gap** |
-| **Mekanisme "Uji Kejujuran"** | "Honesty Canary" — fakta yang tidak ada, untuk agen AI | Vendor master match | Tidak ada | **Honeypot — konsep fiktif, untuk manusia yang nyontek AI** |
-| **Demo "Villain"** | Agen palsu `quickfix` & `oracle` | Invoice fiktif CEO fraud | Tidak ada (selalu pasif) | **Siswa yang copas jawaban LLM luar — tertangkap basah** |
-| **Integritas** | Hash-chained audit ledger | Vendor master match | Nol (mudah di-cheat) | **Honeypot score dimension + Focus Mode (MediaPipe on-device)** |
-| **Fallback saat API mati** | `FOREMAN_FAKE_LLM=1` | Heuristic vendor graph lokal | N/A | **`DEMO_MODE=cached` + header `x-demo-mode: cached` + grounding cache** |
-| **Kelemahan Utama** | Pasar belum siap, value belum riil hari ini | Ruang lingkup terlalu sempit | Mendorong kemalasan kognitif | Perlu disiplin membatasi scope 4 hari |
-| **Peluang Menang** | Sangat tinggi (Track 5) | Tinggi (Track 1) | N/A (incumbent) | **Sangat tinggi (Track 4)** |
+| **"Honesty Test" Mechanism** | "Honesty Canary" — a nonexistent fact, for AI agents | Vendor master match | None | **Honeypot — a fictional concept, for humans cheating with AI** |
+| **"Villain" Demo** | Fake agents `quickfix` & `oracle` | Fictional CEO-fraud invoice | None (always passive) | **A student copy-pasting answers from an external LLM — caught red-handed** |
+| **Integrity** | Hash-chained audit ledger | Vendor master match | Zero (easy to cheat) | **Honeypot score dimension + Focus Mode (MediaPipe on-device)** |
+| **Fallback when the API is down** | `FOREMAN_FAKE_LLM=1` | Local heuristic vendor graph | N/A | **`DEMO_MODE=cached` + header `x-demo-mode: cached` + grounding cache** |
+| **Main Weakness** | Market not ready, value not real today | Scope too narrow | Encourages cognitive laziness | Needs discipline to limit scope to 4 days |
+| **Win Probability** | Very high (Track 5) | High (Track 1) | N/A (incumbent) | **Very high (Track 4)** |
 
-### 5.1 Matriks Diferensiasi Assay vs Incumbent (Flow v2)
+### 5.1 Assay vs Incumbent Differentiation Matrix (Flow v2)
 
 | | Coursera / Udemy | ChatGPT / NotebookLM | Khanmigo | **Assay** |
 |---|---|---|---|---|
-| Peran AI | Penyampai konten | Dispenser jawaban | Tutor sugestif | **Interrogator** |
-| Tombol ringkasan | Video, tanpa sintesis | Satu klik | Tersedia | **Tidak ada** |
-| Progresi | Skip bebas | Skip bebas | Skip bebas | **Terkunci sampai penalaran lulus (skor ≥ 75)** |
-| Cek integritas | Tidak ada | Tidak ada | Tidak ada | **Honeypot + Focus Mode** |
-| Bantuan di dalam materi | Forum | Chat terpisah | Chat | **Select kata → tanya AI (Socratic)** |
-| Masuk materi sendiri | Modul vendor | Upload dokumen | Tidak | **PDF opsional, page-anchored (PDF-RAG)** |
-| Metrik sukses | Completion | Kelancaran | Engagement | **Skor + calibration gap** |
+| AI role | Content deliverer | Answer dispenser | Suggestive tutor | **Interrogator** |
+| Summary button | Video, no synthesis | One click | Available | **None** |
+| Progression | Free skip | Free skip | Free skip | **Locked until reasoning passes (score ≥ 75)** |
+| Integrity check | None | None | None | **Honeypot + Focus Mode** |
+| Help inside the material | Forum | Separate chat | Chat | **Select word → ask AI (Socratic)** |
+| Bring your own material | Vendor modules | Document upload | No | **Optional PDF, page-anchored (PDF-RAG)** |
+| Success metric | Completion | Fluency | Engagement | **Score + calibration gap** |
 
 ---
 
-## 6. Yang Baru di Assay v2 (dan Kenapa Itu Bukan Fitur Tambahan)
+## 6. What's New in Assay v2 (and Why It Isn't Just More Features)
 
-Ini bukan daftar fitur. Ini yang membedakan Assay v2 dari v1 dan dari incumbent, dalam urutan flow:
+This is not a feature list. This is what separates Assay v2 from v1 and from incumbents, in flow order:
 
-1. **Intake intent-first, bukan upload-first.** User mulai dari niat belajar + role (Frontend/Backend/Fullstack/DevOps/Data-ML/Mobile/QA-Test/Security/System Design), dengan opsi **`Others`** muncul otomatis kalau niat tidak match seed mana pun (ADR 004). PDF **opsional** — tanpa PDF, chapter di-generate dari role taxonomy dan ditandai `source: generated`. Incumbent lain menuntut dokumen dulu.
-2. **Checklist realtime yang bisa diedit user.** Item streaming lewat SSE (`checklist.partial`), masing-masing bertag `document` / `role_taxonomy` / `grounded_external`. Item yang tidak dicentang **tidak pernah jadi chapter**. Rencana belajar jadi milik user, bukan milik model.
-3. **PDF-RAG wajib + Google Search grounding opsional.** Setiap chapter punya page-anchor ke dokumen. Ini yang bikin klaim honeypot bisa diverifikasi ("istilah ini tidak ada di halaman mana pun modulmu"). Grounding eksternal dibatasi 1-2 chapter dan **di-cache**, supaya demo tidak bergantung jaringan.
-4. **Inline select-word → tanya AI (Socratic).** User select satu kata atau frasa di dalam chapter → popover. AI **balik bertanya / kasih hint / menunjuk halaman**, bukan memberi definisi. Field `gave_direct_answer: false` tampil di panel respons. Select beberapa kata → muncul **suggested questions**. Ini tesis "anti brain-rot" dalam bentuk interaksi terkecil.
-5. **Interview quiz per chapter + honeypot sebagai dimensi skor.** 2-3 ronde pertanyaan inferensial (bukan "apa definisi X") dengan follow-up adaptif. Satu konsep fiktif diselipkan per chapter. Klasifikasi deterministik → skor: **`CRITICAL_REJECTION` +2**, **`AI_HALLUCINATION_COPYPASTE` −2**, **`UNVERIFIED_HONEST` 0**, **`EVASIVE` −1**. **Bukan gate** — yang menentukan unlock tetap `chapter_score >= 75`. Gate keras akan menghukum pelajar jujur yang bilang "saya tidak tahu" (ADR 002).
-6. **Calibration gap.** Sebelum skor di-reveal, user memprediksi skornya sendiri. `calibration_gap = |predicted − actual|` jadi metrik utama laporan. Semua kompetitor melaporkan skor; tidak ada yang melaporkan **jarak antara "merasa siap" dan "benar-benar siap"**. Ini metrik yang membuka *illusory competence*.
-7. **Focus Mode on-device (MediaPipe) + auto-blur.** Gaze/head-pose drift, jumlah wajah > 1, tab blur — semua inferensi di browser. Video **tidak pernah keluar device**; yang dikirim hanya event boolean (`video_transmitted: false`, ADR 003). Terdeteksi → halaman **auto-blur** + flag `assisted`. **Accessible Mode** bisa mematikan kamera → `assisted_unverified`, skor tetap dihitung. Dijual sebagai *integrity signal*, bukan klaim "tidak bisa dicurangi".
+1. **Intent-first intake, not upload-first.** The user starts from a learning intent + role (Frontend/Backend/Fullstack/DevOps/Data-ML/Mobile/QA-Test/Security/System Design), with an **`Others`** option appearing automatically when the intent matches no seed (ADR 004). PDF is **optional** — without a PDF, chapters are generated from the role taxonomy and tagged `source: generated`. Other incumbents demand a document first.
+2. **A realtime checklist the user can edit.** Items stream via SSE (`checklist.partial`), each tagged `document` / `role_taxonomy` / `grounded_external`. Unchecked items **never become chapters**. The study plan belongs to the user, not the model.
+3. **Mandatory PDF-RAG + optional Google Search grounding.** Every chapter has a page-anchor to the document. This is what makes honeypot claims verifiable ("this term does not appear on any page of your module"). External grounding is limited to 1-2 chapters and **cached**, so the demo does not depend on the network.
+4. **Inline select-word → ask AI (Socratic).** The user selects a word or phrase inside a chapter → popover. The AI **asks back / gives a hint / points to the page**, rather than giving a definition. The field `gave_direct_answer: false` appears in the response panel. Selecting several words → **suggested questions** appear. This is the "anti brain-rot" thesis in its smallest interaction form.
+5. **Per-chapter interview quiz + honeypot as a score dimension.** 2-3 rounds of inferential questions (not "what is the definition of X") with adaptive follow-ups. One fictional concept is slipped into each chapter. Deterministic classification → score: **`CRITICAL_REJECTION` +2**, **`AI_HALLUCINATION_COPYPASTE` −2**, **`UNVERIFIED_HONEST` 0**, **`EVASIVE` −1**. **Not a gate** — unlock is still decided by `chapter_score >= 75`. A hard gate would punish honest learners who say "I don't know" (ADR 002).
+6. **Calibration gap.** Before the score is revealed, the user predicts their own score. `calibration_gap = |predicted − actual|` becomes the report's primary metric. Every competitor reports a score; none reports the **distance between "feeling ready" and "actually ready"**. This is the metric that exposes *illusory competence*.
+7. **On-device Focus Mode (MediaPipe) + auto-blur.** Gaze/head-pose drift, face count > 1, tab blur — all inference in the browser. Video **never leaves the device**; only boolean events are sent (`video_transmitted: false`, ADR 003). On detection → the page **auto-blurs** + an `assisted` flag. **Accessible Mode** can disable the camera → `assisted_unverified`, and the score is still computed. Marketed as an *integrity signal*, not a claim that "cheating is impossible".
 
 ---
 
-## 7. Yang CUT dari MVP (Pindah ke Roadmap — Tampilkan, Jangan Sembunyikan)
+## 7. What Was CUT from the MVP (Moved to Roadmap — Show It, Don't Hide It)
 
-| Dibuang dari MVP | Alasan | Nasib |
+| Cut from MVP | Reason | Fate |
 |---|---|---|
-| **Coding arena (Monaco + Piston + TDL)** | Tidak muat 4 hari; bukan wedge diferensiasi | Roadmap Phase 2 |
-| **DAG Skill Tree visual (ReactFlow)** | Bukan pembeda; chapter stepper linear gratis dan lebih jelas | Roadmap Phase 2 |
-| **Dual-metric (2 skor terpisah)** | Single score + calibration gap lebih murah dan lebih kuat demonya | Digantikan |
-| Voice / Gemini Live | Latency + biaya berisiko di live demo | Roadmap Phase 2 |
-| Auth kompleks / multi-user | 1 user demo cukup | Roadmap Phase 3 |
-| Multi-source input (video/audio) | PDF sudah cukup buat demo | Roadmap Phase 2 |
+| **Coding arena (Monaco + Piston + TDL)** | Does not fit in 4 days; not the differentiation wedge | Roadmap Phase 2 |
+| **Visual DAG Skill Tree (ReactFlow)** | Not a differentiator; the linear chapter stepper is free and clearer | Roadmap Phase 2 |
+| **Dual-metric (2 separate scores)** | Single score + calibration gap is cheaper and demos stronger | Replaced |
+| Voice / Gemini Live | Latency + cost are risky in a live demo | Roadmap Phase 2 |
+| Complex auth / multi-user | A 1-user demo is enough | Roadmap Phase 3 |
+| Multi-source input (video/audio) | PDF is enough for the demo | Roadmap Phase 2 |
 
-**Yang WAJIB ada walaupun 4 hari** (ini yang mengangkat Technical Merit 40%): eval harness + angka, verifier loop, calibration, cached fallback, Focus Mode on-device.
+**What MUST exist even with 4 days** (this is what lifts Technical Merit 40%): eval harness + numbers, verifier loop, calibration, cached fallback, on-device Focus Mode.
 
 ---
 
-## 8. Formula 5 Komponen Emas Submisi Juara
+## 8. The 5 Golden Components Formula for a Winning Submission
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        5 KOMPONEN EMAS SUBMISI JUARA (CHECKLIST)                       │
+│              THE 5 GOLDEN COMPONENTS OF A WINNING SUBMISSION (CHECKLIST)               │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
 │ 1. `benchmarks/` + `eval/`                                                             │
-│    Harness yang menjalankan honeypot & trap suite di atas model Google, dengan output  │
-│    mentah tersimpan (JSONL) dan klasifikasi deterministik — bukan LLM judge.           │
-│    Angka yang dipakai: 54% hallucination (n=80), fictional_term 100% (n=12 valid) /      │
-│    trap_number 58% (n=48), verifier 13/20 (65%), structured JSON 4/4.                   │
+│    A harness that runs the honeypot & trap suite against Google models, with raw       │
+│    output stored (JSONL) and deterministic classification — not an LLM judge.          │
+│    Numbers used: 54% hallucination (n=80), fictional_term 100% (n=12 valid) /          │
+│    trap_number 58% (n=48), verifier 13/20 (65%), structured JSON 4/4.                  │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 2. `docs/adrs/` — ADR 001 sampai 005                                                   │
+│ 2. `docs/adrs/` — ADR 001 through 005                                                  │
 │    001 model selection (Flash vs Pro) · 002 deterministic hybrid guardrails vs pure    │
 │    LLM scoring · 003 client-side MediaPipe vs server-side proctoring · 004 role        │
-│    taxonomy seed + auto "Others" · 005 honeypot catalog deterministik + variasi        │
-│    generatif. Tulis juga alternatif yang DITOLAK, bukan cuma keputusan yang diambil.   │
+│    taxonomy seed + auto "Others" · 005 deterministic honeypot catalog + generative     │
+│    variation. Also document the REJECTED alternatives, not just the decisions made.    │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 3. Fallback offline (`DEMO_MODE=cached`)                                               │
-│    Env `DEMO_MODE=cached` ATAU header `x-demo-mode: cached` ATAU Gemini 429/500/503.   │
-│    Dua skenario wajib: success flow (CRITICAL_REJECTION, unlock) dan caught flow       │
-│    (AI_HALLUCINATION_COPYPASTE, integrity flag). Grounding eksternal juga di-cache.    │
-│    Video dan live URL tidak boleh blank saat juri meninjau.                            │
+│ 3. Offline fallback (`DEMO_MODE=cached`)                                               │
+│    Env `DEMO_MODE=cached` OR header `x-demo-mode: cached` OR Gemini 429/500/503.       │
+│    Two required scenarios: success flow (CRITICAL_REJECTION, unlock) and caught flow   │
+│    (AI_HALLUCINATION_COPYPASTE, integrity flag). External grounding is cached too.     │
+│    The video and live URL must not be blank when judges review.                        │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 4. Video demo 3 menit (180s, hard cap) — script ditulis dulu                           │
-│    00:00-00:20  Masalah: 95% pakai AI, 67% bilang merusak cara berpikir.               │
-│    00:20-00:50  Intake: intent + role (+ PDF opsional, lalu diulang dengan PDF).       │
-│    00:50-01:15  Checklist realtime streaming, user uncheck satu item.                  │
-│    01:15-01:40  Silabus + page-anchor + referensi grounded (cached: true).             │
-│    01:40-02:05  Reader terkunci + select kata → AI balik bertanya.                     │
-│    02:05-02:45  MOMEN EMAS: copas ke LLM luar → honeypot −2; tolak premis → +2.        │
-│                 Focus Mode mendeteksi → auto-blur. Slider calibration diisi.           │
-│    02:45-03:00  Reveal skor 88, threshold 75, calibration gap 2, laporan + appeal.     │
-│    Tanpa logo, tanpa intro tim. Frame pertama adalah masalahnya.                       │
+│ 4. 3-minute demo video (180s, hard cap) — script written first                         │
+│    00:00-00:20  Problem: 95% use AI, 67% say it damages how they think.                │
+│    00:20-00:50  Intake: intent + role (+ optional PDF, then repeated with PDF).        │
+│    00:50-01:15  Realtime streaming checklist, user unchecks one item.                  │
+│    01:15-01:40  Syllabus + page-anchor + grounded references (cached: true).           │
+│    01:40-02:05  Reader locked + select word → AI asks back.                            │
+│    02:05-02:45  GOLDEN MOMENT: copy-paste to external LLM → honeypot −2; reject → +2.  │
+│                 Focus Mode detects → auto-blur. Calibration slider filled in.          │
+│    02:45-03:00  Reveal score 88, threshold 75, calibration gap 2, report + appeal.     │
+│    No logo, no team intro. The first frame is the problem.                             │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
-│ 5. Pitch deck 10 slide, bahasa Inggris, PDF                                            │
-│    Termasuk tabel kompetitor (dokumen ini §5), TAM/SAM/SOM bottom-up, roadmap 3 fase   │
-│    dengan cut list ditampilkan sebagai disiplin scope, dan appendix provenance angka.  │
-│    Setiap angka harus bisa ditelusuri. Kalau tidak ada di tabel provenance, tidak      │
-│    masuk deck.                                                                         │
+│ 5. Pitch deck 10 slides, English, PDF                                                  │
+│    Includes the competitor table (this document §5), bottom-up TAM/SAM/SOM, 3-phase    │
+│    roadmap with the cut list shown as scope discipline, and an appendix of number      │
+│    provenance. Every number must be traceable. If it is not in the provenance          │
+│    table, it does not go in the deck.                                                  │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 9. Angka Bukti (Sumber Tunggal, Jangan Dikarang)
+## 9. Evidence Numbers (Single Source, Never Invented)
 
-Sumber: `reza-research/parts10/HASIL-TES-EMPIRIS.md` — 14 Oktober 2026, gateway lokal, 5 workers, respons mentah di `results/*.jsonl`, klasifikasi regex heuristik (transparan, bukan LLM judge).
+Source: `reza-research/parts10/HASIL-TES-EMPIRIS.md` — October 14, 2026, local gateway, 5 workers, raw responses in `results/*.jsonl`, heuristic regex classification (transparent, not an LLM judge).
 
-| Klaim | Angka | Sampel |
+| Claim | Number | Sample |
 |---|---|---|
-| Honeypot hallucination rate (semua model) | **54%** | n = 80 panggilan, 4 model |
-| — gemini-3.8-flash-medium | 75% | 20 panggilan |
-| — deepseek-v4-pro | 70% | 20 panggilan |
-| — deepseek-v4-flash | 45% | 20 panggilan |
-| — deepseek-v4.1-flash | 25% | 20 panggilan |
-| Trap efektivitas: fictional_term | **100%** (10 comply / 0 pushback / 2 error) | n = 12 valid |
-| Trap efektivitas: trap_number | 58% | n = 48 |
-| Trap efektivitas: false_premise | 25% | n = 48 |
-| Trap efektivitas: over_claim | 25% | n = 48 |
-| Verifier loop menangkap halusinasi | 13/20 (65%) | 20 jawaban halusinasi |
-| Structured output JSON valid | 4/4 (100%) | 4 panggilan schema |
+| Honeypot hallucination rate (all models) | **54%** | n = 80 calls, 4 models |
+| — gemini-3.8-flash-medium | 75% | 20 calls |
+| — deepseek-v4-pro | 70% | 20 calls |
+| — deepseek-v4-flash | 45% | 20 calls |
+| — deepseek-v4.1-flash | 25% | 20 calls |
+| Trap effectiveness: fictional_term | **100%** (10 comply / 0 pushback / 2 error) | n = 12 valid |
+| Trap effectiveness: trap_number | 58% | n = 48 |
+| Trap effectiveness: false_premise | 25% | n = 48 |
+| Trap effectiveness: over_claim | 25% | n = 48 |
+| Verifier loop catches hallucinations | 13/20 (65%) | 20 hallucinated answers |
+| Structured output valid JSON | 4/4 (100%) | 4 schema calls |
 
-**Yang tidak diklaim:**
+**What is not claimed:**
 
-- **Tidak ada angka latency** yang dipakai di deck atau video. Yang terukur di harness adalah probe ke gateway lokal (rata-rata 25s), itu mencerminkan harness, bukan produk.
-- Angka P3 (diskriminasi judge, gap 75-85 poin) ada di sumber tapi tidak dipakai sebagai klaim produk.
-- Deck v1 pernah menulis "91.3% capture rate" dan "640 ms latency"; demo script v1 pernah menulis "sub-1.2s P95". **Ketiganya tanpa sumber dan tidak boleh muncul lagi** dalam bentuk apa pun.
-- Honeypot adalah **dimensi skor**, bukan gate keras.
+- **No latency numbers** are used in the deck or video. What the harness measured were probes to a local gateway (average 25s), which reflects the harness, not the product.
+- The P3 numbers (judge discrimination, 75-85 point gap) exist in the source but are not used as a product claim.
+- Deck v1 once wrote "91.3% capture rate" and "640 ms latency"; demo script v1 once wrote "sub-1.2s P95". **All three are unsourced and must never reappear** in any form.
+- The honeypot is a **score dimension**, not a hard gate.
 
 ---
 
-## 10. Daftar Periksa Sebelum Submit (18 Oktober 2026)
+## 10. Pre-Submission Checklist (October 18, 2026)
 
-- [ ] **Konsistensi nama:** tidak ada sisa string "CogniForge" di README, UI, deck, video, atau komentar kode. Semua bilang **Assay**.
-- [ ] **Track statement:** deck dan submission form menyebut **Track 4** saja, tidak ada penyebutan Track 5.
-- [ ] **Dependency audit:** tidak ada `openai` / `anthropic` / `cohere` di `package.json` atau `requirements.txt`; hanya paket Google.
-- [ ] **Deploy:** Cloud Run live dan bisa diakses juri, dengan `DEMO_MODE=cached` siap sedia.
-- [ ] **Secret hygiene:** `.env` tidak ke-commit; `.env.example` isinya dummy.
-- [ ] **No build output:** `dist/` / `build/` / `node_modules` tidak masuk repo.
-- [ ] **Repo berisi:** `benchmarks/`, `eval/`, `docs/adrs/001-005`, diagram arsitektur, tabel kompetitor + alasan beda.
-- [ ] **Pisah tegas "sudah jadi" vs "roadmap":** cut list (§7) ditampilkan, bukan disembunyikan.
-- [ ] **Video < 3 menit** dengan script per-detik, direkam dalam satu sesi.
-- [ ] **Deck PDF 10 slide, bahasa Inggris.** Semua materi submisi bahasa Inggris.
-- [ ] **Setiap angka punya sumber** di §9 atau studi bernama. Tidak ada angka karangan.
+- [ ] **Name consistency:** no leftover "CogniForge" strings in the README, UI, deck, video, or code comments. Everything says **Assay**.
+- [ ] **Track statement:** the deck and submission form mention **Track 4** only, with no mention of Track 5.
+- [ ] **Dependency audit:** no `openai` / `anthropic` / `cohere` in `package.json` or `requirements.txt`; Google packages only.
+- [ ] **Deploy:** Cloud Run live and accessible to judges, with `DEMO_MODE=cached` standing by.
+- [ ] **Secret hygiene:** `.env` is not committed; `.env.example` contains dummies.
+- [ ] **No build output:** `dist/` / `build/` / `node_modules` are not in the repo.
+- [ ] **Repo contains:** `benchmarks/`, `eval/`, `docs/adrs/001-005`, architecture diagrams, competitor table + differentiation rationale.
+- [ ] **Clear separation of "shipped" vs "roadmap":** the cut list (§7) is shown, not hidden.
+- [ ] **Video < 3 minutes** with a per-second script, recorded in a single session.
+- [ ] **Deck PDF 10 slides, English.** All submission materials in English.
+- [ ] **Every number has a source** in §9 or a named study. No invented numbers.

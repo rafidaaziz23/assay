@@ -1,7 +1,7 @@
 # End-to-End User Flow & Screen Progression
 ## CogniForge: Active Socratic Learning Engine
 
-Dokumen ini mendefinisikan seluruh perjalanan pengguna (*user journey*) dari pertama kali membuka platform hingga menyelesaikan sebuah modul belajar, lengkap dengan interaksi UI, state machine di balik layar, dan percabangan (*branching*).
+This document defines the entire user journey, from first opening the platform to completing a learning module, including the UI interactions, the state machine behind the scenes, and the branching.
 
 ---
 
@@ -9,152 +9,152 @@ Dokumen ini mendefinisikan seluruh perjalanan pengguna (*user journey*) dari per
 
 ```mermaid
 flowchart TD
-    Start([User Masuk Platform]) --> Choice{Pilih Mode Masuk}
-    Choice -->|Upload Dokumen| Upload[Upload PDF / Tempel Teks Modul]
-    Choice -->|Demo Cepat / Juri| Preset[Pilih Pre-loaded Topic: React Internals]
+    Start([User Enters Platform]) --> Choice{Select Entry Mode}
+    Choice -->|Upload Document| Upload[Upload PDF / Paste Module Text]
+    Choice -->|Quick Demo / Judges| Preset[Pick Pre-loaded Topic: React Internals]
 
-    Upload --> Chunking[AI memecah materi jadi 3 Node di Skill Tree]
+    Upload --> Chunking[AI splits material into 3 Nodes in the Skill Tree]
     Preset --> Chunking
 
-    Chunking --> Dashboard[Dashboard: Skill Tree DAG Terbuka]
-    Dashboard --> ClickNode[User Klik Node 1: Status ACTIVE_READING]
+    Chunking --> Dashboard[Dashboard: Open Skill Tree DAG]
+    Dashboard --> ClickNode[User Clicks Node 1: Status ACTIVE_READING]
 
-    subgraph Phase1 [Fase 1: Active Reading & Gatekeeping]
-        ClickNode --> ReadingView[Tampilan Bacaan Terbatas 300-500 kata]
-        ReadingView --> LockNotice[Tombol 'Lanjut / Selesai' Terkunci]
-        ReadingView --> FeynmanGate[Form Feynman Synthesis:<br/>Jelaskan konsep ini dalam 2-3 kalimat bahasa sendiri]
-        FeynmanGate --> SubmitGate[User Klik 'Buka Sesi Interogasi']
-        SubmitGate --> GateEval{Apakah Rangkuman Lolos?}
-        GateEval -- Tidak / Kurang Substansi --> RetryGate[Tampilkan Feedback Evaluator & Revisi]
+    subgraph Phase1 [Phase 1: Active Reading & Gatekeeping]
+        ClickNode --> ReadingView[Limited Reading View, 300-500 words]
+        ReadingView --> LockNotice['Next / Done' Button Locked]
+        ReadingView --> FeynmanGate[Feynman Synthesis Form:<br/>Explain this concept in 2-3 sentences in your own words]
+        FeynmanGate --> SubmitGate[User Clicks 'Open Interrogation Session']
+        SubmitGate --> GateEval{Does the Summary Pass?}
+        GateEval -- No / Lacking Substance --> RetryGate[Show Evaluator Feedback & Revise]
         RetryGate --> FeynmanGate
     end
 
-    GateEval -- Ya / Lolos --> Phase2
+    GateEval -- Yes / Pass --> Phase2
 
-    subgraph Phase2 [Fase 2: Dynamic Socratic Interrogation & Honeypot]
-        Phase2[Buka Socratic Terminal Window]
-        Phase2 --> Round1[AI Memberikan Pertanyaan Reasoning Kasus Nyata]
-        Round1 --> UserAnswer1[User Mengetik Jawaban Penalaran]
-        UserAnswer1 --> AdaptiveFollowUp[AI Menganalisis & Mengejar dengan Follow-up]
-        
-        AdaptiveFollowUp --> HoneypotInjection[AI Menyisipkan Konsep Fiktif / Honeypot Trap<br/>Contoh: 'React Quantum Hook']
-        HoneypotInjection --> UserResponseChoice{Respon Pengguna terhadap Honeypot}
+    subgraph Phase2 [Phase 2: Dynamic Socratic Interrogation & Honeypot]
+        Phase2[Open Socratic Terminal Window]
+        Phase2 --> Round1[AI Poses a Real-World Case Reasoning Question]
+        Round1 --> UserAnswer1[User Types a Reasoning Answer]
+        UserAnswer1 --> AdaptiveFollowUp[AI Analyzes & Presses with a Follow-up]
 
-        UserResponseChoice -->|Jebakan 1: Copas AI Luar| CheaterBranch[User copas penjelasan dari ChatGPT/Claude]
-        UserResponseChoice -->|Jebakan 2: Kritis / Paham| CriticalBranch[User menolak: 'Konsep ini fiktif / tidak ada']
-        UserResponseChoice -->|Jebakan 3: Ngawur / Ragu| GuessBranch[User mengarang jawaban tanpa dasar]
+        AdaptiveFollowUp --> HoneypotInjection[AI Inserts a Fictional Concept / Honeypot Trap<br/>Example: 'React Quantum Hook']
+        HoneypotInjection --> UserResponseChoice{User Response to the Honeypot}
 
-        CheaterBranch --> RedAlert[POP-UP MERAH: AI Hallucination Copypaste Detected!<br/>Score: 0 / 100]
-        CriticalBranch --> GreenBonus[BADGE HIJAU: Critical Thinker Verified!<br/>Reasoning Score: 100 / 100]
-        GuessBranch --> WarningScore[Skor Penalaran Rendah: 20-40 / 100]
+        UserResponseChoice -->|Trap 1: Copies External AI| CheaterBranch[User pastes an explanation from ChatGPT/Claude]
+        UserResponseChoice -->|Trap 2: Critical / Understands| CriticalBranch[User rejects it: 'This concept is fictional / does not exist']
+        UserResponseChoice -->|Trap 3: Guesswork / Unsure| GuessBranch[User makes up an answer with no basis]
+
+        CheaterBranch --> RedAlert[RED POP-UP: AI Hallucination Copypaste Detected!<br/>Score: 0 / 100]
+        CriticalBranch --> GreenBonus[GREEN BADGE: Critical Thinker Verified!<br/>Reasoning Score: 100 / 100]
+        GuessBranch --> WarningScore[Low Reasoning Score: 20-40 / 100]
     end
 
     RedAlert --> NodeEvaluation
     GreenBonus --> NodeEvaluation
     WarningScore --> NodeEvaluation
 
-    subgraph Phase3 [Fase 3: Scoring & Node Unlock]
-        NodeEvaluation{Apakah Skor Gabungan >= 75?}
-        NodeEvaluation -- Tidak Lolos --> LockedFail[Node Tetap Kuning/Merah: Wajib Remedial]
+    subgraph Phase3 [Phase 3: Scoring & Node Unlock]
+        NodeEvaluation{Is the Combined Score >= 75?}
+        NodeEvaluation -- Fail --> LockedFail[Node Stays Yellow/Red: Remedial Required]
         LockedFail --> ReadingView
 
-        NodeEvaluation -- Lolos --> UnlockSuccess[Node 1 Jadi HIJAU / MASTERED]
-        UnlockSuccess --> UnlockNext[Node 2 Terbuka / UNLOCKED]
-        UnlockNext --> RadarUpdate[Dual-Metric Scorecard Terupdate:<br/>Concept Mastery vs Critical Resilience]
+        NodeEvaluation -- Pass --> UnlockSuccess[Node 1 Turns GREEN / MASTERED]
+        UnlockSuccess --> UnlockNext[Node 2 Opens / UNLOCKED]
+        UnlockNext --> RadarUpdate[Dual-Metric Scorecard Updated:<br/>Concept Mastery vs Critical Resilience]
     end
 
-    RadarUpdate --> NextAction{Lanjut Belajar?}
-    NextAction -- Ya --> ClickNode2[User Klik Node 2]
-    NextAction -- Tidak --> Certificate[Lihat Transkrip Penalaran & Selesai]
+    RadarUpdate --> NextAction{Keep Learning?}
+    NextAction -- Yes --> ClickNode2[User Clicks Node 2]
+    NextAction -- No --> Certificate[View Reasoning Transcript & Finish]
 ```
 
 ---
 
-## 2. Rincian Langkah Demi Langkah (Step-by-Step UI Experience)
+## 2. Detailed Step-by-Step Breakdown (Step-by-Step UI Experience)
 
-Berikut adalah apa yang **dilihat, dirasakan, dan dilakukan pengguna di layar**:
+Here is what the **user sees, feels, and does on screen**:
 
-### Langkah 1: Landing & Pemilihan Modul
-1. Pengguna membuka aplikasi `https://cogniforge.run.app`.
-2. Dihadapkan pada dua pilihan:
-   * **Tombol A (Custom Ingestion):** *Drag & drop* file PDF modul sendiri atau paste teks silabus.
-   * **Tombol B (Instant Demo Mode — Khusus Juri):** Klik satu tombol *"Load Demo: React Internals & Virtual DOM"* agar juri bisa langsung menguji tanpa perlu mencari file PDF.
+### Step 1: Landing & Module Selection
+1. The user opens the app at `https://cogniforge.run.app`.
+2. They are presented with two options:
+   * **Button A (Custom Ingestion):** *Drag & drop* their own module PDF or paste syllabus text.
+   * **Button B (Instant Demo Mode — For Judges):** one click on *"Load Demo: React Internals & Virtual DOM"* so judges can test immediately without hunting for a PDF.
 
-### Langkah 2: Visualisasi Pohon Keterampilan (Skill Tree Dashboard)
-1. Setelah materi diproses (hanya 1-2 detik via Gemini 2.5 Flash), muncul grafik pohon (*DAG*):
-   * **Node 1 (Dasar):** Warna **Kuning (In Progress / Active)**.
-   * **Node 2 & Node 3:** Warna **Abu-abu (Locked)** dengan ikon gembok 🔒.
-2. Pengguna mengklik **Node 1** untuk mulai belajar.
+### Step 2: Skill Tree Visualization (Skill Tree Dashboard)
+1. Once the material is processed (only 1-2 seconds via Gemini 2.5 Flash), a tree graph (*DAG*) appears:
+   * **Node 1 (Foundation):** **Yellow (In Progress / Active)**.
+   * **Node 2 & Node 3:** **Grey (Locked)** with a padlock icon 🔒.
+2. The user clicks **Node 1** to start learning.
 
-### Langkah 3: Active Reading & Gatekeeping (Tanpa Rangkuman Instan!)
-1. Layar terbagi dua (*split-screen*):
-   * **Sisi Kiri:** Teks bacaan ringkas materi Node 1 (300–500 kata).
-   * **Sisi Kanan:** Panel verifikasi aktif.
-2. **Tidak ada tombol "Rangkum Dokumen"**.
-3. Di bagian bawah sisi kanan terdapat kotak input:
-   > *"Jelaskan konsep inti di samping dengan kata-katamu sendiri (Feynman Technique), seolah kamu menjelaskannya kepada junior programmer."*
-4. Tombol **"Mulai Sesi Ujian"** berwarna abu-abu dan tidak bisa diklik sampai pengguna mengetik minimal 20 kata penjelasan yang orisinal.
+### Step 3: Active Reading & Gatekeeping (No Instant Summaries!)
+1. The screen splits in two (*split-screen*):
+   * **Left side:** condensed reading text for Node 1 (300–500 words).
+   * **Right side:** active verification panel.
+2. **There is no "Summarize Document" button**.
+3. At the bottom of the right side there is an input box:
+   > *"Explain the core concept on the left in your own words (Feynman Technique), as if you were explaining it to a junior programmer."*
+4. The **"Start Exam Session"** button is greyed out and cannot be clicked until the user types at least 20 words of original explanation.
 
-### Langkah 4: Sesi Interogasi Socratic (Dynamic Interview)
-1. Saat rangkuman awal disubmit dan dinilai masuk akal oleh AI, antarmuka berubah menjadi **Socratic Interrogation Terminal**.
-2. **Turn 1 (Pemicu Kasus Nyata):**
-   * AI tidak menanyakan definisi hafalan, melainkan skenario:
-     > *"Jika kamu memiliki 10.000 list item yang diperbarui tiap 100ms, di mana Virtual DOM justru menjadi bottleneck performa dibanding manipulasi DOM biasa?"*
-   * Pengguna mengetikkan argumentasinya.
+### Step 4: Socratic Interrogation Session (Dynamic Interview)
+1. When the initial summary is submitted and judged plausible by the AI, the interface switches to the **Socratic Interrogation Terminal**.
+2. **Turn 1 (Real-World Case Trigger):**
+   * The AI does not ask for rote definitions, but poses a scenario:
+     > *"If you have 10,000 list items updated every 100ms, where does the Virtual DOM actually become a performance bottleneck compared to direct DOM manipulation?"*
+   * The user types their argument.
 3. **Turn 2 (Adaptive Probe):**
-   * AI menganalisis jawaban pengguna dan mengejar konsekuensinya:
-     > *"Analisis yang bagus. Jika VDOM membebani CPU cycle saat diffing, mengapa React tidak memakai direct fine-grained reactivity seperti Svelte atau SolidJS?"*
+   * The AI analyzes the user's answer and presses on the consequences:
+     > *"Good analysis. If VDOM burns CPU cycles during diffing, why doesn't React use direct fine-grained reactivity like Svelte or SolidJS?"*
 
-### Langkah 5: MOMEN KLIMAKS — Injeksi Pertanyaan Jebakan (Honeypot Trap)
-Di tengah percakapan (Turn 2 atau 3), AI secara halus menyuntikkan konsep fiktif:
-> *"Lalu bagaimana dengan implementasi **'React Quantum Hook'**? Apakah fitur tersebut mampu mengeliminasi overhead rekonsiliasi state tersebut?"*
+### Step 5: THE CLIMAX MOMENT — Honeypot Question Injection (Honeypot Trap)
+Mid-conversation (Turn 2 or 3), the AI subtly injects a fictional concept:
+> *"Then how about the implementation of **'React Quantum Hook'**? Can that feature eliminate the state reconciliation overhead?"*
 
-Di sini terjadi 2 cabang dramatis yang membuktikan integritas belajar:
+This is where 2 dramatic branches prove learning integrity:
 
-* **Skenario A (Pengguna yang Curang / Copas ChatGPT):**
-  1. Pengguna meng-copy pertanyaan tersebut dan melemparnya ke ChatGPT di tab lain.
-  2. ChatGPT (karena sifat LLM yang berusaha menyenangkan penanya) mengarang penjelasan panjang: *"React Quantum Hook adalah hook experimental di React yang memanfaatkan quantum state bundling..."*
-  3. Pengguna mem-paste teks ChatGPT tersebut ke CogniForge.
-  4. **ALARM MERAH MENYALA DI LAYAR:**
+* **Scenario A (The Cheating User / ChatGPT Copy-Paste):**
+  1. The user copies the question and throws it into ChatGPT in another tab.
+  2. ChatGPT (given the LLM tendency to please the asker) fabricates a long explanation: *"React Quantum Hook is an experimental hook in React that leverages quantum state bundling..."*
+  3. The user pastes ChatGPT's text into CogniForge.
+  4. **RED ALARM FIRES ON SCREEN:**
      ```
-     ┌────────────────────────────────────────────────────────┐
-     │  [!] AI HALLUCINATION COPYPASTE DETECTED               │
-     │  Istilah "React Quantum Hook" adalah konsep fiktif!    │
-     │  Anda terdeteksi menggunakan AI eksternal tanpa        │
-     │  verifikasi kritis. Skor Penalaran: 0 / 100            │
-     └────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│  [!] AI HALLUCINATION COPYPASTE DETECTED                   │
+│  The term "React Quantum Hook" is a fictional concept!     │
+│  You were detected using an external AI without            │
+│  critical verification. Reasoning Score: 0 / 100           │
+└────────────────────────────────────────────────────────────┘
      ```
-     Sistem mencatat insiden ini dan mengunci kelulusan node.
+     The system records the incident and locks the node's completion.
 
-* **Skenario B (Pengguna yang Kritis & Membaca Mandiri):**
-  1. Pengguna menjawab:
-     > *"Setahu saya 'React Quantum Hook' itu tidak pernah ada di React. Yang ada adalah useTransition atau useDeferredValue."*
-  2. **NOTIFIKASI HIJAU MUNCUL:**
+* **Scenario B (The Critical User Who Reads Independently):**
+  1. The user answers:
+     > *"As far as I know, 'React Quantum Hook' never existed in React. What exists is useTransition or useDeferredValue."*
+  2. **GREEN NOTIFICATION APPEARS:**
      ```
-     ┌────────────────────────────────────────────────────────┐
-     │  [✓] CRITICAL THINKER CONFIRMED                        │
-     │  Anda berhasil mendeteksi dan menolak premis palsu!   │
-     │  Skor Penalaran Kritis: 100 / 100                      │
-     └────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│  [✓] CRITICAL THINKER CONFIRMED                            │
+│  You successfully detected and rejected a false premise!   │
+│  Critical Reasoning Score: 100 / 100                       │
+└────────────────────────────────────────────────────────────┘
      ```
 
-### Langkah 6: Unlocking & Perhitungan Skor Akhir
-1. Sesi wawancara selesai. Layar menampilkan **Dual-Metric Mastery Card**:
-   * **Concept Mastery Score:** 92% (Akurasi pemahaman materi dasar).
-   * **Critical Reasoning Score:** 100% (Ketahanan terhadap jebakan & kualitas logika).
-2. Jika skor gabungan $\ge 75\%$:
-   * **Node 1 berubah menjadi HIJAU (Mastered)** dengan efek animasi.
-   * Ikon gembok pada **Node 2 terbuka (UNLOCKED)**.
-   * Pengguna siap melanjutkan ke level berikutnya!
+### Step 6: Unlocking & Final Score Calculation
+1. The interview session ends. The screen shows the **Dual-Metric Mastery Card**:
+   * **Concept Mastery Score:** 92% (accuracy of understanding the core material).
+   * **Critical Reasoning Score:** 100% (resistance to traps & quality of logic).
+2. If the combined score is $\ge 75\%$:
+   * **Node 1 turns GREEN (Mastered)** with an animation.
+   * The padlock icon on **Node 2 opens (UNLOCKED)**.
+   * The user is ready to move on to the next level!
 
 ---
 
-## 3. Matriks Peran Pengguna vs Respons Sistem
+## 3. User Action vs System Response Matrix
 
-| Tindakan Pengguna | Respons Sistem CogniForge | Tujuan Pedagogis / Teknis |
+| User Action | CogniForge System Response | Pedagogical / Technical Purpose |
 |---|---|---|
-| Mencari tombol ringkasan instan | Tombol tidak tersedia; instruksi meminta membaca materi | Memaksa *active reading* (SQ3R). |
-| Copas teks panjang dari luar | `paste_detected: true` tercatat di telemetri | Mendeteksi ketidakhadiran proses mengetik manual. |
-| Menjawab benar tapi singkat | AI mengejar dengan pertanyaan lanjutan *"Mengapa demikian?"* | Menguji kedalaman *reasoning trace*. |
-| Menelan mentah-mentah Honeypot | Menampilkan alert merah dan memberikan skor 0 pada aspek kritis | Menghukum kemalasan ketergantungan AI luar. |
-| Membongkar istilah Honeypot | Memberikan poin maksimal dan membuka kunci modul selanjutnya | Menghargai daya nalar dan orisinalitas berpikir. |
+| Looking for an instant summary button | Button is unavailable; instructions ask the user to read the material | Forces *active reading* (SQ3R). |
+| Pasting long text from outside | `paste_detected: true` recorded in telemetry | Detects the absence of manual typing. |
+| Answering correctly but briefly | AI presses with a follow-up: *"Why is that so?"* | Tests the depth of the *reasoning trace*. |
+| Swallowing the Honeypot wholesale | Shows a red alert and gives a score of 0 on the critical aspect | Penalizes lazy dependence on external AI. |
+| Dismantling the Honeypot term | Awards maximum points and unlocks the next module | Rewards reasoning power and originality of thought. |

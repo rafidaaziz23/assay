@@ -3,237 +3,217 @@
 *(codename repo: Active Learning Engine — `active-learning-engine/`)*
 
 **Event:** AI Builder Cup 2026 (Google Cloud x Hack2skill, JAPAC)
-**Target Submission Deadline:** 18 Oktober 2026, 23:59 UTC+8 — **HARD DEADLINE**
+**Target Submission Deadline:** 18 October 2026, 23:59 UTC+8 — **HARD DEADLINE**
 **Track Alignment:** Track 4 (Media, Content & Digital Experiences — Adaptive Learning) — **single track**
-**Author / Core Team:** AI Builder Cup Squad (3 developer)
+**Author / Core Team:** AI Builder Cup Squad (3 developers)
 **Document Version:** 2.0.0
-**Status:** OPERATIONAL CONTRACT — mengikat. Dokumen ini menggantikan PRD v1.0.0.
+**Status:** OPERATIONAL CONTRACT — binding. This document supersedes PRD v1.0.0.
 
 ---
 
 ## 0. Changelog v1.0.0 → v2.0.0
 
-Ringkas apa yang berubah, biar gak ada yang bingung baca dua versi.
+Summary of what changed, so nobody gets confused reading two versions.
 
-| Area | v1.0.0 | v2.0.0 | Alasan |
+| Area | v1.0.0 | v2.0.0 | Reason |
 |---|---|---|---|
-| Nama produk | CogniForge | **Assay** | "Cogni-" pola AI-slop; "Assay" = uji kemurnian logam + homofon "essay" |
-| Entry point | Upload PDF (wajib) | Intent input + Role selector + PDF (**opsional**) | Flow baru: user mulai dari niat belajar, bukan dari dokumen |
-| Track | Track 4 **dan** Track 5 | Track 4 saja | Rules: 1 tim = 1 track |
-| Deadline | 19 Oktober | **18 Oktober** | Deadline resmi panitia |
-| Tim | 4 developer | **3 developer** | Realita squad |
-| Kurikulum | Chunk 300-600 kata → concept node | Intent+role → checklist → **silabus chapter** | Flow baru |
-| Skor | Dual-metric (Concept + Reasoning) | **Single score + Calibration Gap** | Lebih murah, lebih kuat demo (riset C1) |
-| Honeypot | Gate keras (kena = fail) | **Dimensi skor** (+2/-2/0/-1), bukan gate | Riset A1: gate keras ngehukum orang jujur |
-| Visual tree | DAG Skill Tree (ReactFlow) | **Chapter stepper linear** | DAG gak pembeda, buang 1 dev-day |
-| Coding arena | Monaco + Piston + TDL | **CUT ke roadmap** | Gak muat 4 hari |
-| Anti-cheat | CSS `user-select:none` + blur + timer | **Focus Mode (MediaPipe ML, on-device) + auto-blur** | Riset B1/B2: jangan jual "anti-cheat", aksesibilitas |
-| Select-word | (tidak ada) | **Select kata → tanya AI (Socratic)** + suggested question | Fitur baru flow |
-| Referensi | (tidak ada) | **PDF-RAG wajib + Google Search grounding opsional** | Fitur baru flow |
-| Nama file | `docs/adrs/001-model-selection.md` | ADR 001-005 (lihat §11) | Tambah ADR keputusan baru |
+| Product name | CogniForge | **Assay** | "Cogni-" is an AI-slop pattern; "Assay" = a test of metal purity + homophone of "essay" |
+| Entry point | PDF upload (required) | Intent input + Role selector + PDF (**optional**) | New flow: the user starts from a learning intent, not a document |
+| Track | Track 4 **and** Track 5 | Track 4 only | Rules: 1 team = 1 track |
+| Deadline | October 19 | **October 18** | Official organizer deadline |
+| Team | 4 developers | **3 developers** | Squad reality |
+| Curriculum | 300-600 word chunks → concept node | Intent+role → checklist → **chapter syllabus** | New flow |
+| Score | Dual-metric (Concept + Reasoning) | **Single score + Calibration Gap** | Cheaper, stronger demo (research C1) |
+| Honeypot | Hard gate (hit = fail) | **Score dimension** (+2/-2/0/-1), not a gate | Research A1: hard gates punish honest people |
+| Visual tree | DAG Skill Tree (ReactFlow) | **Linear chapter stepper** | DAG is not a differentiator, saves 1 dev-day |
+| Coding arena | Monaco + Piston + TDL | **CUT to roadmap** | Does not fit in 4 days |
+| Anti-cheat | CSS `user-select:none` + blur + timer | **Focus Mode (MediaPipe ML, on-device) + auto-blur** | Research B1/B2: don't sell "anti-cheat", accessibility |
+| Select-word | (none) | **Select word → ask AI (Socratic)** + suggested question | New flow feature |
+| References | (none) | **PDF-RAG required + Google Search grounding optional** | New flow feature |
+| File name | `docs/adrs/001-model-selection.md` | ADR 001-005 (see §11) | Adds ADRs for new decisions |
 
 ---
 
 ## 1. Executive Summary & Value Proposition
 
 ### 1.1 The "Anti-AI-Brain-Rot" Manifesto
-Di era Generative AI, platform belajar konvensional dan dokumen materi (PDF/modul) mengalami krisis efektivitas: **AI Brain Rot**. Pelajar dan engineer memasukkan materi ke ChatGPT atau NotebookLM untuk minta ringkasan instan, kuis instan, atau jawaban kode — tanpa proses penalaran. Akibatnya:
-- Otot kognitif melemah (*atrophy of critical thinking*).
-- Retensi jangka panjang anjlok.
-- Pemahaman palsu (*illusory competence*): merasa paham karena baca rangkuman AI, tapi runtuh saat hadapi *edge case* nyata.
+In the Generative AI era, conventional learning platforms and course documents (PDFs/modules) are hitting an effectiveness crisis: **AI Brain Rot**. Students and engineers dump material into ChatGPT or NotebookLM to get instant summaries, instant quizzes, or code answers — with no reasoning process involved. As a result:
+- Cognitive muscles weaken (*atrophy of critical thinking*).
+- Long-term retention collapses.
+- Illusory competence: feeling you understand because you read an AI summary, then collapsing the moment you hit a real *edge case*.
 
-**Bukti angka (dari riset primer, dipakai di deck):**
-- 95% mahasiswa pakai AI (HEPI 2026).
-- 67% murid bilang AI merusak cara berpikir mereka (RAND, Mar 2026).
-- PISA 2025 terendah sepanjang sejarah (OECD, Sep 2026).
-- 72% employer susah mengisi posisi (ManpowerGroup 2026).
-- Unguarded AI helper = 17% **lebih buruk** hasilnya; AI yang menolak menjawab = kerusakan hilang (arXiv 2606.26181, Jun 2026).
+**Hard numbers (from primary research, used in the deck):**
+- 95% of university students use AI (HEPI 2026).
+- 67% of students say AI damages the way they think (RAND, Mar 2026).
+- PISA 2025 lowest on record (OECD, Sep 2026).
+- 72% of employers struggle to fill roles (ManpowerGroup 2026).
+- An unguarded AI helper yields results 17% **worse**; an AI that refuses to answer = the damage disappears (arXiv 2606.26181, Jun 2026).
 
-### 1.2 Solusi: Assay
-**Assay** membalik paradigma AI dari **"Passive Answer Dispenser"** menjadi **"Active Socratic Enforcer & Interrogator"** dengan filosofi **High-Friction, High-Reward**.
+### 1.2 The Solution: Assay
+**Assay** flips the AI paradigm from **"Passive Answer Dispenser"** to **"Active Socratic Enforcer & Interrogator"** with a **High-Friction, High-Reward** philosophy.
 
-Assay gak ngasih ringkasan gratis. Sistem:
-1. Ambil **niat belajar** user + **role** yang mau dikuasai + (opsional) **dokumen pendukung**.
-2. Generate **checklist topik** realtime sesuai niat + isi dokumen.
-3. Susun **silabus ber-chapter** dari dokumen, diperkaya **referensi eksternal** yang relevan.
-4. Kunci chapter berikutnya sampai user lulus **interview quiz**.
-5. Di dalam chapter, user bisa **select kata** buat nanya balik ke AI — dan AI-nya **balik nanya** (Socratic), bukan ngasih jawaban.
-6. Selipkan **honeypot** (konsep fiktif) buat nangkep user yang copas ke LLM luar.
-7. **Focus Mode** pakai kamera + ML on-device buat deteksi kecurangan → auto-blur.
-8. Akhiri dengan **skor per chapter + calibration gap** (jarak antara "ngerasa paham" dan "beneran paham").
+Assay hands out no free summaries. The system:
+1. Captures the user's **learning intent** + the **role** they want to master + (optionally) a **supporting document**.
+2. Generates a **topic checklist** in realtime from the intent + document content.
+3. Builds a **chapter-based syllabus** from the document, enriched with relevant **external references**.
+4. Locks the next chapter until the user passes the **interview quiz**.
+5. Inside a chapter, the user can **select a word** to ask the AI — and the AI **asks back** (Socratic) instead of giving the answer.
+6. Plants a **honeypot** (fictional concept) to catch users who copy-paste to an external LLM.
+7. **Focus Mode** uses the camera + on-device ML to detect cheating → auto-blur.
+8. Ends with a **per-chapter score + calibration gap** (the distance between "feeling you understand" and "actually understanding").
 
 ```
 +--------------------------------------------------------------------------------+
-|                    USER INTAKE (single screen)                                  |
+|                          USER INTAKE (single screen)                           |
 |  "What do you want to learn today?"  +  Role selector  +  PDF (optional)       |
-+--------------------------------------------------------------------------------+
-                                    |
-                                    v
-+--------------------------------------------------------------------------------+
-|                    REALTIME CHECKLIST GENERATION                                |
-|  Backend kirim checklist topik (role-based) sesuai niat + isi PDF              |
-+--------------------------------------------------------------------------------+
-                                    |
-                                    v
-+--------------------------------------------------------------------------------+
-|                    SYLLABUS SYNTHESIS                                           |
-|  AI chunk PDF -> chapters  +  ambil referensi relevan (PDF-RAG + grounding)     |
-+--------------------------------------------------------------------------------+
-                                    |
-                                    v
-+--------------------------------------------------------------------------------+
-|                    GATED CHAPTER READER                                         |
-|  Chapter linear, next LOCKED sampai interview quiz lulus                        |
-|  Di dalam chapter: select kata -> tanya AI (Socratic) + suggested questions     |
-+--------------------------------------------------------------------------------+
-                                    |
-                                    v
-+--------------------------------------------------------------------------------+
-|                    INTERVIEW QUIZ (per chapter)                                 |
-|  - Honeypot (konsep fiktif)                                                     |
-|  - Focus Mode: kamera + ML on-device, anti-cheat, auto-blur kalau curang        |
-|  - Calibration: user prediksi skor sendiri sebelum reveal                       |
-+--------------------------------------------------------------------------------+
-                                    |
-                                    v
-+--------------------------------------------------------------------------------+
-|                    SCORING & REPORT                                             |
-|  Single score per chapter + Calibration Gap + integrity flags                   |
+|                         REALTIME CHECKLIST GENERATION                          |
+|  Backend streams a topic checklist (role-based) from intent + PDF              |
+|                               SYLLABUS SYNTHESIS                               |
+|  AI chunks PDF -> chapters  +  pulls relevant refs (PDF-RAG + grounding)       |
+|                              GATED CHAPTER READER                              |
+|  Linear chapters, next LOCKED until the interview quiz is passed               |
+|  Inside a chapter: select word -> ask AI (Socratic) + suggested questions      |
+|                          INTERVIEW QUIZ (per chapter)                          |
+|  - Honeypot (fictional concept)                                                |
+|  - Focus Mode: camera + on-device ML, anti-cheat, auto-blur on cheating        |
+|  - Calibration: user predicts own score before reveal                          |
+|                                SCORING & REPORT                                |
+|  Single score per chapter + Calibration Gap + integrity flags                  |
 +--------------------------------------------------------------------------------+
 ```
 
-### 1.3 Positioning (satu kalimat, pakai di deck slide 1)
-> Setiap AI study tool menjawab pertanyaan. Assay yang mempertanyakan jawabanmu.
+### 1.3 Positioning (one sentence, use on deck slide 1)
+> Every AI study tool answers your questions. Assay questions your answers.
 
 ---
 
 ## 2. Problem Statement & Competitive Positioning
 
 ### 2.1 Landscape
-| Karakteristik | NotebookLM / ChatGPT / Coursera | **Assay** |
+| Characteristic | NotebookLM / ChatGPT / Coursera | **Assay** |
 |---|---|---|
-| Peran AI | Perpustakaan & asisten pasif | Pelatih & penguji penalaran |
-| Ringkasan | 1-klik instan | **Gak ada tombol ringkasan**. User yang nulis |
-| Alur materi | Linear pasif / bebas lompat | **Chapter terkunci** sampai lulus interview |
-| Integritas | Gak ada verifikasi | **Honeypot + Focus Mode ML** |
-| Interaksi dalam materi | Gak ada / chat terpisah | **Select kata → tanya AI (Socratic)** |
-| Metrik | Skor pilihan ganda | **Skor reasoning + calibration gap** |
+| AI role | Library & passive assistant | Coach & reasoning examiner |
+| Summaries | 1-click instant | **No summary button**. The user writes it |
+| Material flow | Passive linear / free to skip | **Chapters locked** until the interview is passed |
+| Integrity | No verification | **Honeypot + Focus Mode ML** |
+| In-material interaction | None / separate chat | **Select word → ask AI (Socratic)** |
+| Metrics | Multiple-choice score | **Reasoning score + calibration gap** |
 
-### 2.2 Kompetitor terdekat & diferensiasi
-- **Khanmigo / Google Learn About:** Socratic tapi *suggestive* — user bisa minta jawaban langsung, gak ada gatekeeping, gak ada deteksi integritas, gak bisa upload PDF sendiri. Assay = *enforcement engine*, bukan tutor sugestif.
-- **Foreman (kompetitor Track 5, AI Builder Cup 2026):** "Honesty Canary" buat uji kejujuran **agen AI**. Assay punya DNA mekanisme yang sama, tapi menguji **kejujuran manusia yang nyontek AI lain**. Posisi filosofis yang kuat — sebut di deck.
-- **Chopdesk (Track 1):** punya heuristic offline fallback. Assay wajib punya kelas fallback yang sama.
+### 2.2 Closest competitors & differentiation
+- **Khanmigo / Google Learn About:** Socratic but *suggestive* — the user can just ask for the answer, there is no gatekeeping, no integrity detection, and no self-serve PDF upload. Assay = an *enforcement engine*, not a suggestive tutor.
+- **Foreman (Track 5 competitor, AI Builder Cup 2026):** an "Honesty Canary" that tests the honesty of **AI agents**. Assay shares the same mechanism DNA, but tests **the honesty of humans who cheat with another AI**. A strong philosophical position — mention it in the deck.
+- **Chopdesk (Track 1):** ships a heuristic offline fallback. Assay must have the same class of fallback.
 
-### 2.3 Persona & pasar
-- **Demo (B2C, human-facing):** pelajar/developer yang mau naik level dari role tertentu (Frontend/Backend/Fullstack/dll).
-- **Story & monetisasi (B2B, institution-facing):** bootcamp & corporate L&D yang gak bisa lagi percaya nilai/sertifikat/portofolio karena AI. Assay = sistem verifikasi reasoning.
-- **Relevansi JAPAC:** gap 9 juta talenta digital (World Bank); bootcamp dengan completion rate <15% dan kompetensi gak terverifikasi.
+### 2.3 Personas & market
+- **Demo (B2C, human-facing):** students/developers who want to level up in a specific role (Frontend/Backend/Fullstack/etc.).
+- **Story & monetization (B2B, institution-facing):** bootcamps & corporate L&D that can no longer trust grades/certificates/portfolios because of AI. Assay = a reasoning verification system.
+- **JAPAC relevance:** a 9 million digital talent gap (World Bank); bootcamps with completion rates <15% and unverified competence.
 
 ---
 
-## 3. Core User Flow (KANONIK)
+## 3. Core User Flow (CANONICAL)
 
-Ini flow resmi. Semua dokumen lain (API-CONTRACTS, DEMO-SCRIPT, PITCH-DECK, TEAM-TASK) harus mengikuti urutan ini.
+This is the official flow. All other documents (API-CONTRACTS, DEMO-SCRIPT, PITCH-DECK, TEAM-TASK) must follow this order.
 
 ### Step 1 — Intake Screen
-Satu layar berisi tiga input:
+One screen with three inputs:
 1. **Intent:** free-text — *"What do you want to learn today?"*
-2. **Role selector:** daftar **role fix** (seed) yang bisa dipilih, e.g. `Frontend`, `Backend`, `Fullstack`, `DevOps`, `Data/ML`, `Mobile`, `QA/Test`, `Security`, `System Design`. Kalau niat user gak ada di seed → backend otomatis memunculkan opsi **`Others`** (free-text role).
-3. **PDF upload (opsional):** dokumen pendukung. Boleh kosong.
+2. **Role selector:** a fixed **role** list (seed) to pick from, e.g. `Frontend`, `Backend`, `Fullstack`, `DevOps`, `Data/ML`, `Mobile`, `QA/Test`, `Security`, `System Design`. If the user's intent is not in the seed → the backend automatically surfaces an **`Others`** option (free-text role).
+3. **PDF upload (optional):** supporting document. May be empty.
 
 ### Step 2 — Realtime Checklist Generation
-Setelah submit, backend generate **checklist topik** secara realtime berdasarkan: (a) intent, (b) role terpilih, (c) isi PDF (kalau ada). Frontend menampilkan checklist dengan checkbox; user boleh uncheck/check item sebelum lanjut. Item yang dicentang = bahan silabus.
+After submit, the backend generates a **topic checklist** in realtime based on: (a) intent, (b) selected role, (c) PDF content (if any). The frontend shows the checklist with checkboxes; the user may uncheck/check items before continuing. Checked items = syllabus material.
 
 ### Step 3 — Syllabus Synthesis
-Backend integrasi AI:
-- **Chunking:** pecah PDF jadi beberapa **chapter silabus** berstruktur (judul, urutan, tujuan, estimasi waktu).
-- **Reference enrichment:** AI mengambil **referensi relevan** dari sumber tambahan buat memperkuat hasil pembelajaran.
-  - **PDF-RAG (wajib):** grounding di dalam dokumen, page-anchored. Ini yang bikin klaim honeypot bisa diverifikasi.
-  - **Google Search grounding (opsional):** diaktifkan cuma untuk 1-2 chapter, hasilnya **di-cache**, fallback ke cache kalau API error.
-- Kalau **tidak ada PDF:** konten chapter di-generate AI dari role taxonomy + grounding (chapter tetap jalan), ditandai sumbernya.
+Backend AI integration:
+- **Chunking:** split the PDF into several structured **syllabus chapters** (title, order, objective, time estimate).
+- **Reference enrichment:** the AI pulls **relevant references** from additional sources to strengthen the learning outcome.
+  - **PDF-RAG (required):** grounding inside the document, page-anchored. This is what makes honeypot claims verifiable.
+  - **Google Search grounding (optional):** enabled for only 1-2 chapters, results **cached**, falls back to cache on API error.
+- If there is **no PDF:** chapter content is generated by AI from the role taxonomy + grounding (chapters still work), with the source labelled.
 
 ### Step 4 — Gated Chapter Reader
-- Frontend menampilkan tiap **chapter silabus**.
-- **Guard:** chapter berikutnya **terkunci** sampai user lulus interview quiz chapter saat ini.
-- Di dalam halaman chapter, user bisa **select kata/kalimat** dari konten → muncul popover buat **tanya AI**.
-  - AI menjawab **secara Socratic** (balik nanya / kasih hint), **bukan** ngasih jawaban langsung.
-  - Kalau user select **beberapa kata**, AI menampilkan **suggested questions** yang relevan dengan seleksi itu.
+- The frontend displays each **syllabus chapter**.
+- **Guard:** the next chapter is **locked** until the user passes the current chapter's interview quiz.
+- Inside the chapter page, the user can **select a word/sentence** from the content → a popover appears to **ask the AI**.
+  - The AI answers **Socratically** (asks back / gives a hint), **not** with the direct answer.
+  - If the user selects **several words**, the AI shows **suggested questions** relevant to that selection.
 
 ### Step 5 — Interview Quiz (per chapter)
-Setiap chapter punya **interview quiz** dengan:
-- **Honeypot:** AI menyelipkan konsep fiktif yang meyakinkan. Klasifikasi respons → dimensi skor (bukan gate).
-- **Focus Mode (kamera):** kamera nyala + **ML on-device** (MediaPipe) mendeteksi indikasi kecurangan (gaze/head-pose drift, jumlah wajah >1, pindah tab). Kalau terdeteksi → **halaman auto-blur** + event di-flag `assisted`.
-  - **Privasi:** inferensi jalan di browser; **video TIDAK dikirim ke server**, cuma event boolean.
-- **Anti-cheat feature** (dijual sebagai *focus & integrity signal*, bukan klaim "gak bisa dicurangi").
-- **Calibration:** sebelum skor di-reveal, user memprediksi skor dirinya sendiri (0-100).
+Every chapter has an **interview quiz** with:
+- **Honeypot:** the AI slips in a convincing fictional concept. Response classification → score dimension (not a gate).
+- **Focus Mode (camera):** camera on + **on-device ML** (MediaPipe) detects signs of cheating (gaze/head-pose drift, more than 1 face, tab switch). If detected → **the page auto-blurs** + the event is flagged `assisted`.
+  - **Privacy:** inference runs in the browser; **video is NOT sent to the server**, only boolean events.
+- **Anti-cheat feature** (sold as a *focus & integrity signal*, not a "cannot be cheated" claim).
+- **Calibration:** before the score is revealed, the user predicts their own score (0-100).
 
 ### Step 6 — Scoring & Final Report
-- **Single score per chapter** (0-100), threshold unlock **≥ 75**.
-- **Calibration gap** = |prediksi user − skor aktual|. Dipakai di laporan, **bukan** penentu unlock.
-- **Integrity flags** dari Focus Mode + honeypot masuk laporan.
-- **Final report:** skor lintas chapter + tren calibration gap + integrity log.
+- **Single score per chapter** (0-100), unlock threshold **≥ 75**.
+- **Calibration gap** = |user prediction − actual score|. Used in the report, **not** as the unlock criterion.
+- **Integrity flags** from Focus Mode + honeypot go into the report.
+- **Final report:** cross-chapter scores + calibration gap trend + integrity log.
 
 ---
 
 ## 4. Feature Architecture & Functional Specifications
 
-### 4.1 Pilar 1 — Intake & Role Selector
-- **Intent input:** free-text, wajib. Min 3 kata.
-- **Role selector:** seed fix (lihat §3 Step 1). Kalau intent gak match seed mana pun → opsi `Others` muncul otomatis (backend deteksi via AI classify). User bisa isi role custom.
-- **PDF optional:** PDF/raw text. Kalau ada, jadi sumber konten utama.
+### 4.1 Pillar 1 — Intake & Role Selector
+- **Intent input:** free-text, required. Min 3 words.
+- **Role selector:** fixed seed (see §3 Step 1). If the intent matches no seed → the `Others` option appears automatically (backend detects via AI classify). The user can enter a custom role.
+- **PDF optional:** PDF/raw text. If present, it becomes the primary content source.
 
-### 4.2 Pilar 2 — Realtime Checklist Generation
-- Backend generate checklist topik dari (intent + role + isi PDF).
-- Frontend render realtime (SSE atau polling cepat).
-- User bisa edit pilihan (check/uncheck) sebelum submit.
-- Item terpilih → jadi basis chapter silabus.
+### 4.2 Pillar 2 — Realtime Checklist Generation
+- The backend generates the topic checklist from (intent + role + PDF content).
+- The frontend renders in realtime (SSE or fast polling).
+- The user can edit the selection (check/uncheck) before submitting.
+- Selected items → become the basis of the syllabus chapters.
 
-### 4.3 Pilar 3 — Syllabus Synthesis & Reference Enrichment
-- **Chunking by structure:** Gemini pecah dokumen jadi chapter berstruktur (bukan chunk 300-600 kata buta).
-- **PDF-RAG:** tiap chapter punya page-anchor ke dokumen. Dipakai buat: (a) konten chapter, (b) verifikasi klaim honeypot ("istilah ini gak ada di halaman mana pun modul lu").
-- **Grounding opsional:** Google Search grounding (Vertex AI) buat 1-2 chapter. Hasil di-cache ke Firestore.
-- **No-PDF path:** chapter di-generate dari role taxonomy + grounding, ditandai `source: generated`.
+### 4.3 Pillar 3 — Syllabus Synthesis & Reference Enrichment
+- **Chunking by structure:** Gemini splits the document into structured chapters (not blind 300-600 word chunks).
+- **PDF-RAG:** every chapter has a page anchor into the document. Used for: (a) chapter content, (b) verifying honeypot claims ("this term appears on no page of your module").
+- **Optional grounding:** Google Search grounding (Vertex AI) for 1-2 chapters. Results cached to Firestore.
+- **No-PDF path:** chapters are generated from the role taxonomy + grounding, tagged `source: generated`.
 
-### 4.4 Pilar 4 — Gated Chapter Reader & Inline Socratic Ask
-- **Chapter stepper linear** (bukan DAG visual). State per chapter: `LOCKED → ACTIVE_READING → INTERVIEW → SCORED → UNLOCKED/NEEDS_REVIEW`.
-- **Guard:** `next` terkunci default; unlock hanya setelah skor chapter ≥ 75.
-- **Select-word ask:** user select teks di chapter → popover.
-  - Mode **Socratic**: AI balik nanya / kasih hint / nunjuk ke halaman relevan. **Tidak** memberi jawaban jadi.
-  - Multi-kata terpilih → AI kasih **suggested questions**.
-  - Tiap interaksi tercatat (buat metrik engagement + audit).
+### 4.4 Pillar 4 — Gated Chapter Reader & Inline Socratic Ask
+- **Linear chapter stepper** (not a visual DAG). Per-chapter state: `LOCKED → ACTIVE_READING → INTERVIEW → SCORED → UNLOCKED/NEEDS_REVIEW`.
+- **Guard:** `next` is locked by default; unlock only after the chapter score ≥ 75.
+- **Select-word ask:** the user selects text in the chapter → popover.
+  - **Socratic** mode: the AI asks back / gives a hint / points to the relevant page. It does **not** hand over the answer.
+  - Several words selected → the AI offers **suggested questions**.
+  - Every interaction is logged (for engagement metrics + audit).
 
-### 4.5 Pilar 5 — Interview Quiz, Honeypot & Focus Mode
-- **Interview multi-turn (2-3 ronde):** pertanyaan inferensial/HOTS, adaptive follow-up. Bukan "apa definisi X".
+### 4.5 Pillar 5 — Interview Quiz, Honeypot & Focus Mode
+- **Multi-turn interview (2-3 rounds):** inferential/HOTS questions, adaptive follow-ups. Not "what is the definition of X".
 - **Honeypot:**
-  - Konsep fiktif kontekstual (contoh: *"React Quantum Hook"*, *"Zero-Latency Mutex"*, *"bcSQL indexing"*).
-  - Dimensi skor honeypot (riset A1):
-    - `CRITICAL_REJECTION` (curiga & tepat) → **+2**
-    - `AI_HALLUCINATION_COPYPASTE` (panjang, yakin, halusinasi) → **−2**
-    - `UNVERIFIED_HONEST` ("gw gak tau") → **0** (jujur, netral)
-    - `EVASIVE` (diam/muter gak nyerempet) → **−1**
-  - **Bukan gate.** Yang mutusin unlock tetap skor gabungan.
-  - Katalog deterministik (ADR 002) + variasi term biar gak dihafal (ADR 005).
-- **Focus Mode (kamera):**
-  - MediaPipe on-device: head-pose/gaze drift, jumlah wajah, tab blur.
-  - Terdeteksi → **auto-blur** halaman + flag `assisted`.
-  - Video **tidak** keluar device; hanya event boolean ke backend.
-  - **Accessible Mode:** bisa dimatikan (copy boleh, blur off, waktu longgar) — skornya ditandai `assisted`.
-- **Response pressure timer:** ngukur **waktu mikir user** (mulai setelah pertanyaan selesai di-stream), bukan waktu tunggu model. Timer = sinyal, bukan auto-fail (riset B3).
+  - Contextual fictional concepts (e.g. *"React Quantum Hook"*, *"Zero-Latency Mutex"*, *"bcSQL indexing"*).
+  - Honeypot score dimensions (research A1):
+    - `CRITICAL_REJECTION` (suspicious & accurate) → **+2**
+    - `AI_HALLUCINATION_COPYPASTE` (long, confident, hallucinated) → **−2**
+    - `UNVERIFIED_HONEST` ("I don't know") → **0** (honest, neutral)
+    - `EVASIVE` (silent/vague, never touches it) → **−1**
+  - **Not a gate.** The combined score still decides the unlock.
+  - Deterministic catalog (ADR 002) + term variation so it cannot be memorized (ADR 005).
+- **Focus Mode (camera):**
+  - MediaPipe on-device: head-pose/gaze drift, face count, tab blur.
+  - Detected → **auto-blur** the page + `assisted` flag.
+  - Video **does not** leave the device; only boolean events go to the backend.
+  - **Accessible Mode:** can be turned off (copy allowed, blur off, relaxed time) — the score is tagged `assisted`.
+- **Response pressure timer:** measures the **user's thinking time** (starts once the question finishes streaming), not model wait time. The timer is a signal, not an auto-fail (research B3).
 
-### 4.6 Pilar 6 — Scoring, Calibration & Report
-- **Single score** per chapter 0-100 (concept + reasoning digabung, dihitung deterministik dari klasifikasi LLM — lihat ADR 002).
-- **Threshold unlock:** ≥ 75.
-- **Calibration:** user prediksi skor → reveal → `calibration_gap = |predicted − actual|`.
-- **Report:** skor per chapter, tren calibration gap, integrity log, honeypot verdict.
-- **Appeal path:** user bisa bantah skor; sistem review (verifier model kedua) → tandai `uncertain` atau revisi.
+### 4.6 Pillar 6 — Scoring, Calibration & Report
+- **Single score** per chapter 0-100 (concept + reasoning combined, computed deterministically from LLM classification — see ADR 002).
+- **Unlock threshold:** ≥ 75.
+- **Calibration:** user predicts score → reveal → `calibration_gap = |predicted − actual|`.
+- **Report:** per-chapter scores, calibration gap trend, integrity log, honeypot verdict.
+- **Appeal path:** the user can contest a score; the system reviews it (second verifier model) → tags it `uncertain` or revises.
 
 ---
 
-## 5. Alokasi Tim (3 Developer)
+## 5. Team Allocation (3 Developers)
 
-Kapasitas: 3 orang × 4 hari ≈ 12 dev-day, efektif ~9.6 dev-day (overhead integrasi ~20%).
-Total flow baru ≈ 11.25 dev-day + fitur wajib riset ≈ 3.5 dev-day = **~14.75 dev-day**.
-**Artinya pemotongan itu WAJIB**, bukan pilihan. Lihat §8.
+Capacity: 3 people × 4 days ≈ 12 dev-days, effectively ~9.6 dev-days (integration overhead ~20%).
+The new flow totals ≈ 11.25 dev-days + required research features ≈ 3.5 dev-days = **~14.75 dev-days**.
+**That means cutting is MANDATORY**, not a choice. See §8.
 
 ```
 +-------------------------------+--------------------------------+-------------------------------+
@@ -249,85 +229,85 @@ Total flow baru ≈ 11.25 dev-day + fitur wajib riset ≈ 3.5 dev-day = **~14.75
 
 ---
 
-## 6. Timeline Menuju 18 Oktober (HARD DEADLINE)
+## 6. Timeline to October 18 (HARD DEADLINE)
 
-Hari ini 14 Okt. Sisa 4 hari kerja + buffer.
+Today is Oct 14. 4 working days left + buffer.
 
-| Tanggal | Target | Output Kunci |
+| Date | Target | Key Output |
 |---|---|---|
-| **14 Okt (Hari 0)** | Kontrak API + honeypot test | PRD v2 + API-CONTRACTS v2 disepakati; angka honeypot empiris (sudah ada: 54%, n=80) |
-| **15 Okt (Hari 1)** | Intake → checklist → syllabus | Endpoint intake/checklist/syllabus jalan; PDF chunking + PDF-RAG |
-| **16 Okt (Hari 2)** | Reader + interview + honeypot | Chapter reader + guard; interview multi-turn + honeypot klasifikasi |
-| **17 Okt (Hari 3)** | Focus Mode + scoring + fallback | MediaPipe + auto-blur; calibration; final report; cached fallback |
-| **18 Okt (Hari 4)** | Deploy + video + deck + submit | Cloud Run live; video 3 menit; deck PDF; **submit sebelum 20:00 UTC+8** |
+| **Oct 14 (Day 0)** | API contract + honeypot test | PRD v2 + API-CONTRACTS v2 agreed; empirical honeypot numbers (already in hand: 54%, n=80) |
+| **Oct 15 (Day 1)** | Intake → checklist → syllabus | intake/checklist/syllabus endpoints live; PDF chunking + PDF-RAG |
+| **Oct 16 (Day 2)** | Reader + interview + honeypot | Chapter reader + guard; multi-turn interview + honeypot classification |
+| **Oct 17 (Day 3)** | Focus Mode + scoring + fallback | MediaPipe + auto-blur; calibration; final report; cached fallback |
+| **Oct 18 (Day 4)** | Deploy + video + deck + submit | Cloud Run live; 3-minute video; deck PDF; **submit before 20:00 UTC+8** |
 
 ---
 
 ## 7. Technical Specifications
 
 - **Stack:** Next.js 15 (App Router, TS, Tailwind) + FastAPI/Express; Gemini via Vertex AI / Google Gen AI SDK; Firestore (state + vector search).
-- **Hard requirement event:** model Google saja (Gemini/Gemma); dilarang `openai`/`anthropic`/`cohere` di `package.json`. Deploy di Cloud Run/Firebase.
-- **Structured output:** semua penilaian pakai JSON schema + function calling (ADR 002).
-- **Model routing:** Gemini Flash = gate/chunking/honeypot/follow-up cepat; Gemini Pro = evaluasi reasoning akhir + verifier (async).
-- **Bahasa submisi:** UI, README, deck, video **Inggris**. Dokumen internal boleh Indonesia.
-- **Data contracts:** lihat `API-CONTRACTS.md` (v2.0.0) — sumber tunggal untuk endpoint & schema.
+- **Event hard requirement:** Google models only (Gemini/Gemma); `openai`/`anthropic`/`cohere` are banned in `package.json`. Deploy on Cloud Run/Firebase.
+- **Structured output:** all grading uses JSON schema + function calling (ADR 002).
+- **Model routing:** Gemini Flash = gates/chunking/honeypot/fast follow-ups; Gemini Pro = final reasoning evaluation + verifier (async).
+- **Submission language:** UI, README, deck, video in **English**. Internal documents may stay in Indonesian.
+- **Data contracts:** see `API-CONTRACTS.md` (v2.0.0) — the single source for endpoints & schemas.
 
 ---
 
-## 8. Non-Goals (CUT dari MVP) & Roadmap
+## 8. Non-Goals (CUT from MVP) & Roadmap
 
-| Dibuang | Alasan | Nasib |
+| Dropped | Reason | Fate |
 |---|---|---|
-| Monaco + Piston + TDL (coding arena) | Gak muat 4 hari; bukan wedge | Roadmap slide |
-| DAG Skill Tree visual (ReactFlow) | Gak pembeda; chapter stepper gratis | Roadmap slide |
-| Dual-metric (2 skor) | Single + calibration gap lebih murah & kuat | Digantikan |
-| Voice / Gemini Live | Latency + biaya berisiko di live | Roadmap |
-| Auth kompleks / multi-user | 1 user demo cukup | Roadmap |
-| Multi-source input (video/audio) | PDF cukup buat demo | Roadmap |
+| Monaco + Piston + TDL (coding arena) | Does not fit in 4 days; not the wedge | Roadmap slide |
+| Visual DAG Skill Tree (ReactFlow) | Not a differentiator; chapter stepper is free | Roadmap slide |
+| Dual-metric (2 scores) | Single + calibration gap is cheaper & stronger | Replaced |
+| Voice / Gemini Live | Latency + cost are risky in a live demo | Roadmap |
+| Complex auth / multi-user | 1 demo user is enough | Roadmap |
+| Multi-source input (video/audio) | PDF is enough for the demo | Roadmap |
 
-**WAJIB ada walaupun 4 hari** (ini yang naikin Technical Merit 40%): eval harness + angka, verifier loop, calibration, cached fallback.
+**MANDATORY even in 4 days** (this is what lifts Technical Merit 40%): eval harness + numbers, verifier loop, calibration, cached fallback.
 
 ---
 
-## 9. Winning Playbook (Mapping ke Rubrik)
+## 9. Winning Playbook (Rubric Mapping)
 
-| Rubrik | Bobot | Yang nangkep |
+| Rubric | Weight | What earns it |
 |---|---|---|
-| Technical Merit & Gen AI | 40% | Eval harness + angka, verifier loop, model routing, structured output, MediaPipe (Google stack), Cloud Run. **Bukan UI.** |
-| Problem Alignment & Impact | 25% | Angka §1.1 (HEPI, RAND, PISA, Manpower) + story B2B |
-| Innovation & Creativity | 25% | Honeypot pedagogis + calibration gap + select-word Socratic |
-| UX & Solution Design | 10% | Accessible Mode + momen calibration slider + desain bersih |
+| Technical Merit & Gen AI | 40% | Eval harness + numbers, verifier loop, model routing, structured output, MediaPipe (Google stack), Cloud Run. **Not UI.** |
+| Problem Alignment & Impact | 25% | Numbers in §1.1 (HEPI, RAND, PISA, Manpower) + B2B story |
+| Innovation & Creativity | 25% | Pedagogical honeypot + calibration gap + select-word Socratic |
+| UX & Solution Design | 10% | Accessible Mode + the calibration slider moment + clean design |
 
-**Angka bukti (dari `reza-research/parts10/HASIL-TES-EMPIRIS.md`, JANGAN dikarang):**
-- Honeypot hallucination rate: **54%** (n=80 panggilan, 4 model). Per model: gemini-flash-medium 75%, deepseek-v4-pro 70%, deepseek-v4-flash 45%, deepseek-v4.1-flash 25%.
-- Trap efektivitas: **fictional_term 100%** (10 comply / 0 pushback / 2 error, n=12 valid), trap_number 58%, false_premise 25%, over_claim 25% (n=48).
-- Verifier loop: 13/20 halusinasi tertangkap (65%).
+**Evidence numbers (from `reza-research/parts10/HASIL-TES-EMPIRIS.md`, DO NOT fabricate):**
+- Honeypot hallucination rate: **54%** (n=80 calls, 4 models). Per model: gemini-flash-medium 75%, deepseek-v4-pro 70%, deepseek-v4-flash 45%, deepseek-v4.1-flash 25%.
+- Trap effectiveness: **fictional_term 100%** (10 comply / 0 pushback / 2 error, n=12 valid), trap_number 58%, false_premise 25%, over_claim 25% (n=48).
+- Verifier loop: 13/20 hallucinations caught (65%).
 - Structured output valid JSON: 4/4 (100%).
 
 > [!WARNING]
-> **JANGAN pakai angka karangan.** Deck v1 sempat menulis "91.3% / 640ms" dan demo script "sub-1.2s P95" — angka itu gak punya sumber. Semua angka di submisi harus bisa ditelusuri ke `eval/` atau `HASIL-TES-EMPIRIS.md`.
+> **DO NOT use made-up numbers.** Deck v1 briefly claimed "91.3% / 640ms" and the demo script "sub-1.2s P95" — those numbers have no source. Every number in the submission must be traceable to `eval/` or `HASIL-TES-EMPIRIS.md`.
 
 ---
 
 ## 10. Risks & Mitigations
 
-| # | Risiko | Level | Mitigasi |
+| # | Risk | Level | Mitigation |
 |---|---|---|---|
-| R1 | Scope kebesaran (14.75 dev-day vs 9.6 kapasitas) | 🔴 CRITICAL | Cut §8; buffer di Hari 4; jangan nambah fitur |
-| R2 | Honeypot gagal (LLM luar nolak halusinasi) | 🟠 HIGH | Pakai angka empiris; pin model paling mudah terpancing + term `fictional_term` (terkuat, 100% di n=12) |
-| R3 | LLM nilai LLM = subjektif | 🟠 HIGH | Deterministic classification (ADR 002) + verifier loop + appeal |
-| R4 | Gemini down / rate limit saat demo | 🟠 HIGH | `DEMO_MODE=cached` (2 skenario: sukses + copas-tertangkap) |
-| R5 | "Anti-cheat" dibongkar juri | 🟠 HIGH | Jangan klaim anti-cheat; jual "Focus Mode / integrity signal"; jujur no system is cheat-proof |
-| R6 | Aksesibilitas (blur/copy-block) | 🟡 MEDIUM | Accessible Mode toggle; skor ditandai `assisted` |
-| R7 | False positive honeypot ngehukum orang jujur | 🟡 MEDIUM | Honeypot = dimensi skor, bukan gate |
+| R1 | Scope too large (14.75 dev-days vs 9.6 capacity) | 🔴 CRITICAL | Cut §8; buffer on Day 4; add no new features |
+| R2 | Honeypot fails (external LLM refuses to hallucinate) | 🟠 HIGH | Use empirical numbers; pin the most gullible model + the `fictional_term` trap (strongest, 100% at n=12) |
+| R3 | LLM grading LLM = subjective | 🟠 HIGH | Deterministic classification (ADR 002) + verifier loop + appeal |
+| R4 | Gemini down / rate limit during demo | 🟠 HIGH | `DEMO_MODE=cached` (2 scenarios: success + copy-paste caught) |
+| R5 | "Anti-cheat" dismantled by the judges | 🟠 HIGH | Do not claim anti-cheat; sell "Focus Mode / integrity signal"; be honest that no system is cheat-proof |
+| R6 | Accessibility (blur/copy-block) | 🟡 MEDIUM | Accessible Mode toggle; score tagged `assisted` |
+| R7 | Honeypot false positives punish honest people | 🟡 MEDIUM | Honeypot = score dimension, not a gate |
 
-**Q&A defense:** lihat `AUDIT.md` §10 (script jawaban juri).
+**Q&A defense:** see `AUDIT.md` §10 (judge answer script).
 
 ---
 
 ## 11. Architecture Decision Records
 
-| ADR | Judul | Status |
+| ADR | Title | Status |
 |---|---|---|
 | 001 | Model selection (Flash vs Pro) | Accepted |
 | 002 | Deterministic hybrid guardrails vs pure LLM scoring | Accepted |
@@ -335,4 +315,4 @@ Hari ini 14 Okt. Sisa 4 hari kerja + buffer.
 | 004 | Role taxonomy seed + auto "Others" | Accepted |
 | 005 | Honeypot: deterministic catalog + generative variation | Accepted |
 
-Detail di `docs/adrs/`.
+Details in `docs/adrs/`.

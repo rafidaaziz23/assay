@@ -17,7 +17,7 @@
 │   │   Next.js 15 App Router        │                 │   Interactivity & Friction  │   │
 │   │   • Tailwind CSS + Lucide Icons│                 │   • Keystroke dynamics probe│   │
 │   │   • React Flow / @xyflow/react │                 │   • Paste event telemetry   │   │
-│   │     (Visualisasi DAG SkillTree)│                 │   • Audio/Timer controller  │   │
+ │   │     (DAG SkillTree visualizer)│                 │   • Audio/Timer controller  │   │
 │   └────────────────────────────────┘                 └─────────────────────────────┘   │
 └───────────────────────────────────────────┬────────────────────────────────────────────┘
                                             │ HTTPS / REST / Server-Sent Events (SSE)
@@ -54,7 +54,7 @@
 │                                                                                        │
 │   ┌────────────────────────────────────────────────────────────────────────────────┐   │
 │   │  Google Cloud Observability                                                    │   │
-│   │  • Google Cloud Logging (Audit log interogasi untuk bukti validasi juri)        │   │
+│   │  • Google Cloud Logging (Interrogation audit log as judge validation evidence)  │   │
 │   │  • Artifacts & Static Storage (Google Cloud Storage)                           │   │
 │   └────────────────────────────────────────────────────────────────────────────────┘   │
 └────────────────────────────────────────────────────────────────────────────────────────┘
@@ -62,30 +62,30 @@
 
 ---
 
-## 2. Rincian Detail Teknologi & Pemetaannya ke Fitur
+## 2. Technology Details & Feature Mapping
 
-Berikut adalah tabel pemetaan lengkap teknologi yang digunakan, versi yang direkomendasikan, alasan pemilihan, dan fitur spesifik yang didukung:
+The table below maps each technology used to its recommended version, the rationale for choosing it, and the specific features it supports:
 
-| Layer / Kategori | Komponen / Library | Versi | Dipakai untuk Fitur Apa? | Alasan & Justifikasi Teknis |
+| Layer / Category | Component / Library | Version | Used for Which Features? | Rationale & Technical Justification |
 |---|---|---|---|---|
-| **Frontend Framework** | **Next.js** (App Router) | `15.x` | Struktur utama dashboard, routing antar halaman belajar, dan layout responsif. | Standar industri modern, render cepat, SSR/CSR fleksibel, integrasi mudah dengan Cloud Run / Vercel. |
-| **Language (UI)** | **TypeScript** | `5.x` | Menjamin type safety kontrak data antara UI dan Backend. | Mencegah bug typo pada parsing skor, status node, dan response JSON dari AI. |
-| **Styling & Icons** | **Tailwind CSS + Lucide React** | `3.4+` | Tampilan tema gelap/terang, layout split-screen, ikon gembok 🔒, centang hijau, dan modal alarm merah. | Pembuatan UI bersih dan modern dalam hitungan menit tanpa overhead CSS manual yang rumit. |
-| **Graph Visualizer** | **React Flow** (`@xyflow/react`) | `12.x` | **Mastery Skill Tree (DAG)**: Menampilkan node materi yang saling terhubung (Kuning = Active, Abu-abu = Locked, Hijau = Mastered). | Library visualisasi graf paling interaktif, performan, mendukung animasi garis dependensi antar materi. |
-| **Client-Side Telemetry** | **Custom Hook** (`useFriction`) | Native JS | **Deteksi Copy-Paste & Keystroke**: Mengukur waktu paste dan kecepatan ketik user saat mengisi jawaban. | Mengidentifikasi jika teks panjang muncul instan dalam 0ms (`paste_detected: true`) untuk bukti input non-manual. |
-| **Backend Framework** | **FastAPI** (Python) atau **Express.js** (TypeScript) | Python `3.11` / Node `20` | Server API endpoint (`/modules/ingest`, `/interrogate/turn`, `/finalize`). | **Rekomendasi: FastAPI** karena integrasi Python dengan PyMuPDF dan SDK AI Google sangat cepat dan minim *boilerplate*. |
-| **Document Parser** | **PyMuPDF (`fitz`)** atau **LangChain TextSplitter** | `1.24+` | **PDF/Text Ingestion**: Membaca dokumen PDF kurikulum dan memecahnya menjadi *chunks* 300–500 kata. | Ekstraksi teks dari PDF sangat cepat (< 50ms per halaman) dan akurat tanpa merusak struktur paragraf. |
-| **Primary AI Engine** | **Google Gemini 2.5 Flash** | Model API | **1. Socratic Interrogator**<br>**2. Injeksi Honeypot**<br>**3. Evaluator Reasoning** | Latensi kilat (< 800ms per turn), hemat biaya token, penalaran kuat, dan memenuhi syarat mutlak juri Google Cloud. |
-| **AI SDK & Protocol** | **`google-genai`** (Google Gen AI SDK) | Official | Penghubung backend ke Gemini API via Vertex AI atau Google AI Studio. | SDK resmi generasi terbaru dari Google yang mendukung parameter `response_schema` untuk JSON murni. |
-| **Structured Output** | **Pydantic (Python) / Zod (TS)** | Pydantic v2 | **Deterministic JSON Schema**: Menjamin output Gemini berupa format JSON terstruktur tanpa markdown wrapper. | Mencegah error parsing JSON (`JSON.parse error`) yang sering membuat demo hackathon gagal di hadapan juri. |
-| **Session State** | **In-Memory Dict / SQLite** | Built-in | Menyimpan status sesi belajar pengguna (riwayat chat interogasi, status node yang terbuka). | Tidak memerlukan setup database cloud yang memakan waktu konfigurasi dalam sprint 4 hari. |
-| **Demo Resilience** | **Local Cache Mock (`DEMO_MODE`)** | Custom JSON | **Offline Fallback Engine**: Menyajikan respons simulasi jika kuota API habis atau internet lempar error HTTP 429. | Menjamin live demo 100% anti-blank saat dinilai oleh dewan juri (meniru pola juara *Chop* & *KalaSarthi*). |
-| **Hosting & Container** | **Google Cloud Run** | Serverless | Menghosting image Docker backend dan frontend di region Singapura (`asia-southeast1`). | **Syarat mutlak kompetisi**; auto-scale to zero, mendukung HTTPS otomatis, terhubung langsung ke Cloud Logging. |
-| **Benchmarking Suite** | **Python Benchmark Script** | `requests` / `time` | **Folder `benchmarks/`**: Mengukur mean latensi, P95, dan tingkat akurasi Honeypot dari 50 request loop. | **Kunci mengunci nilai Technical Merit (40%)**, meniru formula kemenangan juara 1 terdahulu (*Padayon Ko*). |
+| **Frontend Framework** | **Next.js** (App Router) | `15.x` | Main dashboard structure, routing between learning pages, and responsive layout. | Modern industry standard, fast rendering, flexible SSR/CSR, easy integration with Cloud Run / Vercel. |
+| **Language (UI)** | **TypeScript** | `5.x` | Guarantees type safety for data contracts between UI and Backend. | Prevents typo bugs when parsing scores, node status, and JSON responses from the AI. |
+| **Styling & Icons** | **Tailwind CSS + Lucide React** | `3.4+` | Dark/light theme, split-screen layout, lock icon 🔒, green checkmarks, and red alert modals. | Clean, modern UI built in minutes without heavy hand-written CSS overhead. |
+| **Graph Visualizer** | **React Flow** (`@xyflow/react`) | `12.x` | **Mastery Skill Tree (DAG)**: renders interconnected material nodes (Yellow = Active, Gray = Locked, Green = Mastered). | The most interactive, performant graph visualization library; supports animated dependency edges between materials. |
+| **Client-Side Telemetry** | **Custom Hook** (`useFriction`) | Native JS | **Copy-Paste & Keystroke Detection**: measures paste timing and typing speed while the user answers. | Flags long text appearing instantly in 0ms (`paste_detected: true`) as evidence of non-manual input. |
+| **Backend Framework** | **FastAPI** (Python) or **Express.js** (TypeScript) | Python `3.11` / Node `20` | API server endpoints (`/modules/ingest`, `/interrogate/turn`, `/finalize`). | **Recommendation: FastAPI** — Python integrates with PyMuPDF and the Google AI SDK quickly and with minimal *boilerplate*. |
+| **Document Parser** | **PyMuPDF (`fitz`)** or **LangChain TextSplitter** | `1.24+` | **PDF/Text Ingestion**: reads curriculum PDF documents and splits them into 300–500 word *chunks*. | PDF text extraction is fast (< 50ms per page) and accurate without breaking paragraph structure. |
+| **Primary AI Engine** | **Google Gemini 2.5 Flash** | Model API | **1. Socratic Interrogator**<br>**2. Honeypot Injection**<br>**3. Evaluator Reasoning** | Blazing latency (< 800ms per turn), token-efficient, strong reasoning, and satisfies the Google Cloud mandatory requirement. |
+| **AI SDK & Protocol** | **`google-genai`** (Google Gen AI SDK) | Official | Connects the backend to the Gemini API via Vertex AI or Google AI Studio. | Google's latest official SDK, supporting the `response_schema` parameter for pure JSON. |
+| **Structured Output** | **Pydantic (Python) / Zod (TS)** | Pydantic v2 | **Deterministic JSON Schema**: guarantees Gemini output is structured JSON with no markdown wrapper. | Prevents the JSON parsing errors (`JSON.parse error`) that commonly sink hackathon demos in front of judges. |
+| **Session State** | **In-Memory Dict / SQLite** | Built-in | Stores the user's learning session state (interrogation chat history, unlocked node status). | No cloud database setup, which would burn configuration time in a 4-day sprint. |
+| **Demo Resilience** | **Local Cache Mock (`DEMO_MODE`)** | Custom JSON | **Offline Fallback Engine**: serves simulated responses when the API quota runs out or the network throws an HTTP 429. | Guarantees a 100% anti-blank live demo during judging (mirroring the winning pattern of *Chop* & *KalaSarthi*). |
+| **Hosting & Container** | **Google Cloud Run** | Serverless | Hosts the backend and frontend Docker images in the Singapore region (`asia-southeast1`). | **Mandatory competition requirement**; auto-scale to zero, automatic HTTPS, direct Cloud Logging integration. |
+| **Benchmarking Suite** | **Python Benchmark Script** | `requests` / `time` | **`benchmarks/` folder**: measures mean latency, P95, and honeypot accuracy over a 50-request loop. | **The key to locking in the Technical Merit score (40%)**, mirroring the previous 1st-place winning formula (*Padayon Ko*). |
 
 ---
 
-## 3. Alur Komunikasi Antar Komponen (Step-by-Step Data Pipeline)
+## 3. Inter-Component Communication Flow (Step-by-Step Data Pipeline)
 
 ```
 1. USER UPLOAD
@@ -137,11 +137,11 @@ Berikut adalah tabel pemetaan lengkap teknologi yang digunakan, versi yang direk
 
 ---
 
-## 4. Keunggulan Arsitektur Ini di Hadapan Dewan Juri
+## 4. Why This Architecture Holds Up in Front of the Judges
 
-1. **Memenuhi 100% Syarat Mutlak Panitia:**
-   Menggunakan **Google Gemini 2.5 Flash** sebagai otak utama dan dihosting di **Google Cloud Run**. Tidak ada library kompetitor (`openai`, `anthropic`) yang terpasang di dependensi.
-2. **Deterministic Guardrails (Bukan Cuma Prompt Biasa):**
-   Penilaian bukan semata-mata AI mengarang angka, melainkan kombinasi **telemetri client-side (paste detection) + klasifikasi kategori diskrit (Critical vs Copypaste)**. Ini menjawab kekhawatiran juri mengenai "AI yang suka berhalusinasi memberi nilai".
-3. **Resiliensi Tinggi (Offline Simulation):**
-   Dengan adanya flag `DEMO_MODE=cached`, aplikasi tetap berjalan mulus meskipun juri menguji tanpa koneksi API yang stabil.
+1. **Meets 100% of the Organizers' Mandatory Requirements:**
+   Uses **Google Gemini 2.5 Flash** as the primary engine and is hosted on **Google Cloud Run**. No competitor libraries (`openai`, `anthropic`) are installed in the dependencies.
+2. **Deterministic Guardrails (Not Just Prompts):**
+   Scoring is not just an AI inventing numbers; it combines **client-side telemetry (paste detection) + discrete category classification (Critical vs Copypaste)**. This answers the judges' concern about "AI that hallucinates grades".
+3. **High Resilience (Offline Simulation):**
+   With the `DEMO_MODE=cached` flag, the app keeps running smoothly even when judges test it without a stable API connection.

@@ -1,158 +1,159 @@
 # DEV3 OVERNIGHT BRIEF — Assay (AI Engine & Eval)
 
-Kontrak kerja buat run semalaman tanpa manusia. Dibaca **di awal tiap run**, bukan sekali.
-Kalau brief ini dan ingatan/tebakanmu berbeda, **brief ini yang benar**.
+Working contract for an unattended overnight run. Read it **at the start of every run**, not once.
+If this brief and your memory/guess disagree, **the brief wins**.
 
-- **Repo:** `D:/Project/assay` (ini repo produk; yang di `ai-builder-cup-research` cuma spek)
-- **Sumber rencana:** `D:/Project/ai-builder-cup-research/active-learning-engine/DEV3-ROADMAP.md`
-- **Otoritas dokumen:** `DEV3-ROADMAP.md` §1 → `docs/architecture/API-CONTRACTS.md` (LOCKED) → `docs/product/PRD.md`
-  → ADR `docs/adrs/001..005`. Kalau bertabrakan: **API-CONTRACTS menang**.
-- **Gate:** `tools\gate-dev3.cmd` (wajib; exit 0 = hijau)
-- **Jejak:** `docs/logs/DEV3-OVERNIGHT-LOG.md` — satu entri per unit, ditulis SEBELUM lanjut
-- **Mulai:** 2026-10-14 malam
+- **Repo:** `D:/Project/assay` (the product repo; `ai-builder-cup-research` only holds the spec)
+- **Plan source:** `D:/Project/ai-builder-cup-research/active-learning-engine/DEV3-ROADMAP.md`
+- **Document authority:** `DEV3-ROADMAP.md` §1 → `docs/architecture/API-CONTRACTS.md` (LOCKED) → `docs/product/PRD.md`
+  → ADRs `docs/adrs/001..005`. On conflict: **API-CONTRACTS wins**.
+- **Gate:** `tools\gate-dev3.cmd` (mandatory; exit 0 = green)
+- **Trace:** `docs/logs/DEV3-OVERNIGHT-LOG.md` — one entry per unit, written BEFORE moving on
+- **Start:** evening of 2026-10-14
 
-## 0a. Mode kerja & keputusan run (dari Reza)
+## 0a. Work mode & run decisions (from Reza)
 
-- **Ini `/goal` loop.** Tiap akhir turn, judge ngecek goal. Kalau belum kelar, lu auto-lanjut.
-  **Jangan berhenti dan nanya** — kerjakan unit berikutnya sampai habis budget atau goal `done`.
-- **Scope malam ini:** Hari 0–2 (H0.x, H1.x, H2.x). Hari 3 (H3.x) **hanya kalau** semua H0–H2
-  `DONE` dan masih ada waktu. Jangan mulai H3 sebelum H0–H2 beres.
-- **Commit lokal, jangan push.** Pesan commit + komentar kode **wajib bahasa Inggris** (commit
-  `feat(ai): ...`; komentar kode English). Isi log/brief boleh Indonesia.
-- **API key = HEMAT.** Live call cuma buat 1–2 bukti per unit (yang emang butuh model). Sisanya
-  offline/cached. Tiga key di `.env`, urutan rotasi: `GOOGLE_API_KEY` → `GOOGLE_API_KEY_FALLBACK`
-  → `GOOGLE_API_KEY_FALLBACK_2`. Kalau satu key balik `429`/`RESOURCE_EXHAUSTED`, langsung pakai
-  key berikutnya; kalau ketiganya habis, tandai unit yang butuh live sebagai `BLOCKED (quota)` dan
-  lanjut unit offline.
-- **Jaring pengaman:** cron `assay-dev3-watchdog` kirim ringkasan log ke Telegram tiap 15 menit
-  kalau ada perubahan. Kalau lu lihat pesan STUCK, tulis di log dan coba lanjut.
+- **This is a `/goal` loop.** At the end of every turn the judge checks the goal. If it is not done, you continue automatically.
+  **Do not stop and ask** — work the next unit until the budget runs out or the goal is `done`.
+- **Tonight's scope:** Days 0–2 (H0.x, H1.x, H2.x). Day 3 (H3.x) **only if** every H0–H2 unit is
+  `DONE` and there is still time. Do not start H3 before H0–H2 are finished.
+- **Commit locally, do not push.** Commit messages + code comments **must be in English** (commit
+  `feat(ai): ...`; code comments in English). Log/brief prose is in English too.
+- **API key = FRUGAL.** Live calls only for 1–2 pieces of evidence per unit (the ones that genuinely need the model). Everything else
+  offline/cached. Three keys in `.env`, rotation order: `GOOGLE_API_KEY` → `GOOGLE_API_KEY_FALLBACK`
+  → `GOOGLE_API_KEY_FALLBACK_2`. If a key returns `429`/`RESOURCE_EXHAUSTED`, switch to the
+  next key immediately; if all three are exhausted, mark the unit that needs live calls as `BLOCKED (quota)` and
+  continue with offline units.
+- **Safety net:** the `assay-dev3-watchdog` cron sends a log summary to Telegram every 15 minutes
+  if something changed. If you see a STUCK message, write it in the log and try to continue.
 
 ---
 
-## 0. Aturan keras (pelanggaran = run gagal)
+## 0. Hard rules (a violation = failed run)
 
-1. **HANYA tulis di:** `ai/`, `prompts/`, `eval/`, `tools/gate-dev3.cmd`, `docs/logs/DEV3-*.md`,
-   `ai/MODELS.md`, `ai/FIXTURES.md`. **JANGAN sentuh** `frontend/`, `backend/`, `docs/*` lain,
-   `.gitignore`, `package.json`, `README.md`. Itu milik DEV 1 / DEV 2.
-2. **Google-only di runtime produk.** Cuma `google-genai` SDK. Nol provider lain di `ai/` atau `backend/`.
-3. **Nol rahasia di file yang bisa ke-commit.** API key ada di `D:/Project/assay/.env` (gitignored).
-   Baca dari situ; jangan cetak nilainya; jangan tulis ke brief/log/commit. Nol chat id / token di repo.
-4. **Nol angka karangan.** Angka apa pun cuma boleh dari `eval/results/` atau
-   `ai-builder-cup-research/reza-research/parts10/HASIL-TES-EMPIRIS.md`. Dilarang bikin angka baru.
-5. **Commit lokal per unit, JANGAN push.** Remote itu repo tim. `git add <file unit>` saja,
-   conventional message (`feat(ai): ...` / `test(eval): ...`). Jangan `git add -A` buta, jangan `--force`.
-6. **Jangan pernah nanya manusia, jangan nunggu approval.** Kalau kepepet: catat blocker di log,
-   tandai unit `BLOCKED`, lanjut unit berikutnya yang masih bisa dikerjakan.
-7. **Pure function.** Semua di `ai/` tanpa I/O jaringan kecuali panggilan model. Gampang dites.
-8. **Gate hijau itu syarat**, bukan bonus. Unit baru boleh ditandai `DONE` setelah gate hijau.
+1. **Write ONLY in:** `ai/`, `prompts/`, `eval/`, `tools/gate-dev3.cmd`, `docs/logs/DEV3-*.md`,
+   `ai/MODELS.md`, `ai/FIXTURES.md`. **DO NOT touch** `frontend/`, `backend/`, other `docs/*`,
+   `.gitignore`, `package.json`, `README.md`. Those belong to DEV 1 / DEV 2.
+2. **Google-only in the product runtime.** Only the `google-genai` SDK. Zero other providers in `ai/` or `backend/`.
+3. **Zero secrets in committable files.** API keys live in `D:/Project/assay/.env` (gitignored).
+   Read from there; never print the values; never write them into the brief/log/commits. Zero chat IDs / tokens in the repo.
+4. **Zero invented numbers.** Any number may only come from `eval/results/` or
+   `ai-builder-cup-research/reza-research/parts10/HASIL-TES-EMPIRIS.md`. Inventing new numbers is forbidden.
+5. **Local commit per unit, DO NOT push.** The remote is the team repo. `git add <unit files>` only,
+   conventional message (`feat(ai): ...` / `test(eval): ...`). No blind `git add -A`, no `--force`.
+6. **Never ask a human, never wait for approval.** If stuck: record the blocker in the log,
+   mark the unit `BLOCKED`, and continue with the next unit that can still be done.
+7. **Pure functions.** Everything in `ai/` does no network I/O except model calls. Easy to test.
+8. **A green gate is a requirement**, not a bonus. A unit may only be marked `DONE` after the gate is green.
 
-## 1. Setup tiap run (5 detik)
+## 1. Per-run setup (5 seconds)
 
 ```bash
 cd /d/Project/assay
 PY=.venv/Scripts/python.exe
-[ -x "$PY" ] || echo "VENV BELUM ADA — lihat unit H0.1"
+[ -x "$PY" ] || echo "VENV MISSING — see unit H0.1"
 ```
 
-Kalau `.venv` belum ada: kerjakan **H0.1** dulu (bikin venv + install), itu prasyarat semua unit.
+If `.venv` does not exist: do **H0.1** first (create the venv + install), it is a prerequisite for every unit.
 
-## 2. Cara milih unit
+## 2. How to pick a unit
 
-1. Baca `docs/logs/DEV3-OVERNIGHT-LOG.md` — cari unit pertama yang **belum** `DONE`.
-2. Kerjakan **SATU unit** itu sampai kelar + gate hijau. Jangan kerjakan dua unit sekaligus.
-3. Kalau unit besar (mis. H0.3), boleh selesai di run ini saja; jangan pindah sebelum `DONE`.
-4. Tulis entri log (format §5), commit lokal, lalu **akhiri run** dengan status 3 baris (§6).
+1. Read `docs/logs/DEV3-OVERNIGHT-LOG.md` — find the first unit that is **not** `DONE`.
+2. Finish **that ONE unit** plus a green gate. Do not work two units at once.
+3. If the unit is large (e.g. H0.3), it may take the whole run; do not move on before `DONE`.
+4. Write the log entry (format §5), commit locally, then **end the run** with the 3-line status (§6).
 
-## 3. Daftar unit (urut; kerjakan dari atas)
+## 3. Unit list (in order; work from the top)
 
-Tiap unit punya **aksi**, **artefak**, **"DONE kalau"** (verifikasi konkret). Ambil dari
-`DEV3-ROADMAP.md` §2–§5; ringkasannya di bawah supaya run nggak perlu baca ulang tiap kali
-(baca roadmap kalau butuh detail).
+Every unit has an **action**, **artifacts**, and **"DONE when"** (concrete verification). Taken from
+`DEV3-ROADMAP.md` §2–§5; summarized below so a run does not have to re-read them every time
+(read the roadmap when you need detail).
 
-### HARI 0 — setup & baseline
-| ID | Aksi | DONE kalau |
+### DAY 0 — setup & baseline
+| ID | Action | DONE when |
 |---|---|---|
-| H0.1 | `.venv` (python 3.11/3.12) + install `google-genai pytest pytest-asyncio python-dotenv pymupdf reportlab pypdf`. Tulis `ai/MODELS.md` (ID model persis + samakan ADR 001). | `.venv/Scripts/python.exe -c "import google.genai, fitz, pytest"` sukses; `ai/MODELS.md` ada |
-| H0.2 | `eval/smoke_structured.py`: panggil Flash pakai `response_schema` dari API-CONTRACTS §4, parse JSON. Mode `--offline` = validasi schema lokal (nol jaringan). | `python eval/smoke_structured.py` cetak `JSON OK` tanpa exception |
-| H0.3 | Stub SEMUA fungsi `DEV3-ROADMAP §1` di `ai/__init__.py` (balikin fixture statis shape API-CONTRACTS) + `ai/FIXTURES.md` (contoh output tiap fungsi). | `python -c "import ai; ai.classify_intent('x')"` balik dict ber-shape; FIXTURES.md ada |
-| H0.4 | `eval/classify.py`: port logika regex dari `reza-research/parts10/honeypot_test.py` (REFUSE/HEDGE/HALLUCINATE/ERROR). **Jangan ubah definisi label** (biar bisa dibanding baseline n=80). | fungsi `classify(text)` ada; unit test kecil hijau |
-| H0.5 | `prompts/honeypot-catalog.json`: 10 term fiktif dipetakan ke topik (ADR 005). Term boleh ambil dari `honeypot_test.py` TERMS + yang sudah ada di `backend/app/services/honeypot_catalog.py` (jangan ubah file backend itu). | file JSON valid, 10 entri, tiap entri ada `term`+`category`+`trap_type`+`expected_action` |
+| H0.1 | `.venv` (python 3.11/3.12) + install `google-genai pytest pytest-asyncio python-dotenv pymupdf reportlab pypdf`. Write `ai/MODELS.md` (exact model IDs + align with ADR 001). | `.venv/Scripts/python.exe -c "import google.genai, fitz, pytest"` succeeds; `ai/MODELS.md` exists |
+| H0.2 | `eval/smoke_structured.py`: call Flash with the `response_schema` from API-CONTRACTS §4, parse the JSON. `--offline` mode = local schema validation (zero network). | `python eval/smoke_structured.py` prints `JSON OK` without an exception |
+| H0.3 | Stub ALL functions from `DEV3-ROADMAP §1` in `ai/__init__.py` (return static fixtures in the API-CONTRACTS shape) + `ai/FIXTURES.md` (sample output per function). | `python -c "import ai; ai.classify_intent('x')"` returns a dict with the right shape; FIXTURES.md exists |
+| H0.4 | `eval/classify.py`: port the regex logic from `reza-research/parts10/honeypot_test.py` (REFUSE/HEDGE/HALLUCINATE/ERROR). **Do not change the label definitions** (so results stay comparable to the n=80 baseline). | a `classify(text)` function exists; the small unit test is green |
+| H0.5 | `prompts/honeypot-catalog.json`: 10 fictional terms mapped to topics (ADR 005). Terms may come from the `honeypot_test.py` TERMS + those already in `backend/app/services/honeypot_catalog.py` (do not modify that backend file). | valid JSON file, 10 entries, each entry has `term`+`category`+`trap_type`+`expected_action` |
 
-### HARI 1 — intake → checklist → syllabus
-| ID | Aksi | DONE kalau |
+### DAY 1 — intake → checklist → syllabus
+| ID | Action | DONE when |
 |---|---|---|
-| H1.1 | `ai.classify_intent` (ADR 004): intent → `role_guess` dari 9 seed + `suggested_others`. | 10 intent uji (5 seed, 5 aneh) → `suggested_others` bener ≥ 9/10; tulis `eval/results/intent_cases.jsonl` |
-| H1.2 | `ai.gen_checklist`: item + `origin` (`document`/`role_taxonomy`/`grounded_external`) + `confidence`. | 1 intent + 1 PDF → ≥ 3 item, tiap item `origin` valid |
-| H1.3 | `ai.index_document`: ekstraksi teks + **nomor halaman** (page-anchored, PyMuPDF). | PDF contoh → tiap chunk punya `page`; total halaman cocok PDF asli |
-| H1.4 | `ai.synth_syllabus`: chapter `title/order/objectives/estimated_reading_minutes/source_pages`. Jalur tanpa PDF → `source_mode: role_taxonomy_generated`. | 2 run (dengan & tanpa PDF) → ≥ 3 chapter, `source_pages` ada di jalur PDF, `source_mode` bener |
-| H1.5 | Grounding eksternal Google Search untuk **1 chapter saja**, hasil `cached: true`. | `references[]` punya 1 `grounded_external` `cached: true`; matikan jaringan → fallback cache, nol exception |
+| H1.1 | `ai.classify_intent` (ADR 004): intent → `role_guess` from the 9 seeds + `suggested_others`. | 10 test intents (5 seed, 5 odd) → correct `suggested_others` ≥ 9/10; write `eval/results/intent_cases.jsonl` |
+| H1.2 | `ai.gen_checklist`: items + `origin` (`document`/`role_taxonomy`/`grounded_external`) + `confidence`. | 1 intent + 1 PDF → ≥ 3 items, every item has a valid `origin` |
+| H1.3 | `ai.index_document`: text extraction + **page numbers** (page-anchored, PyMuPDF). | sample PDF → every chunk has a `page`; total pages match the real PDF |
+| H1.4 | `ai.synth_syllabus`: chapter `title/order/objectives/estimated_reading_minutes/source_pages`. No-PDF path → `source_mode: role_taxonomy_generated`. | 2 runs (with & without PDF) → ≥ 3 chapters, `source_pages` present on the PDF path, correct `source_mode` |
+| H1.5 | External grounding via Google Search for **1 chapter only**, results `cached: true`. | `references[]` has 1 `grounded_external` with `cached: true`; cut the network → falls back to cache, zero exceptions |
 
-### HARI 2 — reader ask + interview + honeypot
-| ID | Aksi | DONE kalau |
+### DAY 2 — reader ask + interview + honeypot
+| ID | Action | DONE when |
 |---|---|---|
-| H2.1 | `ai.socratic_ask`: balik nanya/hint, **tidak** jawab langsung. | 10 pertanyaan uji → `gave_direct_answer == False` di 10/10 |
-| H2.2 | `ai.suggest_questions`: seleksi multi-kata → 3 pertanyaan relevan, nggak duplikat. | seleksi "reconciliation and diffing" → 3 pertanyaan unik |
-| H2.3 | Interview prompt multi-turn (2–3 ronde, HOTS + follow-up adaptif), simpan riwayat, `running_score` naik. | `start_interview`/`interview_turn` balik shape §2.5 |
-| H2.4 | `ai.pick_honeypot_term` (lookup katalog + variasi ADR 005, rotasi per sesi) + `ai.classify_honeypot` (4 kelas → poin tetap). | Kasus A copas → `AI_HALLUCINATION_COPYPASTE` −2; Kasus B nolak → `CRITICAL_REJECTION` +2; Kasus C "gak tau" → `UNVERIFIED_HONEST` 0 |
-| H2.5 | `ai.score_chapter`: `clamp(reasoning_score + honeypot_points + integrity_adjustment, 0, 100)`; `integrity_adjustment = {clean:0, assisted:-3, assisted_unverified:0}`. Tulis keputusan ini sebagai komentar `# ponytail:` di kode. | tabel kasus (80/−2/assisted) → hasil sesuai rumus |
-| H2.6 | `ai.verify_score`: model kedua (Pro) → `status: agreed|uncertain` + note. | 5 skor uji → semua balik `status` valid, nol exception |
+| H2.1 | `ai.socratic_ask`: answers with a question/hint, does **not** answer directly. | 10 test questions → `gave_direct_answer == False` in 10/10 |
+| H2.2 | `ai.suggest_questions`: multi-word selection → 3 relevant, non-duplicate questions. | selection "reconciliation and diffing" → 3 unique questions |
+| H2.3 | Multi-turn interview prompt (2–3 rounds, HOTS + adaptive follow-up), keep history, `running_score` rises. | `start_interview`/`interview_turn` return the §2.5 shape |
+| H2.4 | `ai.pick_honeypot_term` (catalog lookup + ADR 005 variation, rotate per session) + `ai.classify_honeypot` (4 classes → fixed points). | Case A copy-paste → `AI_HALLUCINATION_COPYPASTE` −2; Case B rejection → `CRITICAL_REJECTION` +2; Case C "don't know" → `UNVERIFIED_HONEST` 0 |
+| H2.5 | `ai.score_chapter`: `clamp(reasoning_score + honeypot_points + integrity_adjustment, 0, 100)`; `integrity_adjustment = {clean:0, assisted:-3, assisted_unverified:0}`. Record this decision as a `# ponytail:` comment in the code. | case table (80/−2/assisted) → results match the formula |
+| H2.6 | `ai.verify_score`: second model (Pro) → `status: agreed|uncertain` + note. | 5 test scores → all return a valid `status`, zero exceptions |
 
-### HARI 3 — stretch (kalau H0–H2 semua DONE dan masih ada waktu)
-| ID | Aksi | DONE kalau |
+### DAY 3 — stretch (only if H0–H2 are all DONE and there is still time)
+| ID | Action | DONE when |
 |---|---|---|
-| H3.1 | `ai.calibration_label`: `overconfident` (pred > actual+15), `underconfident` (pred < actual−15), `well_calibrated`. | 3 kasus batas (gap 20/−20/5) label bener |
-| H3.2 | Appeal handler stub: `{appeal_id, status:"under_review", reviewer:"verifier_model", possible_outcome:[...]}`. | balik shape §2.8 |
-| H3.3 | `eval/harness.py` (caller threaded workers=5) + `run_honeypot.py`, `run_traps.py`, `run_verifier.py`, `run_structured.py` + `eval/report.py` → tabel markdown. Jalan **atas model Google produk** (Flash/Pro). | `python eval/report.py` → tabel keluar, tiap baris ada `n`, nol angka tanpa `n` |
-| H3.4 | Kunci angka: bandingkan produk vs baseline riset, catat kenapa kalau beda. Kasih tabel final di log. | tabel final ada di `eval/results/` + log |
+| H3.1 | `ai.calibration_label`: `overconfident` (pred > actual+15), `underconfident` (pred < actual−15), `well_calibrated`. | 3 boundary cases (gap 20/−20/5) get the right label |
+| H3.2 | Appeal handler stub: `{appeal_id, status:"under_review", reviewer:"verifier_model", possible_outcome:[...]}`. | returns the §2.8 shape |
+| H3.3 | `eval/harness.py` (threaded caller, workers=5) + `run_honeypot.py`, `run_traps.py`, `run_verifier.py`, `run_structured.py` + `eval/report.py` → markdown table. Runs **against the product's Google models** (Flash/Pro). | `python eval/report.py` → table is produced, every row has `n`, zero numbers without `n` |
+| H3.4 | Lock the numbers: compare the product against the research baseline, record why if they differ. Put the final table in the log. | final table in `eval/results/` + the log |
 
 ## 4. Gate
 
 ```cmd
 tools\gate-dev3.cmd
 ```
-Hijau = exit 0. Isinya (offline, < 300s): `import ai` + `pytest eval/tests -q` (kalau ada)
-+ validasi `prompts/honeypot-catalog.json`. Kalau merah: baca output, perbaiki, ulang.
-**Maks 3 percobaan per unit.** Kalau masih merah → tandai unit `BLOCKED`, tulis apa adanya di log, lanjut.
+Green = exit 0. It checks (offline, < 300s): `import ai` + `pytest eval/tests -q` (if present)
++ validation of `prompts/honeypot-catalog.json`. If red: read the output, fix it, re-run.
+**Max 3 attempts per unit.** If it is still red → mark the unit `BLOCKED`, write it up as-is in the log, move on.
 
-Gate ini **offline** — dia nggak nguji panggilan model. Kalau unit butuh bukti live (grounding, verdict),
-jalankan skrip verifikasinya manual dan **tempel hasil mentahnya di log**. Jangan klaim "live OK" tanpa output.
+This gate is **offline** — it does not exercise model calls. If a unit needs live evidence (grounding, verdict),
+run its verification script manually and **paste the raw output into the log**. Never claim "live OK" without output.
 
-## 5. Format entri log (append ke `docs/logs/DEV3-OVERNIGHT-LOG.md`)
-
-```
-### <ID> — <judul> — <DONE|BLOCKED|PARTIAL> — <YYYY-MM-DD HH:MM WIB>
-- Aksi: <1-2 baris>
-- Artefak: <file yang dibuat/diubah>
-- Bukti: <perintah + hasil mentah singkat (gate output / verifikasi live)>
-- Catatan: <keputusan, konflik kontrak, risiko>
-```
-
-## 6. Status akhir run (WAJIB, jadi isi pesan Telegram)
-
-Akhiri tiap run dengan TEPAT 3 baris, singkat:
+## 5. Log entry format (append to `docs/logs/DEV3-OVERNIGHT-LOG.md`)
 
 ```
-[DEV3] unit=<ID> status=<DONE|BLOCKED|PARTIAL> gate=<HIJAU|MERAH>
-sisa: <n unit belum DONE> — berikutnya <ID>
-<1 baris kalau ada blocker/keputusan penting, kalau tidak tulis "oke">
+### <ID> — <title> — <DONE|BLOCKED|PARTIAL> — <YYYY-MM-DD HH:MM WIB>
+- Action: <1-2 lines>
+- Artifacts: <files created/changed>
+- Evidence: <command + short raw result (gate output / live verification)>
+- Notes: <decisions, contract conflicts, risks>
 ```
 
-## 7. Kapan berhenti (stop condition)
+## 6. End-of-run status (MANDATORY, it becomes the Telegram message)
 
-- **H0–H2 hijau ≠ selesai.** Jangan berhenti setelah H0–H2. Lanjut ke H3 (H3.1–H3.4) selama budget masih ada.
-- **Bounded.** Berhenti buka unit baru jam **07:00 WIB**. Kalau jam segitu belum lewat dan masih ada unit: lanjut.
-- Kalau semua unit H0–H3 `DONE` → tulis closing summary di log, lalu **pause job-nya sendiri**:
+End every run with EXACTLY 3 lines, short:
+
+```
+[DEV3] unit=<ID> status=<DONE|BLOCKED|PARTIAL> gate=<GREEN|RED>
+remaining: <n units not DONE> — next <ID>
+<1 line if there is a blocker/key decision, otherwise write "ok">
+```
+(`gate=` reports the gate's own verdict; the gate tool prints `GATE HIJAU` / `GATE MERAH`, i.e. green / red.)
+
+## 7. When to stop (stop condition)
+
+- **H0–H2 green ≠ done.** Do not stop after H0–H2. Continue to H3 (H3.1–H3.4) while there is still budget.
+- **Bounded.** Stop starting new units at **07:00 WIB**. If that time has not passed and units remain: continue.
+- If every H0–H3 unit is `DONE` → write the closing summary in the log, then **pause the job yourself**:
   ```bash
-  hermes cron list            # cari id job 'assay-dev3'
+  hermes cron list            # find the 'assay-dev3' job id
   hermes cron pause <id>
   ```
-  dan akhiri run dengan `[DEV3] SELESAI — semua unit DONE`.
-- Kalau unit `BLOCKED` dan nggak ada unit lain yang bisa dikerjakan → tulis closing summary + pause job.
-- Kalau gate merah 3× di unit yang sama → `BLOCKED`, lanjut unit lain (jangan berhenti total).
+  and end the run with `[DEV3] DONE — all units complete`.
+- If a unit is `BLOCKED` and no other unit can be worked → write the closing summary + pause the job.
+- If the gate is red 3× on the same unit → `BLOCKED`, move to another unit (do not stop entirely).
 
-## 8. Yang TIDAK dijamin / di luar scope
+## 8. Not guaranteed / out of scope
 
-- `frontend/` dan `backend/` (DEV 1 / DEV 2). Kalau butuh endpoint baru → catat di log, jangan bikin.
-- Push ke remote (repo tim). Commit lokal saja.
-- Video/deck/pitch. Itu DEV 1.
-- Angka baru di luar `eval/results/` dan `HASIL-TES-EMPIRIS.md`.
+- `frontend/` and `backend/` (DEV 1 / DEV 2). If you need a new endpoint → note it in the log, do not build it.
+- Pushing to the remote (team repo). Local commits only.
+- Video/deck/pitch. That is DEV 1.
+- New numbers outside `eval/results/` and `HASIL-TES-EMPIRIS.md`.
